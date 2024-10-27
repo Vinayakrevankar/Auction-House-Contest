@@ -1,0 +1,1066 @@
+openapi: 3.0.0
+info:
+  version: '1.0.0'
+  title: Auction House API
+  description: API documentation for the Auction House system.
+servers:
+  - url: http://localhost:8000
+paths:
+  /api/sellers:
+    post:
+      summary: Create a seller account
+      tags:
+        - Sellers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SellerCreationRequest'
+      responses:
+        '201':
+          description: Seller account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seller'
+  /api/verify:
+    post:
+      summary: Create a seller account
+      tags:
+        - Sellers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTP'
+      responses:
+        '201':
+          description: Verified successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Seller'
+  /api/sellers/login:
+    post:
+      summary: Seller login
+      tags:
+        - Sellers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /api/sellers/{sellerId}/close:
+    post:
+      summary: Close seller account
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Account closed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloseAccountResponse'
+  /api/sellers/{sellerId}/items:
+    post:
+      summary: Add an item for sale
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddItemRequest'
+      responses:
+        '201':
+          description: Item added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+    get:
+      summary: Review seller's items
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of seller's items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemSummary'
+  /api/sellers/{sellerId}/items/{itemId}:
+    put:
+      summary: Edit an inactive item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EditItemRequest'
+      responses:
+        '200':
+          description: Item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+    delete:
+      summary: Remove an inactive item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Item removed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+  /api/sellers/{sellerId}/items/{itemId}/publish:
+    post:
+      summary: Publish an item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PublishItemRequest'
+      responses:
+        '200':
+          description: Item published successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemPublishResponse'
+  /api/sellers/{sellerId}/items/{itemId}/unpublish:
+    post:
+      summary: Unpublish an active item with no bids
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Item unpublished successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemStateResponse'
+  /api/sellers/{sellerId}/items/{itemId}/fulfill:
+    post:
+      summary: Fulfill a completed auction item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Item fulfilled successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FulfillItemResponse'
+  /api/sellers/{sellerId}/items/{itemId}/archive:
+    post:
+      summary: Archive an inactive item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Item archived successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemStateResponse'
+  /api/sellers/{sellerId}/request-unfreeze:
+    post:
+      summary: Request to unfreeze seller account
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Unfreeze request submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+  /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
+    post:
+      summary: Request to unfreeze an item
+      tags:
+        - Sellers
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Unfreeze request for item submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+  /api/buyers:
+    post:
+      summary: Create a buyer account
+      tags:
+        - Buyers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BuyerCreationRequest'
+      responses:
+        '201':
+          description: Buyer account created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Buyer'
+  /api/buyers/login:
+    post:
+      summary: Buyer login
+      tags:
+        - Buyers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+  /api/buyers/{buyerId}/close:
+    post:
+      summary: Close buyer account
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Account closed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloseAccountResponse'
+  /api/buyers/{buyerId}/add-funds:
+    post:
+      summary: Add funds to buyer account
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddFundsRequest'
+      responses:
+        '200':
+          description: Funds added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AddFundsResponse'
+  /api/buyers/{buyerId}/active-bids:
+    get:
+      summary: Review buyer's active bids
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of active bids
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveBid'
+  /api/buyers/{buyerId}/purchases:
+    get:
+      summary: Review buyer's purchases
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of purchases
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Purchase'
+  /api/buyers/{buyerId}/request-unfreeze:
+    post:
+      summary: Request to unfreeze buyer account
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Unfreeze request submitted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionResponse'
+  /api/buyers/{buyerId}/bids:
+    post:
+      summary: Place a bid on an item
+      tags:
+        - Buyers
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlaceBidRequest'
+      responses:
+        '200':
+          description: Bid placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BidResponse'
+  /api/items:
+    get:
+      summary: Search and sort active items
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/Keywords'
+        - $ref: '#/components/parameters/MinPrice'
+        - $ref: '#/components/parameters/MaxPrice'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: List of items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ItemSummary'
+  /api/items/{itemId}:
+    get:
+      summary: View item details
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Item details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ItemDetails'
+  /api/items/recently-sold:
+    get:
+      summary: Search and sort recently sold items
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/Keywords'
+        - $ref: '#/components/parameters/MinPrice'
+        - $ref: '#/components/parameters/MaxPrice'
+        - $ref: '#/components/parameters/SortBy'
+        - $ref: '#/components/parameters/SortOrder'
+      responses:
+        '200':
+          description: List of recently sold items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RecentlySoldItem'
+  /api/admin/buyers/{buyerId}/freeze:
+    post:
+      summary: Freeze or unfreeze a buyer account
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/BuyerId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FreezeActionRequest'
+      responses:
+        '200':
+          description: Buyer account freeze/unfreeze action completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreezeActionResponse'
+  /api/admin/sellers/{sellerId}/freeze:
+    post:
+      summary: Freeze or unfreeze a seller account
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/SellerId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FreezeActionRequest'
+      responses:
+        '200':
+          description: Seller account freeze/unfreeze action completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreezeActionResponse'
+  /api/admin/items/{itemId}/freeze:
+    post:
+      summary: Freeze or unfreeze an item
+      tags:
+        - Admin
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FreezeActionRequest'
+      responses:
+        '200':
+          description: Item freeze/unfreeze action completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreezeActionResponse'
+  /api/admin/reports/auction:
+    get:
+      summary: Generate auction report
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Auction report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuctionReport'
+  /api/admin/reports/forensics:
+    get:
+      summary: Generate forensics report
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Forensics report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForensicsReport'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    SellerId:
+      name: sellerId
+      in: path
+      required: true
+      schema:
+        type: string
+    BuyerId:
+      name: buyerId
+      in: path
+      required: true
+      schema:
+        type: string
+    ItemId:
+      name: itemId
+      in: path
+      required: true
+      schema:
+        type: string
+    Keywords:
+      name: keywords
+      in: query
+      schema:
+        type: string
+      description: Keywords for searching items
+    MinPrice:
+      name: minPrice
+      in: query
+      schema:
+        type: number
+        format: float
+      description: Minimum price for filtering items
+    MaxPrice:
+      name: maxPrice
+      in: query
+      schema:
+        type: number
+        format: float
+      description: Maximum price for filtering items
+    SortBy:
+      name: sortBy
+      in: query
+      schema:
+        type: string
+        enum: [price, date]
+      description: Field to sort by
+    SortOrder:
+      name: sortOrder
+      in: query
+      schema:
+        type: string
+        enum: [asc, desc]
+      description: Sort order
+  schemas:
+    SellerCreationRequest:
+      type: object
+      required:
+        - username
+        - emailAddress
+        - password
+      properties:
+        username:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    OTP:
+      type: object
+      required:
+      
+        - emailAddress
+        - OTP
+      properties:
+        OTP:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+    Seller:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+        fund:
+          type: number
+          format: float
+        isFrozen:
+          type: boolean
+        isClosed:
+          type: boolean
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Item'
+        OTP:
+          type: string
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+          format: password
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        sellerId:
+          type: string
+        buyerId:
+          type: string
+    CloseAccountResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        sellerId:
+          type: string
+        buyerId:
+          type: string
+        isClosed:
+          type: boolean
+    AddItemRequest:
+      type: object
+      required:
+        - name
+        - description
+        - initPrice
+        - lengthOfAuction
+        - images
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        initPrice:
+          type: number
+          minimum: 1
+        lengthOfAuction:
+          type: integer
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+    Item:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        initPrice:
+          type: number
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        itemState:
+          type: string
+          enum: [inactive, active, failed, completed, archived]
+        isFrozen:
+          type: boolean
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        currentBid:
+          $ref: '#/components/schemas/Bid'
+        pastBids:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bid'
+        soldTime:
+          type: string
+          format: date-time
+        soldBid:
+          $ref: '#/components/schemas/Bid'
+    ItemSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        itemState:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        currentBid:
+          type: number
+        soldTime:
+          type: string
+          format: date-time
+    EditItemRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        initPrice:
+          type: number
+        images:
+          type: array
+          items:
+            type: string
+            format: binary
+    ActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        itemId:
+          type: string
+        sellerId:
+          type: string
+        buyerId:
+          type: string
+    PublishItemRequest:
+      type: object
+      properties:
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    ItemPublishResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        itemState:
+          type: string
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    ItemStateResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        itemId:
+          type: string
+        itemState:
+          type: string
+    FulfillItemResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        itemId:
+          type: string
+        soldBid:
+          $ref: '#/components/schemas/Bid'
+        soldTime:
+          type: string
+          format: date-time
+    BuyerCreationRequest:
+      type: object
+      required:
+        - username
+        - emailAddress
+        - password
+      properties:
+        username:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+        password:
+          type: string
+          format: password
+    Buyer:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        emailAddress:
+          type: string
+          format: email
+        fund:
+          type: number
+          format: float
+        isFrozen:
+          type: boolean
+        isClosed:
+          type: boolean
+        bids:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bid'
+        purchases:
+          type: array
+          items:
+            $ref: '#/components/schemas/Purchase'
+        OTP:
+          type: string
+    AddFundsRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          format: float
+          minimum: 0
+    AddFundsResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        buyerId:
+          type: string
+        fund:
+          type: number
+          format: float
+    ActiveBid:
+      type: object
+      properties:
+        itemId:
+          type: string
+        itemName:
+          type: string
+        currentBid:
+          type: number
+        yourBid:
+          type: number
+        bidTime:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+    Purchase:
+      type: object
+      properties:
+        itemId:
+          type: string
+        itemName:
+          type: string
+        purchasePrice:
+          type: number
+        soldTime:
+          type: string
+          format: date-time
+        fulfillmentDate:
+          type: string
+          format: date-time
+    PlaceBidRequest:
+      type: object
+      required:
+        - itemId
+        - bidAmount
+      properties:
+        itemId:
+          type: string
+        bidAmount:
+          type: number
+    BidResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        bid:
+          $ref: '#/components/schemas/Bid'
+    Bid:
+      type: object
+      properties:
+        bidUser:
+          type: string
+        bidAmount:
+          type: number
+        bidTime:
+          type: string
+          format: date-time
+    ItemDetails:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        images:
+          type: array
+          items:
+            type: string
+            format: uri
+        price:
+          type: number
+        startDate:
+          type: string
+          format: date-time
+        endDate:
+          type: string
+          format: date-time
+        highestBid:
+          type: number
+        biddingHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bid'
+    RecentlySoldItem:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        price:
+          type: number
+        soldTime:
+          type: string
+          format: date-time
+        biddingHistory:
+          type: array
+          items:
+            $ref: '#/components/schemas/Bid'
+    FreezeActionRequest:
+      type: object
+      required:
+        - action
+      properties:
+        action:
+          type: string
+          enum: [freeze, unfreeze]
+    FreezeActionResponse:
+      type: object
+      properties:
+        message:
+          type: string
+        sellerId:
+          type: string
+        buyerId:
+          type: string
+        itemId:
+          type: string
+        isFrozen:
+          type: boolean
+    AuctionReport:
+      type: object
+      properties:
+        totalCommissionEarned:
+          type: number
+          format: float
+        totalSales:
+          type: number
+          format: float
+        commissionRate:
+          type: number
+          format: float
+        itemsSold:
+          type: array
+          items:
+            type: object
+            properties:
+              itemId:
+                type: string
+              salePrice:
+                type: number
+              commission:
+                type: number
+    ForensicsReport:
+      type: object
+      properties:
+        reportId:
+          type: string
+        url:
+          type: string
+          format: uri
