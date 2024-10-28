@@ -18,7 +18,7 @@ resource "aws_iam_role" "lambda_role" {
     ]
   })
 }
-
+ 
 # Attach Lambda Execution Policy to IAM Role
 resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
   role       = aws_iam_role.lambda_role.name
