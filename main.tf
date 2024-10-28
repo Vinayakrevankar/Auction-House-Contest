@@ -66,7 +66,6 @@ resource "aws_lambda_function" "example_lambda" {
     }
   }
 
-  # Add timeout and memory size for the Lambda function
   timeout      = 30          # Increase the timeout if necessary
   memory_size  = 128         # Set memory size according to your needs
 }
@@ -97,7 +96,7 @@ resource "aws_apigatewayv2_api" "example_api" {
 resource "aws_apigatewayv2_integration" "lambda_integration" {
   api_id             = aws_apigatewayv2_api.example_api.id
   integration_type   = "AWS_PROXY"
-  integration_uri    = aws_lambda_function.example_lambda[0].invoke_arn
+  integration_uri    = data.aws_lambda_function.existing_lambda.id != "" ? data.aws_lambda_function.existing_lambda.invoke_arn : aws_lambda_function.example_lambda[0].invoke_arn
   integration_method = "POST"
   payload_format_version = "2.0"
 }
