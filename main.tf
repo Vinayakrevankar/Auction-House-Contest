@@ -13,6 +13,11 @@ provider "aws" {
   region = "us-east-1" # Set your desired AWS region
 }
 
+# Generate a unique identifier for Lambda permission
+resource "random_id" "unique_lambda_permission" {
+  byte_length = 8
+}
+
 # Check if IAM Role already exists (optional)
 data "aws_iam_role" "existing_lambda_role" {
   name = "lambda_api_execution_role"
@@ -56,18 +61,17 @@ resource "aws_lambda_function" "example_lambda" {
   function_name     = "exampleLambdaFunction"
   role              = data.aws_iam_role.existing_lambda_role.id != "" ? data.aws_iam_role.existing_lambda_role.arn : aws_iam_role.lambda_role[0].arn
   handler           = "index.handler" # Handler name
-  runtime           = "nodejs18.x"     # Choose the runtime
+  runtime           = "nodejs18.x"    # Choose the runtime
   source_code_hash  = filebase64sha256("backend/lambda_function/lambda_function.zip")
 
-  # Environment variables (optional)
   environment {
     variables = {
       ENV_VAR = "exampleValue"
     }
   }
 
-  timeout      = 30          # Increase the timeout if necessary
-  memory_size  = 128         # Set memory size according to your needs
+  timeout      = 30
+  memory_size  = 128
 }
 
 # Update existing Lambda function if it already exists
@@ -80,20 +84,19 @@ resource "null_resource" "update_lambda_code" {
     EOT
   }
 
-  # Use a trigger to ensure the command runs when the ZIP file changes
   triggers = {
     zip_file_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
   }
 }
 
-# Check if DynamoDB table already exists using a local-exec command
+# Check if DynamoDB table already exists (manual check for existence)
 data "aws_dynamodb_table" "existing_table" {
   name = "exampleTable"
 }
 
-# Create or update DynamoDB table based on existence
+# Create DynamoDB table only if it doesn’t exist
 resource "aws_dynamodb_table" "example_table" {
-  count = length(data.aws_dynamodb_table.existing_table) > 0 ? 1 : 0
+  count = data.aws_dynamodb_table.existing_table.id == "" ? 1 : 0
   name  = "exampleTable"
 
   billing_mode = "PAY_PER_REQUEST"
@@ -102,6 +105,8 @@ resource "aws_dynamodb_table" "example_table" {
     name = "id"
     type = "S"
   }
+
+  hash_key = "id"
 
   lifecycle {
     ignore_changes = [attribute]
@@ -139,11 +144,15 @@ resource "aws_apigatewayv2_stage" "api_stage" {
 
 # Permissions for API Gateway to invoke Lambda
 resource "aws_lambda_permission" "apigw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway"
+  statement_id  = "AllowExecutionFromAPIGateway-${random_id.unique_lambda_permission.hex}"
   action        = "lambda:InvokeFunction"
   function_name = data.aws_lambda_function.existing_lambda.id != "" ? data.aws_lambda_function.existing_lambda.function_name : aws_lambda_function.example_lambda[0].function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.example_api.execution_arn}/*/*"
+
+  lifecycle {
+    ignore_changes = [statement_id]
+  }
 }
 
 # Output the API Gateway endpoint

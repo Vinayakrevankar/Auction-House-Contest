@@ -1,6 +1,7 @@
 ## Devenv
 .devenv
 .direnv
+.terraform
 
 ## Node
 # Logs
