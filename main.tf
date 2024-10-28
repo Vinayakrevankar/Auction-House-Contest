@@ -88,13 +88,12 @@ resource "null_resource" "update_lambda_code" {
 
 # Check if DynamoDB table already exists using a local-exec command
 data "aws_dynamodb_table" "existing_table" {
-  count = length(aws_dynamodb_table.example_table) == 0 ? 0 : 1
-  name  = "exampleTable"
+  name = "exampleTable"
 }
 
-# Create DynamoDB table if it doesn't exist
+# Create or update DynamoDB table based on existence
 resource "aws_dynamodb_table" "example_table" {
-  count = data.aws_dynamodb_table.existing_table.id != "" ? 0 : 1
+  count = length(data.aws_dynamodb_table.existing_table) > 0 ? 1 : 0
   name  = "exampleTable"
 
   billing_mode = "PAY_PER_REQUEST"
@@ -104,7 +103,9 @@ resource "aws_dynamodb_table" "example_table" {
     type = "S"
   }
 
-  hash_key = "id"
+  lifecycle {
+    ignore_changes = [attribute]
+  }
 }
 
 # API Gateway
