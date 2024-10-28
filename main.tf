@@ -71,13 +71,20 @@ resource "aws_lambda_function" "example_lambda" {
   memory_size  = 128         # Set memory size according to your needs
 }
 
-# Update existing Lambda function
-resource "aws_lambda_update_function_code" "update_lambda" {
-  count             = data.aws_lambda_function.existing_lambda.id != "" ? 1 : 0
-  function_name     = data.aws_lambda_function.existing_lambda.function_name
-  s3_bucket         = "" # If using S3, specify the bucket; else leave empty
-  s3_key            = "" # If using S3, specify the object key; else leave empty
-  filename          = "backend/lambda_function/lambda_function.zip"
+# Update existing Lambda function (if it already exists)
+resource "null_resource" "update_lambda_code" {
+  count = data.aws_lambda_function.existing_lambda.id != "" ? 1 : 0
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws lambda update-function-code --function-name exampleLambdaFunction --zip-file fileb://backend/lambda_function/lambda_function.zip
+    EOT
+  }
+
+  # Use a trigger to ensure the command runs when the ZIP file changes
+  triggers = {
+    zip_file_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
+  }
 }
 
 # API Gateway
