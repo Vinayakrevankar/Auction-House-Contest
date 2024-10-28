@@ -1,3 +1,14 @@
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0" # Specify the AWS provider version
+    }
+  }
+
+  required_version = ">= 1.0"
+}
+
 provider "aws" {
   region = "us-east-1" # Set your desired AWS region
 }
@@ -5,20 +16,21 @@ provider "aws" {
 # Create IAM role for Lambda
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_api_execution_role"
+
   assume_role_policy = jsonencode({
-    "Version" : "2012-10-17",
-    "Statement": [
+    Version: "2012-10-17",
+    Statement: [
       {
-        "Action": "sts:AssumeRole",
-        "Principal": {
-          "Service": "lambda.amazonaws.com"
+        Action: "sts:AssumeRole",
+        Principal: {
+          Service: "lambda.amazonaws.com"
         },
-        "Effect": "Allow"
+        Effect: "Allow"
       }
     ]
   })
 }
- 
+
 # Attach Lambda Execution Policy to IAM Role
 resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
   role       = aws_iam_role.lambda_role.name
@@ -31,7 +43,7 @@ resource "aws_lambda_function" "example_lambda" {
   function_name    = "exampleLambdaFunction"
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler" # Handler name, e.g., "index.handler" for index.js
-  runtime          = "nodejs18.x"    # Choose the runtime, e.g., Node.js, Python, etc.
+  runtime          = "nodejs18.x"     # Choose the runtime, e.g., Node.js
   source_code_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
 
   # Environment variables (optional)
@@ -78,4 +90,9 @@ resource "aws_lambda_permission" "apigw_lambda" {
   function_name = aws_lambda_function.example_lambda.function_name
   principal     = "apigateway.amazonaws.com"
   source_arn    = "${aws_apigatewayv2_api.example_api.execution_arn}/*/*"
+}
+
+# Output the API Gateway endpoint
+output "api_endpoint" {
+  value = aws_apigatewayv2_stage.api_stage.invoke_url
 }
