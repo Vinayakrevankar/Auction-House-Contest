@@ -32,7 +32,7 @@ resource "aws_lambda_function" "example_lambda" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "index.handler" # Handler name, e.g., "index.handler" for index.js
   runtime          = "nodejs18.x"    # Choose the runtime, e.g., Node.js, Python, etc.
-  source_code_hash = filebase64sha256("lambda_function.zip")
+  source_code_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
 
   # Environment variables (optional)
   environment {
