@@ -49,14 +49,14 @@ data "aws_lambda_function" "existing_lambda" {
   function_name = "exampleLambdaFunction"
 }
 
-# Lambda function
+# Create Lambda function
 resource "aws_lambda_function" "example_lambda" {
   count             = data.aws_lambda_function.existing_lambda.id != "" ? 0 : 1
   filename          = "backend/lambda_function/lambda_function.zip" # Path to the Lambda function code
   function_name     = "exampleLambdaFunction"
   role              = data.aws_iam_role.existing_lambda_role.id != "" ? data.aws_iam_role.existing_lambda_role.arn : aws_iam_role.lambda_role[0].arn
-  handler           = "index.handler" # Handler name, e.g., "index.handler" for index.js
-  runtime           = "nodejs18.x"     # Choose the runtime, e.g., Node.js
+  handler           = "index.handler" # Handler name
+  runtime           = "nodejs18.x"     # Choose the runtime
   source_code_hash  = filebase64sha256("backend/lambda_function/lambda_function.zip")
 
   # Environment variables (optional)
@@ -70,20 +70,24 @@ resource "aws_lambda_function" "example_lambda" {
   memory_size  = 128         # Set memory size according to your needs
 }
 
-# Update existing Lambda function (if it already exists)
-resource "null_resource" "update_lambda_code" {
-  count = data.aws_lambda_function.existing_lambda.id != "" ? 1 : 0
+# Check if DynamoDB table already exists
+data "aws_dynamodb_table" "existing_table" {
+  name = "exampleTable"
+}
 
-  provisioner "local-exec" {
-    command = <<EOT
-      aws lambda update-function-code --function-name exampleLambdaFunction --zip-file fileb://backend/lambda_function/lambda_function.zip
-    EOT
+# Create DynamoDB table
+resource "aws_dynamodb_table" "example_table" {
+  count = data.aws_dynamodb_table.existing_table.id != "" ? 0 : 1
+  name  = "exampleTable"
+
+  billing_mode = "PAY_PER_REQUEST"
+
+  attribute {
+    name = "id"
+    type = "S"
   }
 
-  # Use a trigger to ensure the command runs when the ZIP file changes
-  triggers = {
-    zip_file_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
-  }
+  hash_key = "id"
 }
 
 # API Gateway
