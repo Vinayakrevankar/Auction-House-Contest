@@ -59,6 +59,10 @@ resource "aws_lambda_function" "example_lambda" {
       ENV_VAR = "exampleValue"
     }
   }
+
+  # Add timeout and memory size for the Lambda function
+  timeout = 30          # Increase the timeout if necessary
+  memory_size = 128     # Set memory size according to your needs
 }
 
 # API Gateway
