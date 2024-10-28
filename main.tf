@@ -49,7 +49,7 @@ data "aws_lambda_function" "existing_lambda" {
   function_name = "exampleLambdaFunction"
 }
 
-# Create Lambda function
+# Create Lambda function if it doesn't exist
 resource "aws_lambda_function" "example_lambda" {
   count             = data.aws_lambda_function.existing_lambda.id != "" ? 0 : 1
   filename          = "backend/lambda_function/lambda_function.zip" # Path to the Lambda function code
@@ -70,12 +70,29 @@ resource "aws_lambda_function" "example_lambda" {
   memory_size  = 128         # Set memory size according to your needs
 }
 
-# Check if DynamoDB table already exists
-data "aws_dynamodb_table" "existing_table" {
-  name = "exampleTable"
+# Update existing Lambda function if it already exists
+resource "null_resource" "update_lambda_code" {
+  count = data.aws_lambda_function.existing_lambda.id != "" ? 1 : 0
+
+  provisioner "local-exec" {
+    command = <<EOT
+      aws lambda update-function-code --function-name exampleLambdaFunction --zip-file fileb://backend/lambda_function/lambda_function.zip
+    EOT
+  }
+
+  # Use a trigger to ensure the command runs when the ZIP file changes
+  triggers = {
+    zip_file_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
+  }
 }
 
-# Create DynamoDB table
+# Check if DynamoDB table already exists using a local-exec command
+data "aws_dynamodb_table" "existing_table" {
+  count = length(aws_dynamodb_table.example_table) == 0 ? 0 : 1
+  name  = "exampleTable"
+}
+
+# Create DynamoDB table if it doesn't exist
 resource "aws_dynamodb_table" "example_table" {
   count = data.aws_dynamodb_table.existing_table.id != "" ? 0 : 1
   name  = "exampleTable"
