@@ -13,9 +13,15 @@ provider "aws" {
   region = "us-east-1" # Set your desired AWS region
 }
 
-# Create IAM role for Lambda
-resource "aws_iam_role" "lambda_role" {
+# Check if IAM Role already exists (optional)
+data "aws_iam_role" "existing_lambda_role" {
   name = "lambda_api_execution_role"
+}
+
+# Create IAM role for Lambda if it doesn't exist
+resource "aws_iam_role" "lambda_role" {
+  count = data.aws_iam_role.existing_lambda_role.id != "" ? 0 : 1
+  name  = "lambda_api_execution_role"
 
   assume_role_policy = jsonencode({
     Version: "2012-10-17",
@@ -33,7 +39,8 @@ resource "aws_iam_role" "lambda_role" {
 
 # Attach Lambda Execution Policy to IAM Role
 resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
-  role       = aws_iam_role.lambda_role.name
+  count      = data.aws_iam_role.existing_lambda_role.id != "" ? 0 : 1
+  role       = aws_iam_role.lambda_role[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
@@ -41,7 +48,7 @@ resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
 resource "aws_lambda_function" "example_lambda" {
   filename         = "backend/lambda_function/lambda_function.zip" # Path to the Lambda function code
   function_name    = "exampleLambdaFunction"
-  role             = aws_iam_role.lambda_role.arn
+  role             = data.aws_iam_role.existing_lambda_role.id != "" ? data.aws_iam_role.existing_lambda_role.arn : aws_iam_role.lambda_role[0].arn
   handler          = "index.handler" # Handler name, e.g., "index.handler" for index.js
   runtime          = "nodejs18.x"     # Choose the runtime, e.g., Node.js
   source_code_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")

@@ -1,48 +1,43 @@
-name: Deploy to AWS using Terraform
+name: Deploy to AWS
 
 on:
   push:
     branches:
-      - terraform-test  # Triggers the workflow on pushes to the main branch
-  pull_request:
-    branches:
-      - main
+      - terraform-test 
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the code
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v2
 
-      # Step 2: Set up AWS credentials
-      - name: Configure AWS credentials
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '18'  # Change if needed
+
+      - name: Install Dependencies
+        run: npm install  # Add your npm install command if you have any dependencies
+
+      - name: Zip Lambda Function
+        run: zip -r backend/lambda_function/lambda_function.zip backend/lambda_function/*
+
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: "us-east-1"
+          aws-region: us-east-1
 
-      # Step 3: Set up Terraform
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.5.0  # Use the desired Terraform version
-
-      # Step 4: Initialize Terraform
-      - name: Terraform Init
+      - name: Initialize Terraform
         run: terraform init
-
       # Step 5: Validate the Terraform configuration
       - name: Terraform Validate
         run: terraform validate
-
-      # Step 6: Terraform Plan (optional but recommended)
+       # Step 6: Terraform Plan (optional but recommended)
       - name: Terraform Plan
-        run: terraform plan
-
-      # Step 7: Terraform Apply
+        run: terraform plan      # Step 7: Terraform Apply
       - name: Terraform Apply
         run: terraform apply -auto-approve
