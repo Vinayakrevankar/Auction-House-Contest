@@ -1,8 +1,7 @@
 service: serverless-auction-house
 
 custom:
-  # Our stage is based on what is passed in when running serverless
-  # commands. Or falls back to what we have set in the provider section.
+  # Stage and region configuration
   stage: ${opt:stage, 'offline'}
   region: ${opt:region, 'us-east-1'}
 
@@ -20,19 +19,17 @@ provider:
   stage: ${self:custom.stage}
   region: ${self:custom.region}
   runtime: nodejs18.x
-  memorySize: 512
+  memorySize: 128
   timeout: 10
-  logRetentionInDays: 90
+  logRetentionInDays: 2
   logs:
     httpApi: true
   httpApi:
-    # metrics: true # Enable if you need
     cors: true
 
 functions:
   app:
     handler: backend/src/api/handler.handler
-    # reservedConcurrency: 100
     events:
       - httpApi:
           path: "/{proxy+}"
@@ -47,3 +44,56 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-esbuild
   - serverless-offline
+
+resources:
+  Resources:
+    # Users Table
+    UsersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-users-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: "user-id"
+            AttributeType: "S"
+          - AttributeName: "create-time"
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: "user-id"
+            KeyType: "HASH"
+          - AttributeName: "create-time"
+            KeyType: "RANGE"
+        BillingMode: PAY_PER_REQUEST
+
+    # Items Table
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-items-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: "item-id"
+            AttributeType: "S"
+          - AttributeName: "create-time"
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: "item-id"
+            KeyType: "HASH"
+          - AttributeName: "create-time"
+            KeyType: "RANGE"
+        BillingMode: PAY_PER_REQUEST
+
+    # Bids Table
+    BidsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:service}-bids-${self:custom.stage}
+        AttributeDefinitions:
+          - AttributeName: "bid-id"
+            AttributeType: "S"
+          - AttributeName: "create-time"
+            AttributeType: "N"
+        KeySchema:
+          - AttributeName: "bid-id"
+            KeyType: "HASH"
+          - AttributeName: "create-time"
+            KeyType: "RANGE"
+        BillingMode: PAY_PER_REQUEST
