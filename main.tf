@@ -1,161 +1,146 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0" # Specify the AWS provider version
-    }
-  }
-
-  required_version = ">= 1.0"
-}
-
 provider "aws" {
-  region = "us-east-1" # Set your desired AWS region
+  region = "us-east-1"  # Change to your desired region
 }
 
-# Generate a unique identifier for Lambda permission
-resource "random_id" "unique_lambda_permission" {
-  byte_length = 8
-}
-
-# Check if IAM Role already exists (optional)
-data "aws_iam_role" "existing_lambda_role" {
-  name = "lambda_api_execution_role"
-}
-
-# Create IAM role for Lambda if it doesn't exist
 resource "aws_iam_role" "lambda_role" {
-  count = data.aws_iam_role.existing_lambda_role.id != "" ? 0 : 1
-  name  = "lambda_api_execution_role"
+  name = "lambda_role"
 
   assume_role_policy = jsonencode({
-    Version: "2012-10-17",
-    Statement: [
+    Version = "2012-10-17"
+    Statement = [
       {
-        Action: "sts:AssumeRole",
-        Principal: {
-          Service: "lambda.amazonaws.com"
-        },
-        Effect: "Allow"
+        Action = "sts:AssumeRole"
+        Principal = {
+          Service = "lambda.amazonaws.com"
+        }
+        Effect = "Allow"
+        Sid    = ""
       }
     ]
   })
 }
 
-# Attach Lambda Execution Policy to IAM Role
-resource "aws_iam_role_policy_attachment" "lambda_execution_policy" {
-  count      = data.aws_iam_role.existing_lambda_role.id != "" ? 0 : 1
-  role       = aws_iam_role.lambda_role[0].name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-}
-
-# Check if Lambda function already exists
-data "aws_lambda_function" "existing_lambda" {
-  function_name = "exampleLambdaFunction"
-}
-
-# Create Lambda function if it doesn't exist
-resource "aws_lambda_function" "example_lambda" {
-  count             = data.aws_lambda_function.existing_lambda.id != "" ? 0 : 1
-  filename          = "backend/lambda_function/lambda_function.zip" # Path to the Lambda function code
-  function_name     = "exampleLambdaFunction"
-  role              = data.aws_iam_role.existing_lambda_role.id != "" ? data.aws_iam_role.existing_lambda_role.arn : aws_iam_role.lambda_role[0].arn
-  handler           = "index.handler" # Handler name
-  runtime           = "nodejs18.x"    # Choose the runtime
-  source_code_hash  = filebase64sha256("backend/lambda_function/lambda_function.zip")
+resource "aws_lambda_function" "my_lambda" {
+  function_name = "my_lambda_function"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "handler.lambda_handler"  # Update based on your handler file
+  runtime       = "nodejs21.x"               # Updated runtime to Node.js 21
+  filename      = "backend/lambda_function/lambda_function.zip"      # The ZIP file for your Lambda function
+  source_code_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
 
   environment {
+    # Add environment variables here if needed
     variables = {
-      ENV_VAR = "exampleValue"
+      VARIABLE_NAME = "value1"
     }
   }
+  timeout     = 30
+  memory_size = 128
 
-  timeout      = 30
-  memory_size  = 128
-}
-
-# Update existing Lambda function if it already exists
-resource "null_resource" "update_lambda_code" {
-  count = data.aws_lambda_function.existing_lambda.id != "" ? 1 : 0
-
-  provisioner "local-exec" {
-    command = <<EOT
-      aws lambda update-function-code --function-name exampleLambdaFunction --zip-file fileb://backend/lambda_function/lambda_function.zip
-    EOT
-  }
-
-  triggers = {
-    zip_file_hash = filebase64sha256("backend/lambda_function/lambda_function.zip")
+  tags = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
   }
 }
 
-# Check if DynamoDB table already exists (manual check for existence)
-data "aws_dynamodb_table" "existing_table" {
-  name = "exampleTable"
+# Create the API Gateway REST API
+resource "aws_api_gateway_rest_api" "action-house-api" {
+  name        = "action-house-api"
+  description = "API Gateway for my Lambda function"
 }
 
-# Create DynamoDB table only if it doesn’t exist
-resource "aws_dynamodb_table" "example_table" {
-  count = data.aws_dynamodb_table.existing_table.id == "" ? 1 : 0
-  name  = "exampleTable"
-
-  billing_mode = "PAY_PER_REQUEST"
-
-  attribute {
-    name = "id"
-    type = "S"
-  }
-
-  hash_key = "id"
-
-  lifecycle {
-    ignore_changes = [attribute]
-  }
+# Create a resource (endpoint) in the API Gateway
+resource "aws_api_gateway_resource" "my_resource" {
+  rest_api_id = aws_api_gateway_rest_api.action-house-api.id
+  parent_id   = aws_api_gateway_rest_api.action-house-api.root_resource_id
+  path_part   = "myendpoint"  # The path for the endpoint
 }
 
-# API Gateway
-resource "aws_apigatewayv2_api" "example_api" {
-  name          = "exampleAPI"
-  protocol_type = "HTTP"
+# Create a method (e.g., GET) for the resource
+resource "aws_api_gateway_method" "my_method" {
+  rest_api_id   = aws_api_gateway_rest_api.action-house-api.id
+  resource_id   = aws_api_gateway_resource.my_resource.id
+  http_method   = "GET"  # Change to the desired HTTP method
+  authorization = aws_api_gateway_authorizer.custom_authorizer.name  # Use the custom authorizer
 }
 
-# Lambda integration for API Gateway
-resource "aws_apigatewayv2_integration" "lambda_integration" {
-  api_id             = aws_apigatewayv2_api.example_api.id
-  integration_type   = "AWS_PROXY"
-  integration_uri    = data.aws_lambda_function.existing_lambda.id != "" ? data.aws_lambda_function.existing_lambda.invoke_arn : aws_lambda_function.example_lambda[0].invoke_arn
-  integration_method = "POST"
-  payload_format_version = "2.0"
+# Create the integration with the Lambda function
+resource "aws_api_gateway_integration" "my_integration" {
+  rest_api_id             = aws_api_gateway_rest_api.action-house-api.id
+  resource_id             = aws_api_gateway_resource.my_resource.id
+  http_method             = aws_api_gateway_method.my_method.http_method
+  integration_http_method = "POST"  # Lambda integration method
+  type                    = "AWS_PROXY"  # Use AWS_PROXY for Lambda integration
+
+  uri = aws_lambda_function.my_lambda.invoke_arn
 }
 
-# API Gateway route
-resource "aws_apigatewayv2_route" "default_route" {
-  api_id    = aws_apigatewayv2_api.example_api.id
-  route_key = "POST /example"
-  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
-}
-
-# API Gateway Stage
-resource "aws_apigatewayv2_stage" "api_stage" {
-  api_id      = aws_apigatewayv2_api.example_api.id
-  name        = "dev"
-  auto_deploy = true
-}
-
-# Permissions for API Gateway to invoke Lambda
-resource "aws_lambda_permission" "apigw_lambda" {
-  statement_id  = "AllowExecutionFromAPIGateway-${random_id.unique_lambda_permission.hex}"
+# Add a permission for API Gateway to invoke the Lambda function
+resource "aws_lambda_permission" "allow_api_gateway" {
+  statement_id  = "AllowExecutionFromAPIGateway"
   action        = "lambda:InvokeFunction"
-  function_name = data.aws_lambda_function.existing_lambda.id != "" ? data.aws_lambda_function.existing_lambda.function_name : aws_lambda_function.example_lambda[0].function_name
+  function_name = aws_lambda_function.my_lambda.function_name
   principal     = "apigateway.amazonaws.com"
-  source_arn    = "${aws_apigatewayv2_api.example_api.execution_arn}/*/*"
 
-  lifecycle {
-    ignore_changes = [statement_id]
+  # The source ARN must match the API Gateway endpoint
+  source_arn = "${aws_api_gateway_rest_api.action-house-api.execution_arn}/*/*"
+}
+
+# Create the custom authorizer Lambda function
+resource "aws_lambda_function" "custom_authorizer" {  # Renamed from my_authorizer to custom_authorizer
+  function_name = "custom_authorizer_function"
+  role          = aws_iam_role.lambda_role.arn
+  handler       = "authorizer.handler"  # Update based on your authorizer handler file
+  runtime       = "nodejs21.x"            # Updated runtime to Node.js 21
+  filename      = "backend/custom-authorizer/custom-authorizer.zip"  # The ZIP file for your authorizer function
+  source_code_hash = filebase64sha256("backend/custom-authorizer/custom-authorizer.zip")
+
+  environment {
+    # Add environment variables for the authorizer if needed
+  }
+  timeout     = 30
+  memory_size = 128
+
+  tags = {
+    Environment = "dev"
+    ManagedBy   = "terraform"
   }
 }
 
-# Output the API Gateway endpoint
-output "api_endpoint" {
-  value = aws_apigatewayv2_stage.api_stage.invoke_url
+# Create the API Gateway Authorizer
+resource "aws_api_gateway_authorizer" "custom_authorizer" {  # Renamed from my_authorizer to custom_authorizer
+  rest_api_id = aws_api_gateway_rest_api.action-house-api.id
+  name        = "custom_authorizer"  # Updated to match the new name
+  type        = "REQUEST"
+  
+  authorizer_uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/${aws_lambda_function.custom_authorizer.arn}/invocations"
+  
+  identity_source = "method.request.header.Authorization"  # The header to use for authentication
+
+  # Optional: Set the authorizer TTL
+  authorizer_result_ttl_in_seconds = 300
+}
+
+# Attach the authorizer to the method
+resource "aws_api_gateway_method_settings" "my_method_settings" {
+  rest_api_id = aws_api_gateway_rest_api.action-house-api.id
+  stage_name  = aws_api_gateway_deployment.my_deployment.stage_name
+  method_path = "${aws_api_gateway_resource.my_resource.path_part}/${aws_api_gateway_method.my_method.http_method}"
+
+  settings {
+    logging_level = "INFO"
+    metrics_enabled = true
+  }
+}
+
+# Create a deployment for the API Gateway
+resource "aws_api_gateway_deployment" "my_deployment" {
+  depends_on = [
+    aws_api_gateway_integration.my_integration,
+    aws_api_gateway_method.my_method,
+    aws_api_gateway_authorizer.custom_authorizer  # Updated to the new authorizer name
+  ]
+
+  rest_api_id = aws_api_gateway_rest_api.action-house-api.id
+  stage_name  = "dev"  # The deployment stage name
 }
