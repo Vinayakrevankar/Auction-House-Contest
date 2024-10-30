@@ -52,6 +52,12 @@ resources:
           - email
         UsernameAttributes:
           - email
+        Schema:
+          - Name: type
+            AttributeDataType: String
+            Mutable: true
+            Required: false
+
     CognitoUserPoolClient:
       Type: AWS::Cognito::UserPoolClient
       Properties:
@@ -105,6 +111,13 @@ resources:
           - AttributeName: "create-time"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
+    CognitoUserPoolDomain:
+      Type: AWS::Cognito::UserPoolDomain
+      Properties:
+        Domain: ${self:service}-auth-${self:custom.stage}
+        UserPoolId:
+          Ref: CognitoUserPool
+      
 plugins:
   - serverless-dotenv-plugin
   - serverless-esbuild
