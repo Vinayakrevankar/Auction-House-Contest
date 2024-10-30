@@ -20,13 +20,7 @@ provider:
   logRetentionInDays: 7
   httpApi:
     cors: true
-    authorizers:
-      UserPoolAuth:
-        type: jwt
-        identitySource: $request.header.Authorization
-        issuerUrl: !Sub "https://cognito-idp.${self:provider.region}.amazonaws.com/${CognitoUserPool}"
-        audience:
-          - !Ref CognitoUserPoolClient
+
 functions:
   app:
     handler: backend/src/handler.handler
@@ -34,8 +28,6 @@ functions:
       - httpApi:
           path: "/{proxy+}"
           method: "*"
-          authorizer:
-            name: UserPoolAuth
 resources:
   Resources:
     ApiGatewayV2Api:
@@ -44,27 +36,8 @@ resources:
         Name: ${self:service}-api
         ProtocolType: HTTP
     # Cognito User Pool definition
-    CognitoUserPool:
-      Type: AWS::Cognito::UserPool
-      Properties:
-        UserPoolName: ${self:service}-user-pool-${self:custom.stage}
-        AutoVerifiedAttributes:
-          - email
-        UsernameAttributes:
-          - email
-        Schema:
-          - Name: type
-            AttributeDataType: String
-            Mutable: true
-            Required: false
 
-    CognitoUserPoolClient:
-      Type: AWS::Cognito::UserPoolClient
-      Properties:
-        ClientName: ${self:service}-user-pool-client-${self:custom.stage}
-        UserPoolId:
-          Ref: CognitoUserPool
-        GenerateSecret: false
+
     # DynamoDB Tables
     UsersTable:
       Type: AWS::DynamoDB::Table
@@ -111,12 +84,7 @@ resources:
           - AttributeName: "create-time"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
-    CognitoUserPoolDomain:
-      Type: AWS::Cognito::UserPoolDomain
-      Properties:
-        Domain: ${self:service}-auth-${self:custom.stage}
-        UserPoolId:
-          Ref: CognitoUserPool
+
       
 plugins:
   - serverless-dotenv-plugin
