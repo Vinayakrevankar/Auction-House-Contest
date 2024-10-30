@@ -21,7 +21,7 @@ provider:
   runtime: nodejs18.x
   memorySize: 128
   timeout: 10
-  logRetentionInDays: 2
+  logRetentionInDays: 7
   logs:
     httpApi: true
   httpApi:
@@ -29,7 +29,7 @@ provider:
 
 functions:
   app:
-    handler: backend/src/api/handler.handler
+    handler: backend/src/handler.handler
     events:
       - httpApi:
           path: "/{proxy+}"
@@ -51,7 +51,7 @@ resources:
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-users-${self:custom.stage}
+        TableName: ${self:custom.stage}-users-
         AttributeDefinitions:
           - AttributeName: "user-id"
             AttributeType: "S"
@@ -68,7 +68,7 @@ resources:
     ItemsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-items-${self:custom.stage}
+        TableName: ${self:custom.stage}-items
         AttributeDefinitions:
           - AttributeName: "item-id"
             AttributeType: "S"
@@ -85,7 +85,7 @@ resources:
     BidsTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:service}-bids-${self:custom.stage}
+        TableName: ${self:custom.stage}-bids
         AttributeDefinitions:
           - AttributeName: "bid-id"
             AttributeType: "S"
