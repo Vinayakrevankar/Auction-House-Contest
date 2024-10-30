@@ -1,19 +1,15 @@
 service: serverless-auction-house
-
 custom:
-  # Stage and region configuration
-  stage: ${opt:stage, 'offline'}
+  stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
-
   esbuild:
     platform: "node"
-    target: node16
+    target: node18
     sourcemap: linked
   serverless-offline:
     httpPort: 4000
     noPrependStageInUrl: true
     reloadHandler: true
-
 provider:
   name: aws
   stage: ${self:custom.stage}
@@ -22,11 +18,15 @@ provider:
   memorySize: 128
   timeout: 10
   logRetentionInDays: 7
-  logs:
-    httpApi: true
   httpApi:
     cors: true
-
+    authorizers:
+      UserPoolAuth:
+        type: jwt
+        identitySource: $request.header.Authorization
+        issuerUrl: !Sub "https://cognito-idp.${self:provider.region}.amazonaws.com/${CognitoUserPool}"
+        audience:
+          - !Ref CognitoUserPoolClient
 functions:
   app:
     handler: backend/src/handler.handler
@@ -34,24 +34,36 @@ functions:
       - httpApi:
           path: "/{proxy+}"
           method: "*"
-
-package:
-  patterns:
-    - "!**/*.test.ts"
-  individually: true
-
-plugins:
-  - serverless-dotenv-plugin
-  - serverless-esbuild
-  - serverless-offline
-
+          authorizer:
+            name: UserPoolAuth
 resources:
   Resources:
-    # Users Table
+    ApiGatewayV2Api:
+      Type: AWS::ApiGatewayV2::Api
+      Properties:
+        Name: ${self:service}-api
+        ProtocolType: HTTP
+    # Cognito User Pool definition
+    CognitoUserPool:
+      Type: AWS::Cognito::UserPool
+      Properties:
+        UserPoolName: ${self:service}-user-pool-${self:custom.stage}
+        AutoVerifiedAttributes:
+          - email
+        UsernameAttributes:
+          - email
+    CognitoUserPoolClient:
+      Type: AWS::Cognito::UserPoolClient
+      Properties:
+        ClientName: ${self:service}-user-pool-client-${self:custom.stage}
+        UserPoolId:
+          Ref: CognitoUserPool
+        GenerateSecret: false
+    # DynamoDB Tables
     UsersTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${self:custom.stage}-users-
+        TableName: ${self:custom.stage}-users
         AttributeDefinitions:
           - AttributeName: "user-id"
             AttributeType: "S"
@@ -63,8 +75,6 @@ resources:
           - AttributeName: "create-time"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
-
-    # Items Table
     ItemsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -80,8 +90,6 @@ resources:
           - AttributeName: "create-time"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
-
-    # Bids Table
     BidsTable:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -97,3 +105,11 @@ resources:
           - AttributeName: "create-time"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-esbuild
+  - serverless-offline
+package:
+  patterns:
+    - "!**/*.test.ts"
+  individually: true
