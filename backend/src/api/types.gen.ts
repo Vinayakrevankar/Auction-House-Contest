@@ -257,21 +257,21 @@ export type ParameterSortBy = 'price' | 'date';
  */
 export type ParameterSortOrder = 'asc' | 'desc';
 
-export type PostApiSellersData = {
-    body: SellerCreationRequest;
-};
-
-export type PostApiSellersResponse = (Seller);
-
-export type PostApiSellersError = unknown;
-
 export type PostApiVerifyData = {
     body: OTP;
 };
 
-export type PostApiVerifyResponse = (Seller);
+export type PostApiVerifyResponse = (unknown);
 
 export type PostApiVerifyError = unknown;
+
+export type PostApiSellersRegisterData = {
+    body: SellerCreationRequest;
+};
+
+export type PostApiSellersRegisterResponse = (unknown);
+
+export type PostApiSellersRegisterError = unknown;
 
 export type PostApiSellersLoginData = {
     body: LoginRequest;
@@ -298,7 +298,7 @@ export type PostApiSellersBySellerIdItemsData = {
     };
 };
 
-export type PostApiSellersBySellerIdItemsResponse = (Item);
+export type PostApiSellersBySellerIdItemsResponse = (unknown);
 
 export type PostApiSellersBySellerIdItemsError = unknown;
 
@@ -380,16 +380,6 @@ export type PostApiSellersBySellerIdItemsByItemIdArchiveResponse = (ItemStateRes
 
 export type PostApiSellersBySellerIdItemsByItemIdArchiveError = unknown;
 
-export type PostApiSellersBySellerIdRequestUnfreezeData = {
-    path: {
-        sellerId: string;
-    };
-};
-
-export type PostApiSellersBySellerIdRequestUnfreezeResponse = (ActionResponse);
-
-export type PostApiSellersBySellerIdRequestUnfreezeError = unknown;
-
 export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeData = {
     path: {
         itemId: string;
@@ -401,13 +391,13 @@ export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeResponse = (Acti
 
 export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeError = unknown;
 
-export type PostApiBuyersData = {
+export type PostApiBuyersRegisterData = {
     body: BuyerCreationRequest;
 };
 
-export type PostApiBuyersResponse = (Buyer);
+export type PostApiBuyersRegisterResponse = (unknown);
 
-export type PostApiBuyersError = unknown;
+export type PostApiBuyersRegisterError = unknown;
 
 export type PostApiBuyersLoginData = {
     body: LoginRequest;
@@ -457,16 +447,6 @@ export type GetApiBuyersByBuyerIdPurchasesData = {
 export type GetApiBuyersByBuyerIdPurchasesResponse = (Array<Purchase>);
 
 export type GetApiBuyersByBuyerIdPurchasesError = unknown;
-
-export type PostApiBuyersByBuyerIdRequestUnfreezeData = {
-    path: {
-        buyerId: string;
-    };
-};
-
-export type PostApiBuyersByBuyerIdRequestUnfreezeResponse = (ActionResponse);
-
-export type PostApiBuyersByBuyerIdRequestUnfreezeError = unknown;
 
 export type PostApiBuyersByBuyerIdBidsData = {
     body: PlaceBidRequest;
@@ -546,28 +526,6 @@ export type GetApiItemsRecentlySoldData = {
 export type GetApiItemsRecentlySoldResponse = (Array<RecentlySoldItem>);
 
 export type GetApiItemsRecentlySoldError = unknown;
-
-export type PostApiAdminBuyersByBuyerIdFreezeData = {
-    body: FreezeActionRequest;
-    path: {
-        buyerId: string;
-    };
-};
-
-export type PostApiAdminBuyersByBuyerIdFreezeResponse = (FreezeActionResponse);
-
-export type PostApiAdminBuyersByBuyerIdFreezeError = unknown;
-
-export type PostApiAdminSellersBySellerIdFreezeData = {
-    body: FreezeActionRequest;
-    path: {
-        sellerId: string;
-    };
-};
-
-export type PostApiAdminSellersBySellerIdFreezeResponse = (FreezeActionResponse);
-
-export type PostApiAdminSellersBySellerIdFreezeError = unknown;
 
 export type PostApiAdminItemsByItemIdFreezeData = {
     body: FreezeActionRequest;

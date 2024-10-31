@@ -6,7 +6,20 @@ info:
 servers:
   - url: http://localhost:8000
 paths:
-  /api/sellers:
+  /api/verify:
+    post:
+      summary: Create a seller account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OTP'
+      responses:
+        '201':
+          description: Verified successfully
+
+  /api/sellers/register:
     post:
       summary: Create a seller account
       tags:
@@ -20,28 +33,6 @@ paths:
       responses:
         '201':
           description: Seller account created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Seller'
-  /api/verify:
-    post:
-      summary: Create a seller account
-      tags:
-        - Sellers
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OTP'
-      responses:
-        '201':
-          description: Verified successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Seller'
   /api/sellers/login:
     post:
       summary: Seller login
@@ -94,10 +85,6 @@ paths:
       responses:
         '201':
           description: Item added successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Item'
     get:
       summary: Review seller's items
       tags:
@@ -227,22 +214,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ItemStateResponse'
-  /api/sellers/{sellerId}/request-unfreeze:
-    post:
-      summary: Request to unfreeze seller account
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Unfreeze request submitted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActionResponse'
   /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
     post:
       summary: Request to unfreeze an item
@@ -260,7 +231,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ActionResponse'
-  /api/buyers:
+  /api/buyers/register:
     post:
       summary: Create a buyer account
       tags:
@@ -274,10 +245,6 @@ paths:
       responses:
         '201':
           description: Buyer account created successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Buyer'
   /api/buyers/login:
     post:
       summary: Buyer login
@@ -370,22 +337,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Purchase'
-  /api/buyers/{buyerId}/request-unfreeze:
-    post:
-      summary: Request to unfreeze buyer account
-      tags:
-        - Buyers
-      parameters:
-        - $ref: '#/components/parameters/BuyerId'
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Unfreeze request submitted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActionResponse'
   /api/buyers/{buyerId}/bids:
     post:
       summary: Place a bid on an item
@@ -464,50 +415,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RecentlySoldItem'
-  /api/admin/buyers/{buyerId}/freeze:
-    post:
-      summary: Freeze or unfreeze a buyer account
-      tags:
-        - Admin
-      parameters:
-        - $ref: '#/components/parameters/BuyerId'
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FreezeActionRequest'
-      responses:
-        '200':
-          description: Buyer account freeze/unfreeze action completed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FreezeActionResponse'
-  /api/admin/sellers/{sellerId}/freeze:
-    post:
-      summary: Freeze or unfreeze a seller account
-      tags:
-        - Admin
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FreezeActionRequest'
-      responses:
-        '200':
-          description: Seller account freeze/unfreeze action completed
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FreezeActionResponse'
   /api/admin/items/{itemId}/freeze:
     post:
       summary: Freeze or unfreeze an item
@@ -636,7 +543,7 @@ components:
     OTP:
       type: object
       required:
-      
+
         - emailAddress
         - OTP
       properties:
