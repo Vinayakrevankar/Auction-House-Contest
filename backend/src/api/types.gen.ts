@@ -18,7 +18,7 @@ export type Seller = {
     fund?: number;
     isFrozen?: boolean;
     isClosed?: boolean;
-    items?: Array<Item>;
+    itemIds?: Array<(string)>;
     OTP?: string;
 };
 
@@ -49,19 +49,20 @@ export type AddItemRequest = {
 };
 
 export type Item = {
-    id?: string;
-    name?: string;
-    description?: string;
-    initPrice?: number;
-    startDate?: string;
-    endDate?: string;
-    itemState?: 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
-    isFrozen?: boolean;
-    images?: Array<(string)>;
-    currentBid?: Bid;
-    pastBids?: Array<Bid>;
+    id: string;
+    name: string;
+    description: string;
+    initPrice: number;
+    startDate: string;
+    endDate: string;
+    itemState: 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
+    isFrozen: boolean;
+    images: Array<(string)>;
+    currentBidId?: string;
+    pastBidIds?: Array<(string)>;
     soldTime?: string;
-    soldBid?: Bid;
+    soldBidId?: string;
+    sellerId: string;
 };
 
 export type itemState = 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
@@ -128,7 +129,7 @@ export type Buyer = {
     fund?: number;
     isFrozen?: boolean;
     isClosed?: boolean;
-    bids?: Array<Bid>;
+    bidIds?: Array<(string)>;
     purchases?: Array<Purchase>;
     OTP?: string;
 };
@@ -171,7 +172,7 @@ export type BidResponse = {
 };
 
 export type Bid = {
-    bidUser?: string;
+    bidUserId?: string;
     bidAmount?: number;
     bidTime?: string;
 };

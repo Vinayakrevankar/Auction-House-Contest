@@ -554,6 +554,15 @@ components:
           format: email
     Seller:
       type: object
+      required:
+        - id
+        - username
+        - emailAddress
+        - fund
+        - isFrozen
+        - isClosed
+        - itemIds
+        - createAt
       properties:
         id:
           type: string
@@ -569,12 +578,14 @@ components:
           type: boolean
         isClosed:
           type: boolean
-        items:
+        itemIds:
           type: array
           items:
-            $ref: '#/components/schemas/Item'
+            type: string
         OTP:
           type: string
+        createAt:
+          type: number
     LoginRequest:
       type: object
       required:
@@ -631,6 +642,18 @@ components:
             format: binary
     Item:
       type: object
+      required:
+        - id
+        - name
+        - description
+        - initPrice
+        - startDate
+        - endDate
+        - itemState
+        - isFrozen
+        - images
+        - sellerId
+        - createAt
       properties:
         id:
           type: string
@@ -656,17 +679,28 @@ components:
           items:
             type: string
             format: uri
-        currentBid:
-          $ref: '#/components/schemas/Bid'
-        pastBids:
+        # currentBid:
+        #   $ref: '#/components/schemas/Bid'
+        currentBidId:
+          type: string
+        # pastBids:
+        #   type: array
+        #   items:
+        #     $ref: '#/components/schemas/Bid'
+        pastBidIds:
           type: array
           items:
-            $ref: '#/components/schemas/Bid'
+            type: string
         soldTime:
           type: string
           format: date-time
-        soldBid:
-          $ref: '#/components/schemas/Bid'
+        # soldBid:
+        #   $ref: '#/components/schemas/Bid'
+        soldBidId:
+          type: string
+        sellerId:
+          type: string
+        createAt: number
     ItemSummary:
       type: object
       properties:
@@ -772,6 +806,16 @@ components:
           format: password
     Buyer:
       type: object
+      required:
+        - id
+        - username
+        - emailAddress
+        - fund
+        - isFrozen
+        - isClosed
+        - bidIds
+        - purchases
+        - createAt
       properties:
         id:
           type: string
@@ -787,15 +831,21 @@ components:
           type: boolean
         isClosed:
           type: boolean
-        bids:
+        # bids:
+        #   type: array
+        #   items:
+        #     $ref: '#/components/schemas/Bid'
+        bidIds:
           type: array
           items:
-            $ref: '#/components/schemas/Bid'
+            type: string
         purchases:
           type: array
           items:
             $ref: '#/components/schemas/Purchase'
         OTP:
+          type: string
+        createAt:
           type: string
     AddFundsRequest:
       type: object
@@ -868,13 +918,15 @@ components:
     Bid:
       type: object
       properties:
-        bidUser:
+        bidUserId:
           type: string
         bidAmount:
           type: number
         bidTime:
           type: string
           format: date-time
+        createAt:
+          type: number
     ItemDetails:
       type: object
       properties:

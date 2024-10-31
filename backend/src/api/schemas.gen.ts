@@ -55,10 +55,10 @@ export const SellerSchema = {
         isClosed: {
             type: 'boolean'
         },
-        items: {
+        itemIds: {
             type: 'array',
             items: {
-                '$ref': '#/components/schemas/Item'
+                type: 'string'
             }
         },
         OTP: {
@@ -143,6 +143,7 @@ export const AddItemRequestSchema = {
 
 export const ItemSchema = {
     type: 'object',
+    required: ['id', 'name', 'description', 'initPrice', 'startDate', 'endDate', 'itemState', 'isFrozen', 'images', 'sellerId'],
     properties: {
         id: {
             type: 'string'
@@ -178,21 +179,24 @@ export const ItemSchema = {
                 format: 'uri'
             }
         },
-        currentBid: {
-            '$ref': '#/components/schemas/Bid'
+        currentBidId: {
+            type: 'string'
         },
-        pastBids: {
+        pastBidIds: {
             type: 'array',
             items: {
-                '$ref': '#/components/schemas/Bid'
+                type: 'string'
             }
         },
         soldTime: {
             type: 'string',
             format: 'date-time'
         },
-        soldBid: {
-            '$ref': '#/components/schemas/Bid'
+        soldBidId: {
+            type: 'string'
+        },
+        sellerId: {
+            type: 'string'
         }
     }
 } as const;
@@ -376,10 +380,10 @@ export const BuyerSchema = {
         isClosed: {
             type: 'boolean'
         },
-        bids: {
+        bidIds: {
             type: 'array',
             items: {
-                '$ref': '#/components/schemas/Bid'
+                type: 'string'
             }
         },
         purchases: {
@@ -499,7 +503,7 @@ export const BidResponseSchema = {
 export const BidSchema = {
     type: 'object',
     properties: {
-        bidUser: {
+        bidUserId: {
             type: 'string'
         },
         bidAmount: {
