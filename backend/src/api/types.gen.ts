@@ -12,14 +12,15 @@ export type OTP = {
 };
 
 export type Seller = {
-    id?: string;
-    username?: string;
-    emailAddress?: string;
-    fund?: number;
-    isFrozen?: boolean;
-    isClosed?: boolean;
-    itemIds?: Array<(string)>;
+    id: string;
+    username: string;
+    emailAddress: string;
+    fund: number;
+    isFrozen: boolean;
+    isClosed: boolean;
+    itemIds: Array<(string)>;
     OTP?: string;
+    createAt: number;
 };
 
 export type LoginRequest = {
@@ -63,6 +64,7 @@ export type Item = {
     soldTime?: string;
     soldBidId?: string;
     sellerId: string;
+    createAt: unknown;
 };
 
 export type itemState = 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
@@ -123,15 +125,16 @@ export type BuyerCreationRequest = {
 };
 
 export type Buyer = {
-    id?: string;
-    username?: string;
-    emailAddress?: string;
-    fund?: number;
-    isFrozen?: boolean;
-    isClosed?: boolean;
-    bidIds?: Array<(string)>;
-    purchases?: Array<Purchase>;
+    id: string;
+    username: string;
+    emailAddress: string;
+    fund: number;
+    isFrozen: boolean;
+    isClosed: boolean;
+    bidIds: Array<(string)>;
+    purchases: Array<Purchase>;
     OTP?: string;
+    createAt: string;
 };
 
 export type AddFundsRequest = {
@@ -175,6 +178,7 @@ export type Bid = {
     bidUserId?: string;
     bidAmount?: number;
     bidTime?: string;
+    createAt?: number;
 };
 
 export type ItemDetails = {

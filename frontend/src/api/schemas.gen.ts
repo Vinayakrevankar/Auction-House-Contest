@@ -34,6 +34,7 @@ export const OTPSchema = {
 
 export const SellerSchema = {
     type: 'object',
+    required: ['id', 'username', 'emailAddress', 'fund', 'isFrozen', 'isClosed', 'itemIds', 'createAt'],
     properties: {
         id: {
             type: 'string'
@@ -63,6 +64,9 @@ export const SellerSchema = {
         },
         OTP: {
             type: 'string'
+        },
+        createAt: {
+            type: 'number'
         }
     }
 } as const;
@@ -143,7 +147,7 @@ export const AddItemRequestSchema = {
 
 export const ItemSchema = {
     type: 'object',
-    required: ['id', 'name', 'description', 'initPrice', 'startDate', 'endDate', 'itemState', 'isFrozen', 'images', 'sellerId'],
+    required: ['id', 'name', 'description', 'initPrice', 'startDate', 'endDate', 'itemState', 'isFrozen', 'images', 'sellerId', 'createAt'],
     properties: {
         id: {
             type: 'string'
@@ -197,7 +201,8 @@ export const ItemSchema = {
         },
         sellerId: {
             type: 'string'
-        }
+        },
+        createAt: 'number'
     }
 } as const;
 
@@ -359,6 +364,7 @@ export const BuyerCreationRequestSchema = {
 
 export const BuyerSchema = {
     type: 'object',
+    required: ['id', 'username', 'emailAddress', 'fund', 'isFrozen', 'isClosed', 'bidIds', 'purchases', 'createAt'],
     properties: {
         id: {
             type: 'string'
@@ -393,6 +399,9 @@ export const BuyerSchema = {
             }
         },
         OTP: {
+            type: 'string'
+        },
+        createAt: {
             type: 'string'
         }
     }
@@ -512,6 +521,9 @@ export const BidSchema = {
         bidTime: {
             type: 'string',
             format: 'date-time'
+        },
+        createAt: {
+            type: 'number'
         }
     }
 } as const;
