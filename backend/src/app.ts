@@ -3,7 +3,7 @@ import 'express-async-errors';
 import express, { json } from 'express';
 import helmet from 'helmet';
 import * as OpenAPIValidator from 'express-openapi-validator';
-import { archiveItem } from './manage-seller/handler';
+import { archiveItem, fulfillItem } from './manage-seller/handler';
 
 const app = express();
 app.use(json());
@@ -37,6 +37,10 @@ app.use((_, res, _2) => {
 
 // Seller use cases
 // Fulfill Item
+app.use(
+  '/api/sellers/:sellerId/items/:itemId/fulfill',
+  (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
+);
 // Archive Item
 app.use(
   '/api/sellers/:sellerId/items/:itemId/archive',

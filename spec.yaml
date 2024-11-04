@@ -700,7 +700,8 @@ components:
           type: string
         sellerId:
           type: string
-        createAt: number
+        createAt:
+          type: number
     ItemSummary:
       type: object
       properties:
@@ -846,7 +847,7 @@ components:
         OTP:
           type: string
         createAt:
-          type: string
+          type: number
     AddFundsRequest:
       type: object
       required:
@@ -917,7 +918,15 @@ components:
           $ref: '#/components/schemas/Bid'
     Bid:
       type: object
+      required:
+        - id
+        - bidUserId
+        - bidAmount
+        - bidTime
+        - createAt
       properties:
+        id:
+          type: string
         bidUserId:
           type: string
         bidAmount:
