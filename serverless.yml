@@ -1,4 +1,5 @@
 service: serverless-auction-house
+
 custom:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
@@ -6,10 +7,14 @@ custom:
     platform: "node"
     target: node18
     sourcemap: linked
+    external:
+      - mock-aws-s3
+      - nock  # Exclude development dependencies causing issues
   serverless-offline:
     httpPort: 4000
     noPrependStageInUrl: true
     reloadHandler: true
+
 provider:
   name: aws
   stage: ${self:custom.stage}
@@ -28,6 +33,7 @@ functions:
       - httpApi:
           path: "/{proxy+}"
           method: "*"
+
 resources:
   Resources:
     ApiGatewayV2Api:
@@ -35,7 +41,6 @@ resources:
       Properties:
         Name: ${self:service}-api
         ProtocolType: HTTP
-    # Cognito User Pool definition
 
     UsersTable2:
       Type: AWS::DynamoDB::Table
@@ -52,6 +57,7 @@ resources:
           - AttributeName: "createAt"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
+
     ItemsTable2:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -67,6 +73,7 @@ resources:
           - AttributeName: "createAt"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
+
     BidsTable2:
       Type: AWS::DynamoDB::Table
       Properties:
@@ -87,6 +94,7 @@ plugins:
   - serverless-dotenv-plugin
   - serverless-esbuild
   - serverless-offline
+
 package:
   patterns:
     - "!**/*.test.ts"
