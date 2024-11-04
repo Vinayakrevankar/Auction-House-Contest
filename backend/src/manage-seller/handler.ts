@@ -1,4 +1,4 @@
-import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
 import { Bid, Item } from "../api";
@@ -7,7 +7,7 @@ const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export function archiveItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
   let cmd = new UpdateCommand({
-    TableName: "dev-items1",
+    TableName: "dev-items3",
     Key: {
       "id": itemId,
     },
@@ -36,7 +36,7 @@ export function archiveItem(sellerId: string, itemId: string, res: Response<any,
 
 export async function fulfillItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
   let queryItemCmd = new QueryCommand({
-    TableName: "dev-items1",
+    TableName: "dev-items3",
     KeyConditionExpression: "id = :id",
     FilterExpression: "sellerId = :sid",
     ExpressionAttributeValues: {
@@ -67,7 +67,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
   }
 
   let queryBidCmd = new QueryCommand({
-    TableName: "dev-bids1",
+    TableName: "dev-bids3",
     KeyConditionExpression: "id = :id",
     ExpressionAttributeValues: {
       ":id": item.currentBidId,
@@ -92,7 +92,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
     TransactItems: [
       {
         Update: {
-          TableName: "dev-users1",
+          TableName: "dev-users3",
           Key: {
             "id": bid.bidUserId,
           },
@@ -105,7 +105,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
       },
       {
         Update: {
-          TableName: "dev-users1",
+          TableName: "dev-users3",
           Key: {
             "id": sellerId,
           },
