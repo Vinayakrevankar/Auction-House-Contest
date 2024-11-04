@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import * as OpenAPIValidator from 'express-openapi-validator';
 import { archiveItem, fulfillItem } from './manage-seller/handler';
 import { register, login } from './manage-user/handler';
-
+import * as httpUtil from './util/httpUtil';
 
 const app = express();
 app.use(json());
@@ -26,25 +26,25 @@ app.use(OpenAPIValidator.middleware({
   validateApiSpec: true,
 }));
 
-app.use((_, res, _2) => {
-  res.status(404).json({ error: 'NOT FOUND' });
-});
-
 // Seller use cases
 // Fulfill Item
-app.use(
+app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
   (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
 );
 // Archive Item
-app.use(
+app.post(
   '/api/sellers/:sellerId/items/:itemId/archive',
   (req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res),
 );
 // Request Unfreeze Item
 
 // login and register
-app.use('/api/register', register);
-app.use('/api/login', login );
+app.post('/api/register', register);
+app.post('/api/login', login );
+
+app.all('*', (req, res) => {
+  res.json(httpUtil.getNotFound());
+});
 
 export { app };

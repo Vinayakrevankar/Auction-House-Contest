@@ -25,6 +25,12 @@ provider:
   logRetentionInDays: 7
   httpApi:
     cors: true
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - dynamodb:*
+      Resource:
+        - arn:aws:dynamodb:${self:provider.region}:637423462092:table/*
 
 functions:
   app:
@@ -88,6 +94,42 @@ resources:
             KeyType: "HASH"
           - AttributeName: "createAt"
             KeyType: "RANGE"
+        BillingMode: PAY_PER_REQUEST
+
+    UsersTable3:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.stage}-users3
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
+
+    ItemsTable3:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.stage}-items3
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
+        BillingMode: PAY_PER_REQUEST
+
+    BidsTable3:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:custom.stage}-bids3
+        AttributeDefinitions:
+          - AttributeName: "id"
+            AttributeType: "S"
+        KeySchema:
+          - AttributeName: "id"
+            KeyType: "HASH"
         BillingMode: PAY_PER_REQUEST
 
 plugins:
