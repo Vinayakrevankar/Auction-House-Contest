@@ -7,9 +7,7 @@ custom:
     platform: "node"
     target: node18
     sourcemap: linked
-    external:
-      - mock-aws-s3
-      - nock  # Exclude development dependencies causing issues
+
   serverless-offline:
     httpPort: 4000
     noPrependStageInUrl: true
@@ -98,5 +96,8 @@ plugins:
 package:
   patterns:
     - "!**/*.test.ts"
+    - "!node_modules/mock-aws-s3/**"  # Explicitly exclude mock dependency
+    - "!node_modules/nock/**"  # Explicitly exclude nock if not needed
+    - "!node_modules/aws-sdk/**"  # AWS SDK is bundled by AWS Lambda runtime
   individually: true
   excludeDevDependencies: true

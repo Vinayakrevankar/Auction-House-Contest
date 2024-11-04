@@ -11,8 +11,7 @@ const app = express();
 app.use(json());
 app.use(helmet());
 
-
-app.get('/test', (_, res) => {
+app.get('/', (_, res) => {
   res.json({
     msg: 'Hello World',
   });
