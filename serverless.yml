@@ -48,54 +48,6 @@ resources:
         Name: ${self:service}-api
         ProtocolType: HTTP
 
-    UsersTable2:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:custom.stage}-users2
-        AttributeDefinitions:
-          - AttributeName: "id"
-            AttributeType: "S"
-          - AttributeName: "createAt"
-            AttributeType: "N"
-        KeySchema:
-          - AttributeName: "id"
-            KeyType: "HASH"
-          - AttributeName: "createAt"
-            KeyType: "RANGE"
-        BillingMode: PAY_PER_REQUEST
-
-    ItemsTable2:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:custom.stage}-items2
-        AttributeDefinitions:
-          - AttributeName: "id"
-            AttributeType: "S"
-          - AttributeName: "createAt"
-            AttributeType: "N"
-        KeySchema:
-          - AttributeName: "id"
-            KeyType: "HASH"
-          - AttributeName: "createAt"
-            KeyType: "RANGE"
-        BillingMode: PAY_PER_REQUEST
-
-    BidsTable2:
-      Type: AWS::DynamoDB::Table
-      Properties:
-        TableName: ${self:custom.stage}-bids2
-        AttributeDefinitions:
-          - AttributeName: "id"
-            AttributeType: "S"
-          - AttributeName: "createAt"
-            AttributeType: "N"
-        KeySchema:
-          - AttributeName: "id"
-            KeyType: "HASH"
-          - AttributeName: "createAt"
-            KeyType: "RANGE"
-        BillingMode: PAY_PER_REQUEST
-
     UsersTable3:
       Type: AWS::DynamoDB::Table
       Properties:

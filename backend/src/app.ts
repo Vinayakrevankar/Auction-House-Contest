@@ -4,7 +4,7 @@ import express, { json } from 'express';
 import helmet from 'helmet';
 import * as OpenAPIValidator from 'express-openapi-validator';
 import { archiveItem, fulfillItem } from './manage-seller/handler';
-import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
+// import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { register, login } from './manage-user/handler';
 import * as httpUtil from './util/httpUtil';
 
@@ -29,20 +29,20 @@ app.use(OpenAPIValidator.middleware({
 
 // Seller use cases
 // Add Item
-app.post(
-  '/api/sellers/:sellerId/items',
-  (req, res) => addItem(req.params['sellerId'], req.body, res),
-);
-// Edit Item
-app.put(
-  '/api/sellers/:sellerId/items/:itemId',
-  (req, res) => editItem(req.params['sellerId'], req.params['itemId'], req.body, res),
-);
-// Remove Inactive Item
-app.delete(
-  '/api/sellers/:sellerId/items/:itemId',
-  (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
-);
+// app.post(
+//   '/api/sellers/:sellerId/items',
+//   (req, res) => addItem(req.params['sellerId'], req.body, res),
+// );
+// // Edit Item
+// app.put(
+//   '/api/sellers/:sellerId/items/:itemId',
+//   (req, res) => editItem(req.params['sellerId'], req.params['itemId'], req.body, res),
+// );
+// // Remove Inactive Item
+// app.delete(
+//   '/api/sellers/:sellerId/items/:itemId',
+//   (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
+// );
 // Fulfill Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
