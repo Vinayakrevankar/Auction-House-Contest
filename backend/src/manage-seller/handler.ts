@@ -96,8 +96,8 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": bid.bidUserId,
           },
-          UpdateExpression: "set funds = funds - :amount",
-          ConditionExpression: "funds >= :amount",
+          UpdateExpression: "set fund = fund - :amount",
+          ConditionExpression: "fund >= :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
           },
@@ -109,7 +109,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": sellerId,
           },
-          UpdateExpression: "set funds = funds + :amount",
+          UpdateExpression: "set fund = fund + :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
           },
