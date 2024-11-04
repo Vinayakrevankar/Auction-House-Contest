@@ -7,7 +7,9 @@ custom:
     platform: "node"
     target: node18
     sourcemap: linked
-
+    external:
+      - mock-aws-s3
+      - nock  # Exclude unnecessary dev dependencies
   serverless-offline:
     httpPort: 4000
     noPrependStageInUrl: true
