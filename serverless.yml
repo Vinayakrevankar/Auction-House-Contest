@@ -91,3 +91,4 @@ package:
   patterns:
     - "!**/*.test.ts"
   individually: true
+  excludeDevDependencies: true
