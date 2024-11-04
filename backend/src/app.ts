@@ -4,21 +4,17 @@ import express, { json } from 'express';
 import helmet from 'helmet';
 import * as OpenAPIValidator from 'express-openapi-validator';
 import { archiveItem, fulfillItem } from './manage-seller/handler';
+import { register, login } from './manage-user/handler';
+
 
 const app = express();
 app.use(json());
 app.use(helmet());
 
 
-app.get('/', (_, res) => {
+app.get('/test', (_, res) => {
   res.json({
     msg: 'Hello World',
-  });
-});
-
-app.get('/prisma', async (_, res) => {
-  res.json({
-    msg: 'Add a new unique user without duplicate',
   });
 });
 
@@ -47,5 +43,9 @@ app.use(
   (req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res),
 );
 // Request Unfreeze Item
+
+// login and register
+app.use('/api/register', register);
+app.use('/api/login', login );
 
 export { app };
