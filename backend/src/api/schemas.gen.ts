@@ -202,7 +202,9 @@ export const ItemSchema = {
         sellerId: {
             type: 'string'
         },
-        createAt: 'number'
+        createAt: {
+            type: 'number'
+        }
     }
 } as const;
 
@@ -402,7 +404,7 @@ export const BuyerSchema = {
             type: 'string'
         },
         createAt: {
-            type: 'string'
+            type: 'number'
         }
     }
 } as const;
@@ -511,7 +513,11 @@ export const BidResponseSchema = {
 
 export const BidSchema = {
     type: 'object',
+    required: ['id', 'bidUserId', 'bidAmount', 'bidTime', 'createAt'],
     properties: {
+        id: {
+            type: 'string'
+        },
         bidUserId: {
             type: 'string'
         },

@@ -64,7 +64,7 @@ export type Item = {
     soldTime?: string;
     soldBidId?: string;
     sellerId: string;
-    createAt: unknown;
+    createAt: number;
 };
 
 export type itemState = 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
@@ -134,7 +134,7 @@ export type Buyer = {
     bidIds: Array<(string)>;
     purchases: Array<Purchase>;
     OTP?: string;
-    createAt: string;
+    createAt: number;
 };
 
 export type AddFundsRequest = {
@@ -175,10 +175,11 @@ export type BidResponse = {
 };
 
 export type Bid = {
-    bidUserId?: string;
-    bidAmount?: number;
-    bidTime?: string;
-    createAt?: number;
+    id: string;
+    bidUserId: string;
+    bidAmount: number;
+    bidTime: string;
+    createAt: number;
 };
 
 export type ItemDetails = {

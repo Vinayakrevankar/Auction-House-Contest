@@ -82,7 +82,7 @@ resources:
           - AttributeName: "createAt"
             KeyType: "RANGE"
         BillingMode: PAY_PER_REQUEST
-      
+
 plugins:
   - serverless-dotenv-plugin
   - serverless-esbuild
