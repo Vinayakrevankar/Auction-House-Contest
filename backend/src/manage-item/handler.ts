@@ -204,7 +204,9 @@ export async function addItem(
       res.status(500).send({ error: err });
     }
   }
-  
+
+
+//Publish item
 export async function publishItem(
   sellerId: string,
   itemId: string,
