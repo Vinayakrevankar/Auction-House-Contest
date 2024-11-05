@@ -2,7 +2,7 @@ import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
 import { Admin, Bid, FulfillItemResponse, Item, Purchase } from "../api";
-
+import { ADMIN_ID } from "../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export function archiveItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
