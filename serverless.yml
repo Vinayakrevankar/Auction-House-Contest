@@ -1,7 +1,7 @@
 service: serverless-auction-house
 
 custom:
-  stage: ${opt:stage, 'dev'}
+  stage: ${opt:stage, 'dev1'}
   region: ${opt:region, 'us-east-1'}
   esbuild:
     platform: "node"
