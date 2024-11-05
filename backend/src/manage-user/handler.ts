@@ -50,14 +50,14 @@ export async function register(req: Request, res: Response) {
         userType,
         role,
         isActive: true,
-        ...(userType === "seller" ? { sellerId: uniqueId } : { buyerId: uniqueId })
+        userId: uniqueId
       }
     });
 
     await dclient.send(putUserCommand);
     // Generate JWT token
     const token = jwt.sign(
-      { username, email, role, userType, ...(userType === "seller" ? { sellerId: uniqueId } : { buyerId: uniqueId }) },
+      { username, id: email,  email, role, userType,firstName, lastName, isActive: true, userId: uniqueId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -100,7 +100,7 @@ export async function login(req: Request, res: Response) {
 
     // Generate JWT token
     const token = jwt.sign(
-      { username: user.username, email: user.id, role: user.role, userType: user.userType, ...(user.sellerId ? { sellerId: user.sellerId } : { buyerId: user.buyerId }) },
+      { username: user.username, id: email, firstName: user.firstName, lastName: user.lastName, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );

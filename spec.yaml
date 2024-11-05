@@ -6,6 +6,94 @@ info:
 servers:
   - url: http://localhost:8000
 paths:
+  /api/login:
+    post:
+      summary: Login endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+                  format: password
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    example: 200
+                  errorCode:
+                    type: string
+                    nullable: true
+                  message:
+                    type: string
+                    example: Login successful
+                  payload:
+                    type: object
+                    properties:
+                      token:
+                        type: string
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
+
+  /api/register:
+    post:
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                username:
+                  type: string
+                password:
+                  type: string
+                  format: password
+                email:
+                  type: string
+                  format: email
+                firstName:
+                  type: string
+                lastName:
+                  type: string
+                userType:
+                  type: string
+                  enum: [seller, buyer]
+                role:
+                  type: string
+                  enum: [admin, user]
+                isActive:
+                  type: boolean
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                  errorCode:
+                    type: string
+                    nullable: true
+                  message:
+                    type: string
+                  payload:
+                    type: object
+                    nullable: true
   /api/verify:
     post:
       summary: Create a seller account
@@ -19,38 +107,6 @@ paths:
         '201':
           description: Verified successfully
 
-  /api/sellers/register:
-    post:
-      summary: Create a seller account
-      tags:
-        - Sellers
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/SellerCreationRequest'
-      responses:
-        '201':
-          description: Seller account created successfully
-  /api/sellers/login:
-    post:
-      summary: Seller login
-      tags:
-        - Sellers
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-      responses:
-        '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
   /api/sellers/{sellerId}/close:
     post:
       summary: Close seller account
@@ -231,38 +287,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ActionResponse'
-  /api/buyers/register:
-    post:
-      summary: Create a buyer account
-      tags:
-        - Buyers
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/BuyerCreationRequest'
-      responses:
-        '201':
-          description: Buyer account created successfully
-  /api/buyers/login:
-    post:
-      summary: Buyer login
-      tags:
-        - Buyers
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/LoginRequest'
-      responses:
-        '200':
-          description: Login successful
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/LoginResponse'
   /api/buyers/{buyerId}/close:
     post:
       summary: Close buyer account
