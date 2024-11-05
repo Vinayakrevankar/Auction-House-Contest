@@ -13,11 +13,11 @@ const app = express();
 app.use(json());
 app.use(helmet());
 
-app.get('/', (_, res) => {
-  res.json([authFilterMiddleware,{
+app.get('/', [authFilterMiddleware,(_, res) => {
+  res.json({
     msg: 'Hello World',
-  }]);
-});
+  });
+}]);
 
 // See https://cdimascio.github.io/express-openapi-validator-documentation/guide-standard/
 // to write handlers.
