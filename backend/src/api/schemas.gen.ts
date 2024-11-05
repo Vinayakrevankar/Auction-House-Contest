@@ -32,6 +32,35 @@ export const OTPSchema = {
     }
 } as const;
 
+export const AdminSchema = {
+    type: 'object',
+    required: ['id', 'username', 'emailAddress', 'itemUnfreezeRequests', 'createAt'],
+    properties: {
+        id: {
+            type: 'string'
+        },
+        username: {
+            type: 'string'
+        },
+        emailAddress: {
+            type: 'string',
+            format: 'email'
+        },
+        itemUnfreezeRequests: {
+            type: 'array',
+            items: {
+                type: 'string'
+            }
+        },
+        OTP: {
+            type: 'string'
+        },
+        createAt: {
+            type: 'number'
+        }
+    }
+} as const;
+
 export const SellerSchema = {
     type: 'object',
     required: ['id', 'username', 'emailAddress', 'fund', 'isFrozen', 'isClosed', 'itemIds', 'createAt'],

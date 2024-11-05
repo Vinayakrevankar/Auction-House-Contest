@@ -1,0 +1,1 @@
+export const ADMIN_ID: string = "SUPERADMIN";
