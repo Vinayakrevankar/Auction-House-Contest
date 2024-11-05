@@ -43,10 +43,10 @@ app.put(
   (req, res) => editItem(req.params['sellerId'], req.params['id'], req.body, res),
 );
 // // Remove Inactive Item
-// app.delete(
-//   '/api/sellers/:sellerId/items/:itemId',
-//   (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
-// );
+app.delete(
+  '/api/sellers/:sellerId/items/:itemId',
+  (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
+);
 // Fulfill Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
