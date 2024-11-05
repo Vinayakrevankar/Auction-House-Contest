@@ -1,13 +1,14 @@
 {
   "name": "serverless-aution-house",
   "version": "1.0.0",
-  "description": "Aution House Application",
+  "description": "Auction House Contest Application",
   "type": "module",
   "scripts": {
     "lint": "eslint .",
     "format": "eslint --fix . && prettier '**/*.{json,yaml}' --write --ignore-path .gitignore",
     "test": "jest",
-    "test:dev": "start-server-and-test dev http://127.0.0.1:4000 'curl --head http://127.0.0.1:4000'"
+    "test:dev": "start-server-and-test dev http://127.0.0.1:4000 'curl --head http://127.0.0.1:4000'",
+    "deploy": "serverless deploy --stage dev --region us-east-1"
   },
   "dependencies": {
     "@aws-sdk/client-dynamodb": "^3.682.0",
