@@ -59,7 +59,7 @@ export async function addItem(
     };
   
     const cmd = new PutCommand({
-      TableName: "dev-items1",
+      TableName: "dev-items3",
       Item: item,
     });
   
@@ -81,7 +81,7 @@ export async function addItem(
   ) {
     // Fetch the item to verify ownership and state
     const getCmd = new GetCommand({
-      TableName: "dev-items1",
+      TableName: "dev-items3",
       Key: { id: itemId },
     });
   
@@ -139,7 +139,7 @@ export async function addItem(
       }
   
       const updateCmd = new UpdateCommand({
-        TableName: "dev-items1",
+        TableName: "dev-items3",
         Key: { id: itemId },
         UpdateExpression: updateExpression,
         ExpressionAttributeValues: expressionAttributeValues,
@@ -165,7 +165,7 @@ export async function addItem(
   ) {
     // Fetch the item to verify ownership and state
     const getCmd = new GetCommand({
-      TableName: "dev-items1",
+      TableName: "dev-items3",
       Key: { id: itemId },
     });
   
@@ -190,7 +190,7 @@ export async function addItem(
   
       // Delete the item
       const deleteCmd = new DeleteCommand({
-        TableName: "dev-items1",
+        TableName: "dev-items3",
         Key: { id: itemId },
       });
   

@@ -1,6 +1,6 @@
 export const REGION = "us-east-1";
 export const TABLE_NAMES = {
-  ITEMS: "dev-items",
+  ITEMS: "dev-items3",
 };
 export const ITEM_STATES = {
   ACTIVE: "active",
