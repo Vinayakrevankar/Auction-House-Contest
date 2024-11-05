@@ -37,10 +37,10 @@ app.post(
     addItem(req.params['sellerId'], req.body, res),
 );
 // // Edit Item
-// app.put(
-//   '/api/sellers/:sellerId/items/:itemId',
-//   (req, res) => editItem(req.params['sellerId'], req.params['itemId'], req.body, res),
-// );
+app.put(
+  '/api/sellers/:sellerId/items/:id',
+  (req, res) => editItem(req.params['sellerId'], req.params['id'], req.body, res),
+);
 // // Remove Inactive Item
 // app.delete(
 //   '/api/sellers/:sellerId/items/:itemId',
