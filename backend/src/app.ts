@@ -4,8 +4,7 @@ import express, { json } from 'express';
 import helmet from 'helmet';
 // import * as OpenAPIValidator from 'express-openapi-validator';
 import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
-import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
-
+// import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { register, login } from './manage-user/handler';
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
@@ -64,8 +63,9 @@ app.post(
 );
 
 // login and register
-app.post('/api/register', register);
-app.post('/api/login', login);
+app.post('/api/register', registerHandler);
+app.post('/api/login', loginHander);
+app.put('/api/profile/update', editProfileHandler);
 
 app.all('*', (req, res) => {
   res.json(httpUtil.getNotFound());
