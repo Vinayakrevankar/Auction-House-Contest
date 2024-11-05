@@ -20,12 +20,12 @@ app.get('/', (_, res) => {
 
 // See https://cdimascio.github.io/express-openapi-validator-documentation/guide-standard/
 // to write handlers.
-app.use(OpenAPIValidator.middleware({
-  apiSpec: "../../spec.yaml",
-  validateRequests: true,
-  validateResponses: true,
-  validateApiSpec: true,
-}));
+// app.use(OpenAPIValidator.middleware({
+//   apiSpec: "../../spec.yaml",
+//   validateRequests: true,
+//   validateResponses: true,
+//   validateApiSpec: true,
+// }));
 
 // Seller use cases
 // Add Item
