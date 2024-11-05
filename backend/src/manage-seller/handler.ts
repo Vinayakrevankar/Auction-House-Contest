@@ -1,7 +1,7 @@
-import { QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
-import { Bid, FulfillItemResponse, Item, Purchase } from "../api";
+import { Admin, Bid, FulfillItemResponse, Item, Purchase } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -21,9 +21,7 @@ export function archiveItem(sellerId: string, itemId: string, res: Response<any,
   });
   dclient.send(cmd, (err, _) => {
     if (err) {
-      res.status(500).send({
-        error: err,
-      });
+      res.status(500).send({ error: err });
     } else {
       res.send({
         message: "Success",
@@ -51,42 +49,33 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
   });
   if (!queryItemResp) {
     return;
-  } else if ((queryItemResp.Count ?? 0) === 0) {
-    res.status(404).send({
-      error: "Item not found.",
-    });
+  } else if (queryItemResp.Items?.at(0) === undefined) {
+    res.status(404).send({ error: "Item not found." });
     return;
   }
 
-  let item = queryItemResp.Items![0] as Item;
+  let item = queryItemResp.Items[0] as Item;
   if (item.itemState !== "completed" || item.currentBidId === undefined) {
-    res.status(400).send({
-      error: "This item cannot be fulfilled yet.",
-    });
+    res.status(400).send({ error: "This item cannot be fulfilled yet." });
     return;
   }
 
-  let queryBidCmd = new QueryCommand({
+  let getBidCmd = new GetCommand({
     TableName: "dev-bids3",
-    KeyConditionExpression: "id = :id",
-    ExpressionAttributeValues: {
-      ":id": item.currentBidId,
+    Key: {
+      "id": item.currentBidId,
     },
   });
-  let queryBidResp = await dclient.send(queryBidCmd).catch(err => {
-    res.status(500).send({
-      error: err,
-    });
+  let getBidResp = await dclient.send(getBidCmd).catch(err => {
+    res.status(500).send({ error: err });
   });
-  if (!queryBidResp) {
+  if (!getBidResp) {
     return;
-  } else if ((queryBidResp.Count ?? 0) === 0) {
-    res.status(404).send({
-      error: "Bid not found.",
-    });
+  } else if (getBidResp.Item === undefined) {
+    res.status(404).send({ error: "Bid not found." });
     return;
   }
-  let bid = queryBidResp.Items![0] as Bid;
+  let bid = getBidResp.Item as Bid;
 
   let batchUpdateTransactionCmd = new TransactWriteCommand({
     TransactItems: [
@@ -138,9 +127,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
     ],
   });
   let batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
-    res.status(500).send({
-      error: err,
-    });
+    res.status(500).send({ error: err });
   });
   if (!batchUpdateTransactionResp) {
     return;
@@ -150,5 +137,54 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
     itemId: itemId,
     soldBid: bid,
     soldTime: bid.bidTime,
+  });
+}
+
+export async function requestUnfreezeItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
+  let queryItemCmd = new QueryCommand({
+    TableName: "dev-items3",
+    KeyConditionExpression: "id = :id",
+    FilterExpression: "sellerId = :sid",
+    ExpressionAttributeValues: {
+      ":id": itemId,
+      ":sid": sellerId,
+    },
+  });
+  let queryItemResp = await dclient.send(queryItemCmd).catch(err => {
+    res.status(500).send({ error: err });
+  });
+  if (!queryItemResp) {
+    return;
+  } else if (queryItemResp.Items?.at(0) === undefined) {
+    res.status(404).send({ error: "Item not found." });
+    return;
+  }
+
+  let item = queryItemResp.Items[0] as Item;
+  if (!item.isFrozen) {
+    res.status(400).send({ error: "Item is not frozen." });
+    return;
+  }
+
+  let updateAdminCmd = new UpdateCommand({
+    TableName: "dev-users3",
+    Key: {
+      "id": ADMIN_ID,
+    },
+    UpdateExpression: "set itemUnfreezeRequests = list_append(itemUnfreezeRequests, :req)",
+    ConditionExpression: "attribute_exists(itemUnfreezeRequests)",
+    ExpressionAttributeValues: {
+      ":req": [item.id],
+    },
+  });
+  dclient.send(updateAdminCmd, (err, _) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    } else {
+      res.send({
+        message: "Success",
+        itemId: itemId,
+      });
+    }
   });
 }

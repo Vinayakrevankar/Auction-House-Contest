@@ -11,6 +11,15 @@ export type OTP = {
     emailAddress: string;
 };
 
+export type Admin = {
+    id: string;
+    username: string;
+    emailAddress: string;
+    itemUnfreezeRequests: Array<(string)>;
+    OTP?: string;
+    createAt: number;
+};
+
 export type Seller = {
     id: string;
     username: string;

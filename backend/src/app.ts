@@ -2,8 +2,8 @@ import 'express-async-errors';
 
 import express, { json } from 'express';
 import helmet from 'helmet';
-import * as OpenAPIValidator from 'express-openapi-validator';
-import { archiveItem, fulfillItem } from './manage-seller/handler';
+// import * as OpenAPIValidator from 'express-openapi-validator';
+import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
 // import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { register, login } from './manage-user/handler';
 import * as httpUtil from './util/httpUtil';
@@ -13,11 +13,11 @@ const app = express();
 app.use(json());
 app.use(helmet());
 
-app.get('/', [authFilterMiddleware,(_, res) => {
+app.get('/', authFilterMiddleware, (_, res) => {
   res.json({
     msg: 'Hello World',
   });
-}]);
+});
 
 // See https://cdimascio.github.io/express-openapi-validator-documentation/guide-standard/
 // to write handlers.
@@ -47,18 +47,22 @@ app.get('/', [authFilterMiddleware,(_, res) => {
 // Fulfill Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
-  [authFilterMiddleware,(req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res)],
+  authFilterMiddleware, (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
 );
 // Archive Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/archive',
-  [authFilterMiddleware,(req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res)],
+  authFilterMiddleware, (req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res),
 );
 // Request Unfreeze Item
+app.post(
+  '/api/sellers/:sellerId/items/:itemId/request-unfreeze',
+  authFilterMiddleware, (req, res) => requestUnfreezeItem(req.params['sellerId'], req.params['itemId'], res),
+);
 
 // login and register
 app.post('/api/register', register);
-app.post('/api/login', login );
+app.post('/api/login', login);
 
 app.all('*', (req, res) => {
   res.json(httpUtil.getNotFound());
