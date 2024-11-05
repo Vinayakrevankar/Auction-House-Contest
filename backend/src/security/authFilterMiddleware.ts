@@ -15,10 +15,13 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
-  email?: string;
-  role?: string;
-  userType?: string;
-  userId?: string;
+  email: string;
+  role: string;
+  userType: string;
+  userId: string;
+  isActive: boolean;
+  iat: number;
+  exp: number;
 }
 
 export const authFilterMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -28,20 +31,11 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
 
   try {
     const token = req.get('Authorization');
-
+    console.log("token>>>>",token)
     if (token && token.split('.').length > 1) {
-      const userInfo = jwt.verify(token, JWT_SECRET) as {
-        username: string;
-        password: string;
-        id: string;
-        firstName: string;
-        lastName: string;
-        email: string;
-        role: string;
-        userType: string;
-        userId: string;
-      };
-
+      console.log("LINE 32",token)
+      const userInfo = jwt.verify(token, JWT_SECRET) as User;
+      console.log("userInfo>>>>>",userInfo)
       if (_.isEmpty(userInfo)) {
         res.json(httpUtil.getUnauthorized());
         return;
@@ -68,6 +62,8 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
 
       next();
     } else {
+      console.log("LINE 32",token)
+
       throw new Error('Token Expired/Invalid Token');
     }
   } catch (error) {

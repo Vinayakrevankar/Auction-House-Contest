@@ -1,19 +1,19 @@
 import { GetCommand } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 
-interface GetSecurityResponse {
-  [key: string]: any; // Adjust this according to your expected response structure
-}
-
-export const getUser = async (client: DynamoDBClient, emailId: string): Promise<GetSecurityResponse | undefined> => {
+export const getUser = async (client, emailId) => {
   const params = {
     TableName: 'dev-users3',
     Key: {
-      id: { S: emailId }
+      id: emailId
     }
   };
 
-  const command = new GetCommand(params);
-  const response = await client.send(command);
-  return response.Item as GetSecurityResponse | undefined;
+  try {
+    const command = new GetCommand(params);
+    const response = await client.send(command);
+    return response.Item;
+  } catch (err) {  
+    console.log("Error in getUser", err);
+    throw err;
+  }
 };

@@ -10,20 +10,16 @@ const JWT_SECRET = 'JqaXPsfAMN4omyJWj9c8o9nbEQStbsiJ';
 const USER_DB = "dev-users3";
 
 export async function register(req: Request, res: Response) {
-
-  const { username, password, id: email, firstName, lastName, userType, role } = req.body;
+  const { username, password, email, firstName, lastName, userType, role } = req.body;
 
   if (!username || !password || !email || !firstName || !lastName) {
     return res.status(400).json(getBadRequest([null, "All fields are required."]));
   }
 
   try {
-    // Check if the user already exists
     const getUserCommand = new GetCommand({
       TableName: USER_DB,
-      Key: {
-        id: email
-      }
+      Key: { id: email }
     });
     const existingUser = await dclient.send(getUserCommand);
 
@@ -31,17 +27,15 @@ export async function register(req: Request, res: Response) {
       return res.status(400).json(getBadRequest([null, "User already exists."]));
     }
 
-    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
     const timestamp = Date.now();
     const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
     const uniqueId = `${firstName.slice(0, 2).toUpperCase()}${lastName.slice(0, 2).toUpperCase()}${timestamp.toString().slice(-5)}${randomSuffix}`;
-    
-    // Insert new user
+
     const putUserCommand = new PutCommand({
       TableName: USER_DB,
       Item: {
-        createdAt: timestamp, // Ensure createdAt is stored as a number
+        createdAt: timestamp,
         username,
         password: hashedPassword,
         id: email,
@@ -55,9 +49,9 @@ export async function register(req: Request, res: Response) {
     });
 
     await dclient.send(putUserCommand);
-    // Generate JWT token
+
     const token = jwt.sign(
-      { username, id: email,  email, role, userType,firstName, lastName, isActive: true, userId: uniqueId },
+      { username, id: email, email, role, userType, firstName, lastName, isActive: true, userId: uniqueId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -77,12 +71,9 @@ export async function login(req: Request, res: Response) {
   }
 
   try {
-    // Retrieve user by email
     const getUserCommand = new GetCommand({
       TableName: USER_DB,
-      Key: {
-        id: email
-      }
+      Key: { id: email }
     });
     const userResult = await dclient.send(getUserCommand);
 
@@ -91,16 +82,14 @@ export async function login(req: Request, res: Response) {
     }
 
     const user = userResult.Item;
-
-    // Check if password is correct
     const isPasswordValid = await bcrypt.compare(password, user.password);
+
     if (!isPasswordValid) {
       return res.status(401).json(getUnauthorized([null, "Invalid credentials."]));
     }
 
-    // Generate JWT token
     const token = jwt.sign(
-      { username: user.username, id: email, firstName: user.firstName, lastName: user.lastName, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
+      { username: user.username, id: email, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
