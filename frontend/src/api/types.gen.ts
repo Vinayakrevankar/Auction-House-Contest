@@ -263,6 +263,48 @@ export type ParameterSortBy = 'price' | 'date';
  */
 export type ParameterSortOrder = 'asc' | 'desc';
 
+export type PostApiLoginData = {
+    body: {
+        email?: string;
+        password?: string;
+    };
+};
+
+export type PostApiLoginResponse = ({
+    status?: number;
+    errorCode?: (string) | null;
+    message?: string;
+    payload?: {
+        token?: string;
+    };
+});
+
+export type PostApiLoginError = unknown;
+
+export type PostApiRegisterData = {
+    body: {
+        username?: string;
+        password?: string;
+        email?: string;
+        firstName?: string;
+        lastName?: string;
+        userType?: 'seller' | 'buyer';
+        role?: 'admin' | 'user';
+        isActive?: boolean;
+    };
+};
+
+export type PostApiRegisterResponse = ({
+    status?: number;
+    errorCode?: (string) | null;
+    message?: string;
+    payload?: {
+        [key: string]: unknown;
+    } | null;
+});
+
+export type PostApiRegisterError = unknown;
+
 export type PostApiVerifyData = {
     body: OTP;
 };
@@ -270,22 +312,6 @@ export type PostApiVerifyData = {
 export type PostApiVerifyResponse = (unknown);
 
 export type PostApiVerifyError = unknown;
-
-export type PostApiSellersRegisterData = {
-    body: SellerCreationRequest;
-};
-
-export type PostApiSellersRegisterResponse = (unknown);
-
-export type PostApiSellersRegisterError = unknown;
-
-export type PostApiSellersLoginData = {
-    body: LoginRequest;
-};
-
-export type PostApiSellersLoginResponse = (LoginResponse);
-
-export type PostApiSellersLoginError = unknown;
 
 export type PostApiSellersBySellerIdCloseData = {
     path: {
@@ -396,22 +422,6 @@ export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeData = {
 export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeResponse = (ActionResponse);
 
 export type PostApiSellersBySellerIdItemsByItemIdRequestUnfreezeError = unknown;
-
-export type PostApiBuyersRegisterData = {
-    body: BuyerCreationRequest;
-};
-
-export type PostApiBuyersRegisterResponse = (unknown);
-
-export type PostApiBuyersRegisterError = unknown;
-
-export type PostApiBuyersLoginData = {
-    body: LoginRequest;
-};
-
-export type PostApiBuyersLoginResponse = (LoginResponse);
-
-export type PostApiBuyersLoginError = unknown;
 
 export type PostApiBuyersByBuyerIdCloseData = {
     path: {
