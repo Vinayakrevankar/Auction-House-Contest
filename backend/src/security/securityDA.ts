@@ -7,7 +7,7 @@ interface GetSecurityResponse {
 
 export const getUser = async (client: DynamoDBClient, emailId: string): Promise<GetSecurityResponse | undefined> => {
   const params = {
-    TableName: 'dev-users2',
+    TableName: 'dev-users3',
     Key: {
       id: { S: emailId }
     }

@@ -7,15 +7,16 @@ import { archiveItem, fulfillItem } from './manage-seller/handler';
 // import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { register, login } from './manage-user/handler';
 import * as httpUtil from './util/httpUtil';
-
+import { authFilterMiddleware } from './security/authFilterMiddleware';
+import { asyncMiddleware as _async } from './security/asyncMiddleware';
 const app = express();
 app.use(json());
 app.use(helmet());
 
 app.get('/', (_, res) => {
-  res.json({
+  res.json([authFilterMiddleware,{
     msg: 'Hello World',
-  });
+  }]);
 });
 
 // See https://cdimascio.github.io/express-openapi-validator-documentation/guide-standard/
@@ -46,12 +47,12 @@ app.get('/', (_, res) => {
 // Fulfill Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
-  (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
+  [authFilterMiddleware,(req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res)],
 );
 // Archive Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/archive',
-  (req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res),
+  [authFilterMiddleware,(req, res) => archiveItem(req.params['sellerId'], req.params['itemId'], res)],
 );
 // Request Unfreeze Item
 

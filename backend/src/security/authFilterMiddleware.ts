@@ -18,8 +18,7 @@ interface User {
   email?: string;
   role?: string;
   userType?: string;
-  sellerId?: string;
-  buyerId?: string;
+  userId?: string;
 }
 
 export const authFilterMiddleware = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -33,11 +32,14 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
     if (token && token.split('.').length > 1) {
       const userInfo = jwt.verify(token, JWT_SECRET) as {
         username: string;
+        password: string;
+        id: string;
+        firstName: string;
+        lastName: string;
         email: string;
-        role?: string;
-        userType?: string;
-        sellerId?: string;
-        buyerId?: string;
+        role: string;
+        userType: string;
+        userId: string;
       };
 
       if (_.isEmpty(userInfo)) {
@@ -45,7 +47,7 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
         return;
       }
 
-      const { email, username, role, userType, sellerId, buyerId } = userInfo;
+      const { email, firstName, lastName, username, role, userType, userId } = userInfo;
 
       const user = await securityDA.getUser(req.app.locals.dynamoDBClient, email) as User | undefined;
 
@@ -55,12 +57,14 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
       }
 
       // Store additional user info in res.locals
-      res.locals.userId = user.id;
-      res.locals.email = user.email;
+      res.locals.id = email;
+      res.locals.email = email;
+      res.locals.firstName = firstName;
+      res.locals.lastName = lastName;
+      res.locals.username = username;
       res.locals.role = role;
       res.locals.userType = userType;
-      res.locals.sellerId = sellerId;
-      res.locals.buyerId = buyerId;
+      res.locals.userId = userId;
 
       next();
     } else {
