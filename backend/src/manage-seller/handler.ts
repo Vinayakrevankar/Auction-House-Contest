@@ -1,7 +1,7 @@
 import { QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
-import { Bid, Item } from "../api";
+import { Bid, FulfillItemResponse, Item, Purchase } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -96,10 +96,17 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": bid.bidUserId,
           },
-          UpdateExpression: "set fund = fund - :amount",
+          UpdateExpression: "set fund = fund - :amount, purchases = list_append(purchases, :new_purchase)",
           ConditionExpression: "fund >= :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
+            ":new_purchase": <Purchase[]>[{
+              itemId: item.id,
+              itemName: item.name,
+              purchasePrice: bid.bidAmount,
+              soldTime: bid.bidTime,
+              fulfillmentDate: new Date().toISOString(),
+            }],
           },
         }
       },
@@ -115,6 +122,19 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           },
         }
       },
+      {
+        Update: {
+          TableName: "dev-items3",
+          Key: {
+            "id": item.id,
+          },
+          UpdateExpression: "set soldBidId = :id, soldTime = :time",
+          ExpressionAttributeValues: {
+            ":id": bid.id,
+            ":time": bid.bidTime,
+          },
+        },
+      },
     ],
   });
   let batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
@@ -125,9 +145,10 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
   if (!batchUpdateTransactionResp) {
     return;
   }
-  res.send({
+  res.send(<FulfillItemResponse>{
     message: "Finished fulfill item.",
+    itemId: itemId,
     soldBid: bid,
-    soldTime: new Date().toISOString(),
+    soldTime: bid.bidTime,
   });
 }
