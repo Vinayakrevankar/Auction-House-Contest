@@ -2,7 +2,7 @@
   "name": "auction-house-contest-frontend",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://vinayakrevankar.github.io/auction-house-context",
+  "homepage": "https://vinayakrevankar.github.io/Auction-House-Contest",
   "dependencies": {
     "@hey-api/client-fetch": "^0.4.2",
     "@testing-library/jest-dom": "^5.17.0",
