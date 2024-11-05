@@ -2,7 +2,7 @@ name: Deploy Serverless Application
 
 on:
   push:
-    branches: ["main"]
+    branches: ["dev1"]
   workflow_dispatch:
 
 jobs:
@@ -45,4 +45,4 @@ jobs:
 
       # Step 6: Deploy with Serverless Framework
       - name: Deploy to Serverless
-        run: npx serverless deploy --stage dev --region us-east-1
+        run: npx serverless deploy --stage dev1 --region us-east-1
