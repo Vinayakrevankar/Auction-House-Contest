@@ -2,6 +2,7 @@ import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, DeleteCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
+import { REGION, TABLE_NAMES, ITEM_STATES, MESSAGES } from "./constants";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -204,5 +205,115 @@ export async function addItem(
     }
   }
   
+export async function publishItem(
+  sellerId: string,
+  itemId: string,
+  res: Response
+) {
+  const params = {
+    TableName: TABLE_NAMES.ITEMS,
+    Key: { id: itemId },
+    UpdateExpression: "SET itemState = :new",
+    ConditionExpression: "itemState = :old AND sellerId = :sid",
+    ExpressionAttributeValues: {
+      ":new": ITEM_STATES.ACTIVE,
+      ":old": ITEM_STATES.INACTIVE,
+      ":sid": sellerId,
+    },
+  };
 
+  const cmd = new UpdateCommand(params);
+
+  try {
+    await dclient.send(cmd);
+    res.send({
+      message: MESSAGES.PUBLISH_SUCCESS,
+      itemId: itemId,
+      itemState: ITEM_STATES.ACTIVE,
+    });
+  } catch (err: any) {
+    res.status(err.statusCode || 500).send({
+      code: err.name,
+      name: err.name,
+      message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
+      time: err.$metadata?.attempts ? err.$metadata.attempts : undefined,
+    });
+  }
+}
+
+//Unpublish item
+export async function unpublishItem(
+  sellerId: string,
+  itemId: string,
+  res: Response
+) {
+  const params = {
+    TableName: TABLE_NAMES.ITEMS,
+    Key: { id: itemId },
+    UpdateExpression: "SET itemState = :new",
+    ConditionExpression: "itemState = :old AND sellerId = :sid",
+    ExpressionAttributeValues: {
+      ":new": ITEM_STATES.UNPUBLISHED,
+      ":old": ITEM_STATES.ACTIVE,
+      ":sid": sellerId,
+    },
+  };
+
+  const cmd = new UpdateCommand(params);
+
+  try {
+    await dclient.send(cmd);
+    res.send({
+      message: MESSAGES.UNPUBLISH_SUCCESS,
+      itemId: itemId,
+      itemState: ITEM_STATES.UNPUBLISHED,
+    });
+  } catch (err: any) {
+    res.status(err.statusCode || 500).send({
+      code: err.name,
+      name: err.name,
+      message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
+      time: err.$metadata?.attempts ? err.$metadata.attempts : undefined,
+    });
+  }
+}
+
+//Review item
+export async function reviewItem(
+  sellerId: string,
+  itemId: string,
+  res: Response
+) {
+  const getCmd = new GetCommand({
+    TableName: TABLE_NAMES.ITEMS,
+    Key: { id: itemId },
+  });
+
+  try {
+    const result = await dclient.send(getCmd);
+    const item = result.Item;
+
+    if (!item) {
+      res.status(404).send({ error: MESSAGES.ITEM_NOT_FOUND });
+      return;
+    }
+
+    if (item.sellerId !== sellerId) {
+      res.status(403).send({ error: "You can only review your own items" });
+      return;
+    }
+
+    res.send({
+      message: MESSAGES.REVIEW_SUCCESS,
+      item: item,
+    });
+  } catch (err: any) {
+    res.status(err.statusCode || 500).send({
+      code: err.name,
+      name: err.name,
+      message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
+      time: err.$metadata?.attempts ? err.$metadata.attempts : undefined,
+    });
+  }
+}
   
