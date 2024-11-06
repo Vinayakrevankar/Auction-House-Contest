@@ -3,6 +3,11 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+import { client } from './api';
+
+client.setConfig({
+  baseUrl: "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com",
+});
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
