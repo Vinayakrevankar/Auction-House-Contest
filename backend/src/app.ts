@@ -6,6 +6,7 @@ import helmet from 'helmet';
 import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
 // import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
+import { publishItem, unpublishItem } from './manage-item/handler'
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
