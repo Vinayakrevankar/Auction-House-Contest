@@ -207,76 +207,178 @@ export async function addItem(
 
 
 //Publish item
-export async function publishItem(
-  sellerId: string,
-  itemId: string,
-  res: Response
-) {
-  const params = {
-    TableName: TABLE_NAMES.ITEMS,
-    Key: { id: itemId },
-    UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid",
-    ExpressionAttributeValues: {
-      ":new": ITEM_STATES.ACTIVE,
-      ":old": ITEM_STATES.INACTIVE,
-      ":sid": sellerId,
-    },
-  };
-
-  const cmd = new UpdateCommand(params);
-
+export async function publishItem(sellerId, itemId, res) {
   try {
+    if (!sellerId || !itemId) {
+      return res
+        .status(400)
+        .json({ error: "sellerId and itemId are required" });
+    }
+
+    const getItemCmd = new GetCommand({
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+    });
+
+    const itemResult = await dclient.send(getItemCmd);
+
+    if (!itemResult.Item) {
+      console.error("Item not found with id:", itemId);
+      return res.status(404).json({ error: MESSAGES.ITEM_NOT_FOUND });
+    }
+
+    if (itemResult.Item.sellerId !== sellerId) {
+      console.error("Unauthorized access: sellerId mismatch");
+      return res.status(403).json({ error: MESSAGES.UNAUTHORIZED });
+    }
+
+    const currentState = itemResult.Item.itemState;
+
+    if (currentState === ITEM_STATES.ACTIVE) {
+      return res.status(400).json({
+        error: "Item is already active and cannot be published again",
+        itemId: itemId,
+        itemState: currentState,
+      });
+    }
+
+    const allowedPreviousStates = [
+      ITEM_STATES.INACTIVE,
+      ITEM_STATES.UNPUBLISHED,
+    ];
+
+    if (!allowedPreviousStates.includes(currentState)) {
+      return res.status(400).json({
+        error: `Cannot publish item from state: ${currentState}`,
+        itemId: itemId,
+        itemState: currentState,
+      });
+    }
+
+    const params = {
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+      UpdateExpression: "SET itemState = :new",
+      ConditionExpression: "itemState = :old",
+      ExpressionAttributeValues: {
+        ":new": ITEM_STATES.ACTIVE,
+        ":old": currentState,
+      },
+    };
+
+    const cmd = new UpdateCommand(params);
     await dclient.send(cmd);
-    res.send({
+
+    res.json({
       message: MESSAGES.PUBLISH_SUCCESS,
       itemId: itemId,
       itemState: ITEM_STATES.ACTIVE,
     });
-  } catch (err: any) {
-    res.status(err.statusCode || 500).send({
-      code: err.name,
-      name: err.name,
-      message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
-      time: err.$metadata?.attempts ? err.$metadata.attempts : undefined,
-    });
+  } catch (err) {
+    console.error("Error publishing item:", err);
+    if (err.name === "ConditionalCheckFailedException") {
+      return res.status(400).json({
+        error: "Failed to publish item due to state mismatch",
+        itemId: itemId,
+        itemState: currentState,
+      });
+    } else {
+      res.status(err.statusCode || 500).json({
+        code: err.name,
+        name: err.name,
+        message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
+        time:
+          err.$metadata && err.$metadata.attempts
+            ? err.$metadata.attempts
+            : undefined,
+      });
+    }
   }
 }
-
 //Unpublish item
-export async function unpublishItem(
-  sellerId: string,
-  itemId: string,
-  res: Response
-) {
-  const params = {
-    TableName: TABLE_NAMES.ITEMS,
-    Key: { id: itemId },
-    UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid",
-    ExpressionAttributeValues: {
-      ":new": ITEM_STATES.UNPUBLISHED,
-      ":old": ITEM_STATES.ACTIVE,
-      ":sid": sellerId,
-    },
-  };
-
-  const cmd = new UpdateCommand(params);
-
+export async function unpublishItem(sellerId, itemId, res) {
   try {
+    if (!sellerId || !itemId) {
+      return res
+        .status(400)
+        .json({ error: "sellerId and itemId are required" });
+    }
+
+    const getItemCmd = new GetCommand({
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+    });
+
+    const itemResult = await dclient.send(getItemCmd);
+
+    if (!itemResult.Item) {
+      console.error("Item not found with id:", itemId);
+      return res.status(404).json({ error: MESSAGES.ITEM_NOT_FOUND });
+    }
+
+    if (itemResult.Item.sellerId !== sellerId) {
+      console.error("Unauthorized access: sellerId mismatch");
+      return res.status(403).json({ error: MESSAGES.UNAUTHORIZED });
+    }
+
+    const currentState = itemResult.Item.itemState;
+
+    if (currentState === ITEM_STATES.INACTIVE) {
+      return res.status(400).json({
+        error: "Item is inactive and cannot be unpublished",
+        itemId: itemId,
+        itemState: currentState,
+      });
+    }
+
+    const allowedPreviousStates = [ITEM_STATES.ACTIVE];
+
+    if (!allowedPreviousStates.includes(currentState)) {
+      return res.status(400).json({
+        error: `Cannot unpublish item from state: ${currentState}`,
+        itemId: itemId,
+        itemState: currentState,
+      });
+    }
+
+    const params = {
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+      UpdateExpression: "SET itemState = :new",
+      ConditionExpression: "itemState = :old",
+      ExpressionAttributeValues: {
+        ":new": ITEM_STATES.INACTIVE,
+        ":old": currentState,
+      },
+    };
+
+    const cmd = new UpdateCommand(params);
     await dclient.send(cmd);
-    res.send({
+
+    res.json({
       message: MESSAGES.UNPUBLISH_SUCCESS,
       itemId: itemId,
-      itemState: ITEM_STATES.UNPUBLISHED,
+      itemState: ITEM_STATES.INACTIVE,
     });
-  } catch (err: any) {
-    res.status(err.statusCode || 500).send({
-      code: err.name,
-      name: err.name,
-      message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
-      time: err.$metadata?.attempts ? err.$metadata.attempts : undefined,
-    });
+  } catch (err) {
+    console.error("Error unpublishing item:", err);
+    if (err.name === "ConditionalCheckFailedException") {
+      return res.status(400).json({
+        error: "Failed to unpublish item due to state mismatch",
+        itemId: itemId,
+        itemState: currentState,
+      });
+    } else {
+      res.status(err.statusCode || 500).json({
+        code: err.name,
+        name: err.name,
+        message: err.message || MESSAGES.INTERNAL_SERVER_ERROR,
+        time:
+          err.$metadata && err.$metadata.attempts
+            ? err.$metadata.attempts
+            : undefined,
+      });
+    }
   }
 }
 
