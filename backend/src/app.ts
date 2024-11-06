@@ -47,14 +47,22 @@ app.get('/', authFilterMiddleware, (_, res) => {
 // Fulfill Item
 
 // publish an item
-app.post('/api/sellers/:sellerId/items/:itemId/publish', (req, res) => {
-  const { sellerId, itemId } = req.params;
+app.post('/api/items/:itemId/publish', (req, res) => {
+  const { itemId } = req.params;
+  const { sellerId } = req.body; // Get sellerId from request body
+  if (!sellerId) {
+    return res.status(400).send({ error: 'sellerId is required' });
+  }
   publishItem(sellerId, itemId, res);
 });
 
-// unpublish an item
-app.post('/api/sellers/:sellerId/items/:itemId/unpublish', (req, res) => {
-  const { sellerId, itemId } = req.params;
+//unpublish an item
+app.post('/api/items/:itemId/unpublish', (req, res) => {
+  const { itemId } = req.params;
+  const { sellerId } = req.body; // Get sellerId from request body
+  if (!sellerId) {
+    return res.status(400).send({ error: 'sellerId is required' });
+  }
   unpublishItem(sellerId, itemId, res);
 });
 
