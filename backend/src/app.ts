@@ -45,6 +45,20 @@ app.get('/', authFilterMiddleware, (_, res) => {
 //   (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
 // );
 // Fulfill Item
+
+// publish an item
+app.post('/api/sellers/:sellerId/items/:itemId/publish', (req, res) => {
+  const { sellerId, itemId } = req.params;
+  publishItem(sellerId, itemId, res);
+});
+
+// unpublish an item
+app.post('/api/sellers/:sellerId/items/:itemId/unpublish', (req, res) => {
+  const { sellerId, itemId } = req.params;
+  unpublishItem(sellerId, itemId, res);
+});
+
+
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
   authFilterMiddleware, (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
