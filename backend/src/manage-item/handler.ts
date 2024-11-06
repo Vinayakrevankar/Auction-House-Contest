@@ -207,33 +207,50 @@ export async function addItem(
 
 
 //Publish item
-export async function publishItem(
-  sellerId: string,
-  itemId: string,
-  res: Response
-) {
-  const params = {
-    TableName: TABLE_NAMES.ITEMS,
-    Key: { id: itemId },
-    UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid",
-    ExpressionAttributeValues: {
-      ":new": ITEM_STATES.ACTIVE,
-      ":old": ITEM_STATES.INACTIVE,
-      ":sid": sellerId,
-    },
-  };
-
-  const cmd = new UpdateCommand(params);
-
+export async function publishItem(sellerId: string, itemId: string, res: Response) {
   try {
+    const getSellerCmd = new GetCommand({
+      TableName: TABLE_NAMES.USERS,
+      Key: { id: sellerId },
+    });
+    const sellerResult = await dclient.send(getSellerCmd);
+    if (!sellerResult.Item) {
+      return res.status(404).send({ error: MESSAGES.SELLER_NOT_FOUND });
+    }
+
+    const getItemCmd = new GetCommand({
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+    });
+    const itemResult = await dclient.send(getItemCmd);
+    if (!itemResult.Item) {
+      return res.status(404).send({ error: MESSAGES.ITEM_NOT_FOUND });
+    }
+
+    if (itemResult.Item.sellerId !== sellerId) {
+      return res.status(403).send({ error: MESSAGES.UNAUTHORIZED });
+    }
+
+    const params = {
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+      UpdateExpression: "SET itemState = :new",
+      ConditionExpression: "itemState = :old",
+      ExpressionAttributeValues: {
+        ":new": ITEM_STATES.ACTIVE,
+        ":old": ITEM_STATES.INACTIVE,
+      },
+    };
+    const cmd = new UpdateCommand(params);
     await dclient.send(cmd);
+
     res.send({
       message: MESSAGES.PUBLISH_SUCCESS,
       itemId: itemId,
       itemState: ITEM_STATES.ACTIVE,
     });
   } catch (err: any) {
+    console.error("Error publishing item:", err);
     res.status(err.statusCode || 500).send({
       code: err.name,
       name: err.name,
@@ -243,34 +260,50 @@ export async function publishItem(
   }
 }
 
-//Unpublish item
-export async function unpublishItem(
-  sellerId: string,
-  itemId: string,
-  res: Response
-) {
-  const params = {
-    TableName: TABLE_NAMES.ITEMS,
-    Key: { id: itemId },
-    UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid",
-    ExpressionAttributeValues: {
-      ":new": ITEM_STATES.UNPUBLISHED,
-      ":old": ITEM_STATES.ACTIVE,
-      ":sid": sellerId,
-    },
-  };
-
-  const cmd = new UpdateCommand(params);
-
+export async function unpublishItem(sellerId: string, itemId: string, res: Response) {
   try {
+    const getSellerCmd = new GetCommand({
+      TableName: TABLE_NAMES.USERS,
+      Key: { id: sellerId },
+    });
+    const sellerResult = await dclient.send(getSellerCmd);
+    if (!sellerResult.Item) {
+      return res.status(404).send({ error: MESSAGES.SELLER_NOT_FOUND });
+    }
+
+    const getItemCmd = new GetCommand({
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+    });
+    const itemResult = await dclient.send(getItemCmd);
+    if (!itemResult.Item) {
+      return res.status(404).send({ error: MESSAGES.ITEM_NOT_FOUND });
+    }
+
+    if (itemResult.Item.sellerId !== sellerId) {
+      return res.status(403).send({ error: MESSAGES.UNAUTHORIZED });
+    }
+
+    const params = {
+      TableName: TABLE_NAMES.ITEMS,
+      Key: { id: itemId },
+      UpdateExpression: "SET itemState = :new",
+      ConditionExpression: "itemState = :old",
+      ExpressionAttributeValues: {
+        ":new": ITEM_STATES.UNPUBLISHED,
+        ":old": ITEM_STATES.ACTIVE,
+      },
+    };
+    const cmd = new UpdateCommand(params);
     await dclient.send(cmd);
+
     res.send({
       message: MESSAGES.UNPUBLISH_SUCCESS,
       itemId: itemId,
       itemState: ITEM_STATES.UNPUBLISHED,
     });
   } catch (err: any) {
+    console.error("Error unpublishing item:", err);
     res.status(err.statusCode || 500).send({
       code: err.name,
       name: err.name,
