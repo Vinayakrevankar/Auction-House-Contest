@@ -2,6 +2,7 @@ import React from 'react';
 import logo from './logo.svg';
 import './App.css';
 
+// NOTE: Add "frontend/ - " to make sure pages are deployed.
 function App() {
   return (
     <div className="App">
