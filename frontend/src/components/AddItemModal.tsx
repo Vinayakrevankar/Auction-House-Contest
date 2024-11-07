@@ -15,7 +15,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
   const [newItemLengthOfAuction, setNewItemLengthOfAuction] = useState('');
   const [newItemImages, setNewItemImages] = useState<FileList | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       newItemName.trim() === '' ||
@@ -27,13 +27,28 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       return; // Add validation messages if needed
     }
 
+    const images = await Promise.all(Array.from(newItemImages).map(async file => {
+      const result = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (_) => resolve(reader.result as string);
+        reader.onerror = (_) => reject(reader.error);
+      }).catch(err => {
+        // TODO: file upload error notification.
+        console.error(`Failed to read file ${file.name}: ${err}`);
+      });
+      if (!result) {
+        return;
+      }
+      return result;
+    }));
     const newItem: ItemSimple = {
       id: `${Date.now()}`, // Use a better unique ID in production
       name: newItemName,
       description: newItemDescription,
       initPrice: parseFloat(newItemInitPrice),
       lengthOfAuction: parseInt(newItemLengthOfAuction),
-      images: Array.from(newItemImages).map(file => file.name), // For simplicity
+      images: images.filter((v) => v !== undefined), // For simplicity
     };
 
     onAddItem(newItem);

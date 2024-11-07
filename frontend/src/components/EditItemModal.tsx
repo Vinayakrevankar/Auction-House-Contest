@@ -26,7 +26,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
     }
   }, [itemToEdit]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (
       editItemName.trim() === '' ||
@@ -37,15 +37,31 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
       return; // Add validation messages if needed
     }
 
+    let images = itemToEdit.images;
+    if (editItemImages && editItemImages.length > 0) {
+      images = (await Promise.all(Array.from(editItemImages).map(async file => {
+        const result = await new Promise<string>((resolve, reject) => {
+          const reader = new FileReader();
+          reader.readAsDataURL(file);
+          reader.onload = (_) => resolve(reader.result as string);
+          reader.onerror = (_) => reject(reader.error);
+        }).catch(err => {
+          // TODO: file upload error notification.
+          console.error(`Failed to read file ${file.name}: ${err}`);
+        });
+        if (!result) {
+          return;
+        }
+        return result;
+      }))).filter((v) => v !== undefined);
+    }
     const updatedItem: ItemSimple = {
       ...itemToEdit,
       name: editItemName,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
       lengthOfAuction: parseInt(editItemLengthOfAuction),
-      images: editItemImages && editItemImages.length > 0
-        ? Array.from(editItemImages).map(file => file.name)
-        : itemToEdit.images,
+      images: images,
     };
 
     onUpdateItem(updatedItem);
