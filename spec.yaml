@@ -53,14 +53,14 @@ paths:
                         example: seller
                       userId:
                         type: string
-                        example: VIRE827829  
-                      role: 
+                        example: VIRE827829
+                      role:
                         type: string
                         enum: [admin, user]
                         example: admin
                       token:
                         type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8                 
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
   /api/register:
     post:
       summary: Register a new user
@@ -118,13 +118,13 @@ paths:
                     userType:
                       type: string
                       example: seller
-                    role: 
+                    role:
                       type: string
                       enum: [admin, user]
                       example: admin
                     userId:
                         type: string
-                        example: VIRE827829 
+                        example: VIRE827829
   /api/verify:
     post:
       summary: Create a seller account
@@ -188,7 +188,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ItemSummary'
+                  $ref: '#/components/schemas/Item'
   /api/sellers/{sellerId}/items/{itemId}:
     put:
       summary: Edit an inactive item
@@ -434,6 +434,20 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ItemSummary'
+  /api/items/active:
+    get:
+      summary: Get all active items
+      tags:
+        - Items
+      responses:
+        '200':
+          description: Active items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
   /api/items/{itemId}:
     get:
       summary: View item details
@@ -450,6 +464,24 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Item'
+  /api/items/{itemId}/bids:
+    get:
+      summary: Get bids related to item
+      tags:
+        - Items
+      parameters:
+        - $ref: '#/components/parameters/ItemId'
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Bids of this item
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
   /api/items/recently-sold:
     get:
       summary: Search and sort recently sold items

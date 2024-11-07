@@ -283,7 +283,7 @@ export function reviewItems(
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.send(data?.Items ?? []);
+      res.send((data?.Items ?? []) as Item[]);
     }
   });
 }

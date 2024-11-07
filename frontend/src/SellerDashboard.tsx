@@ -1,27 +1,46 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
+import { getApiSellersBySellerIdItems, Item } from './api';
+import { useAuth } from './AuthContext';
 
-const AdminDashboard = () => {
-  const [data, setData] = useState([
-    { id: 1, name: 'Item 1', status: 'Unpublished' },
-    { id: 2, name: 'Item 2', status: 'Published' },
-    { id: 3, name: 'Item 3', status: 'Unpublished' },
-  ]);
+const SellerDashboard = () => {
+  const { userJWTToken } = useAuth();
+  const [init, setInit] = useState(true);
+  const [items, setItems] = useState<Item[]>([]);
+
+  if (init) {
+    getApiSellersBySellerIdItems({
+      headers: {
+        "Authorization": userJWTToken || "",
+      },
+      path: { sellerId: "VIRE89444757" },
+    }).then(resp => {
+      if (resp.error !== undefined) {
+        console.error(resp.error);
+      } else {
+        console.log("Success");
+        console.log(resp.data!);
+        setItems(resp.data!);
+      }
+    });
+    setInit(false);
+  }
+
 
   const handlePublish = (id: number) => {
-    setData(data.map(item => 
-      item.id === id ? { ...item, status: 'Published' } : item
+    setItems(items.map((item, idx) =>
+      idx === id ? { ...item, itemState: 'active' } : item
     ));
   };
 
   const handleUnpublish = (id: number) => {
-    setData(data.map(item => 
-      item.id === id ? { ...item, status: 'Unpublished' } : item
+    setItems(items.map((item, idx) =>
+      idx === id ? { ...item, itemState: 'inactive' } : item
     ));
   };
 
   return (
     <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Welcome to the Admin Dashboard</h1>
+      <h1 className="text-2xl font-bold mb-6 text-gray-800">Welcome to the Seller Dashboard</h1>
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-200 border-b-2 border-gray-300">
@@ -33,27 +52,27 @@ const AdminDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {data.map((item) => (
+            {items.map((item, idx) => (
               <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
-                <td className="p-4">{item.id}</td>
+                <td className="p-4">{idx}</td>
                 <td className="p-4">{item.name}</td>
                 <td className="p-4">
-                  <span className={`px-2 py-1 rounded-full text-sm ${item.status === 'Published' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                    {item.status}
+                  <span className={`px-2 py-1 rounded-full text-sm ${item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
+                    {item.itemState}
                   </span>
                 </td>
                 <td className="p-4 space-x-2">
                   <button
-                    onClick={() => handlePublish(item.id)}
-                    disabled={item.status === 'Published'}
-                    className={`px-4 py-2 text-sm font-semibold rounded ${item.status === 'Published' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+                    onClick={() => handlePublish(idx)}
+                    disabled={item.itemState === 'active'}
+                    className={`px-4 py-2 text-sm font-semibold rounded ${item.itemState === 'active' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
                   >
                     Publish
                   </button>
                   <button
-                    onClick={() => handleUnpublish(item.id)}
-                    disabled={item.status === 'Unpublished'}
-                    className={`px-4 py-2 text-sm font-semibold rounded ${item.status === 'Unpublished' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
+                    onClick={() => handleUnpublish(idx)}
+                    disabled={item.itemState === 'inactive'}
+                    className={`px-4 py-2 text-sm font-semibold rounded ${item.itemState === 'inactive' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
                   >
                     Unpublish
                   </button>
@@ -67,4 +86,4 @@ const AdminDashboard = () => {
   );
 };
 
-export default AdminDashboard;
+export default SellerDashboard;
