@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { deleteApiSellersBySellerIdItemsByItemId, getApiItemsByItemId, getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
 import { useAuth } from './AuthContext';
 import { ItemSimple, itemToSimple } from './models/ItemSimple';
@@ -12,7 +11,6 @@ import LogoutButton from './components/LogoutButton';
 //R
 
 const SellerDashboard = () => {
-  const navigate = useNavigate();
   const { userInfo } = useAuth();
   const [init, setInit] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
@@ -24,9 +22,6 @@ const SellerDashboard = () => {
 
   const openAddModal = () => {
     setShowAddModal(true);
-  };
-  const logout = () => {
-    navigate('/Auction-House-Contest/');
   };
   const closeAddModal = () => {
     setShowAddModal(false);
@@ -143,7 +138,7 @@ const SellerDashboard = () => {
       if (resp.error !== undefined) {
         console.error(resp.error);
       } else {
-        setItems(resp.data || []);
+        setItems(resp.data!);
       }
     });
     setInit(false);
@@ -231,7 +226,7 @@ const SellerDashboard = () => {
           </thead>
           <tbody>
             {/* R */}
-            {items.map((item) => (
+            {items?.map((item) => (
               <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="p-4">{item.id}</td>
                 <td className="p-4">{item.name}</td>
