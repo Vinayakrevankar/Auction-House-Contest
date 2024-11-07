@@ -285,6 +285,11 @@ export type PostApiLoginResponse = ({
     errorCode?: (string) | null;
     message?: string;
     payload?: {
+        username?: string;
+        emailAddress?: string;
+        userType?: string;
+        userId?: string;
+        role?: 'admin' | 'user';
         token?: string;
     };
 });
@@ -350,7 +355,7 @@ export type GetApiSellersBySellerIdItemsData = {
     };
 };
 
-export type GetApiSellersBySellerIdItemsResponse = (Array<ItemSummary>);
+export type GetApiSellersBySellerIdItemsResponse = (Array<Item>);
 
 export type GetApiSellersBySellerIdItemsError = unknown;
 
@@ -514,6 +519,10 @@ export type GetApiItemsResponse = (Array<ItemSummary>);
 
 export type GetApiItemsError = unknown;
 
+export type GetApiItemsActiveResponse = (Array<Item>);
+
+export type GetApiItemsActiveError = unknown;
+
 export type GetApiItemsByItemIdData = {
     path: {
         itemId: string;
@@ -523,6 +532,16 @@ export type GetApiItemsByItemIdData = {
 export type GetApiItemsByItemIdResponse = (Item);
 
 export type GetApiItemsByItemIdError = unknown;
+
+export type GetApiItemsByItemIdBidsData = {
+    path: {
+        itemId: string;
+    };
+};
+
+export type GetApiItemsByItemIdBidsResponse = (Array<Item>);
+
+export type GetApiItemsByItemIdBidsError = unknown;
 
 export type GetApiItemsRecentlySoldData = {
     query?: {
