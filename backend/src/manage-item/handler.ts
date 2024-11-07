@@ -230,7 +230,7 @@ export function publishItem(sellerId: string, itemId: string, startDate: string,
     } else {
       res.send(<ItemPublishResponse>{
         message: "Success",
-        id: itemId,
+        itemId: itemId,
         itemState: "active",
         startDate: startDate,
         endDate: endDate,

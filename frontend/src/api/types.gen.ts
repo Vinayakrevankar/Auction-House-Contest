@@ -108,16 +108,16 @@ export type PublishItemRequest = {
 };
 
 export type ItemPublishResponse = {
-    id?: string;
-    itemState?: string;
-    startDate?: string;
-    endDate?: string;
+    itemId: string;
+    itemState: string;
+    startDate: string;
+    endDate: string;
 };
 
 export type ItemStateResponse = {
-    message?: string;
-    itemId?: string;
-    itemState?: string;
+    message: string;
+    itemId: string;
+    itemState: string;
 };
 
 export type FulfillItemResponse = {

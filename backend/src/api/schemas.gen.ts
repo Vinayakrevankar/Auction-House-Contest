@@ -323,8 +323,9 @@ export const PublishItemRequestSchema = {
 
 export const ItemPublishResponseSchema = {
     type: 'object',
+    required: ['itemId', 'itemState', 'startDate', 'endDate'],
     properties: {
-        id: {
+        itemId: {
             type: 'string'
         },
         itemState: {
@@ -343,6 +344,7 @@ export const ItemPublishResponseSchema = {
 
 export const ItemStateResponseSchema = {
     type: 'object',
+    required: ['message', 'itemId', 'itemState'],
     properties: {
         message: {
             type: 'string'
