@@ -61,12 +61,6 @@ resources:
               AllowedHeaders: ["*"]
               MaxAge: 3000
 
-    ApiGatewayV2Api:
-      Type: AWS::ApiGatewayV2::Api
-      Properties:
-        Name: ${self:service}-api
-        ProtocolType: HTTP
-
     UsersTable3:
       Type: AWS::DynamoDB::Table
       Properties:
