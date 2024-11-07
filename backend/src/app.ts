@@ -31,20 +31,20 @@ app.get('/', authFilterMiddleware, (_, res) => {
 
 // Seller use cases
 // Add Item
-// app.post(
-//   '/api/sellers/:sellerId/items',
-//   (req, res) => addItem(req.params['sellerId'], req.body, res),
-// );
-// // Edit Item
-// app.put(
-//   '/api/sellers/:sellerId/items/:itemId',
-//   (req, res) => editItem(req.params['sellerId'], req.params['itemId'], req.body, res),
-// );
-// // Remove Inactive Item
-// app.delete(
-//   '/api/sellers/:sellerId/items/:itemId',
-//   (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
-// );
+app.post(
+  '/api/sellers/:sellerId/items',authFilterMiddleware,
+  (req, res) => addItem(req.params['sellerId'], req.body, res),
+);
+// Edit Item
+app.put(
+  '/api/sellers/:sellerId/items/:itemId',authFilterMiddleware,
+  (req, res) => editItem(req.params['sellerId'], req.params['itemId'], req.body, res),
+);
+// Remove Inactive Item
+app.delete(
+  '/api/sellers/:sellerId/items/:itemId',authFilterMiddleware,
+  (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
+);
 
 app.post(
   '/api/sellers/:sellerId/items/:itemId/publish',
