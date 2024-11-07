@@ -121,16 +121,16 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
 
     await s3Client.send(new PutObjectCommand(params));
 
-    const command = new GetObjectCommand({
-      Bucket: bucketName,
-      Key: uniqueKey,
-    });
-    const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL valid for 1 hour
+    // const command = new GetObjectCommand({
+    //   Bucket: bucketName,
+    //   Key: uniqueKey,
+    // });
+    // const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL valid for 1 hour
 
     res.status(200).json({
       message: 'File uploaded successfully',
       key: uniqueKey,
-      url: signedUrl,
+      // url: signedUrl,
     });
   } catch (error) {
     console.error('Error uploading file:', error);
