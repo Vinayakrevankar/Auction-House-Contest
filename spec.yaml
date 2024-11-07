@@ -42,10 +42,22 @@ paths:
                   payload:
                     type: object
                     properties:
+                      username:
+                        type: string
+                        example: vinayakrevankar
+                      emailAddress:
+                        type: string
+                        example: vinayakanrevankar@gmail.com
+                      userType:
+                        type: string
+                        example: seller
+                      role: 
+                        type: string
+                        enum: [admin, user]
+                        example: admin
                       token:
                         type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
-
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8                 
   /api/register:
     post:
       summary: Register a new user
