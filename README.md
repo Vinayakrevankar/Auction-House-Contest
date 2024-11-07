@@ -17,3 +17,14 @@
     - Edit items
     - Review items
     - Publish / Unpublish items
+- Buyer
+  - backend:
+    - Login Account
+    - Create Account
+  - frontend:
+    - Login Account
+    - Create Account
+
+> [!NOTE]
+> Image is not displayed currently for items in seller's dashboard but
+> the images are uploaded to S3 bucket.
