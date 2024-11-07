@@ -3,6 +3,7 @@ service: serverless-auction-house
 custom:
   stage: ${opt:stage, 'dev'}
   region: ${opt:region, 'us-east-1'}
+  bucketName: ${self:service}-${self:custom.stage}-images
   esbuild:
     platform: "node"
     target: node18
@@ -30,7 +31,16 @@ provider:
       Action:
         - dynamodb:*
       Resource:
-        - arn:aws:dynamodb:${self:provider.region}:637423462092:table/*
+        - arn:aws:dynamodb:${self:provider.region}:*:table/*
+    - Effect: "Allow"
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+        - s3:DeleteObject
+      Resource:
+        - arn:aws:s3:::${self:custom.bucketName}/*
+  httpApi:
+    cors: true
 
 functions:
   app:
@@ -42,6 +52,17 @@ functions:
 
 resources:
   Resources:
+    AuctionHouseImageBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:custom.bucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins: ["*"]
+              AllowedMethods: ["GET", "PUT", "POST", "DELETE"]
+              AllowedHeaders: ["*"]
+              MaxAge: 3000
+
     ApiGatewayV2Api:
       Type: AWS::ApiGatewayV2::Api
       Properties:
