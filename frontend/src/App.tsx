@@ -2,7 +2,6 @@ import { AuthProvider, useAuth } from './AuthContext';
 import LandingPage from './LandingPage';
 
 const App = () => {
-  const { userJWTToken } = useAuth(); // Access the JWT token here
 
   return (
     <AuthProvider>
