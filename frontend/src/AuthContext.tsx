@@ -1,14 +1,18 @@
-import React, { createContext, useState, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 // Define types for the context value and provider props
-interface AuthContextType {
+interface AuthContextProps {
   userJWTToken: string | null;
-  setUserJWTToken: (token: string | null) => void;
+  setUserJWTToken: (token: string) => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
-export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+interface AuthProviderProps {
+  children: React.ReactNode;
+}
+
+export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [userJWTToken, setUserJWTToken] = useState<string | null>(null);
 
   return (
@@ -18,7 +22,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-// Custom hook to use AuthContext
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {
