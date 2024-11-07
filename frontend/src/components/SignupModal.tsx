@@ -47,7 +47,11 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
       const response = await postApiRegister({ body: signupData }); // Call the API function
       console.log('Signup successful', response);
       onClose(); // Close the modal on successful registration
-      navigate('/Auction-House-Contest/seller-dashboard');
+      if(signupData.userType === 'buyer'){
+        navigate('/Auction-House-Contest/buyer-dashboard');
+      }else{
+        navigate('/Auction-House-Contest/seller-dashboard');
+      }
     } catch (error) {
       setError('Failed to register. Please try again.'); // Set error message on failure
       console.error('Signup error:', error);
