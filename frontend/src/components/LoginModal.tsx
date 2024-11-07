@@ -1,13 +1,13 @@
-// src/components/LoginModal.tsx
 import React, { useState } from 'react';
 import { useAuth } from '../AuthContext';
 import { postApiLogin } from '../api/services.gen';
-
+import { useNavigate } from 'react-router-dom';
 interface LoginModalProps {
   onClose: () => void;
 }
 
 const LoginModal = ({ onClose }: LoginModalProps) => {
+  const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const { setUserJWTToken } = useAuth(); // Access the setter function from context
@@ -23,6 +23,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
       if (response.data?.payload?.token) {
         setUserJWTToken(response.data.payload.token); // Store the token in context
         onClose(); // Close the modal on successful login
+        navigate('/Auction-House-Contest/seller-dashboard');
       } else {
         alert('Login failed: Invalid credentials');
       }
