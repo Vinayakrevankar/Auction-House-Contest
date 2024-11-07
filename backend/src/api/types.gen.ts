@@ -330,6 +330,22 @@ export type PostApiVerifyResponse = (unknown);
 
 export type PostApiVerifyError = unknown;
 
+export type PostApiUploadImageData = {
+    body: {
+        /**
+         * The image file to upload
+         */
+        image?: (Blob | File);
+    };
+};
+
+export type PostApiUploadImageResponse = ({
+    message?: string;
+    key?: string;
+});
+
+export type PostApiUploadImageError = unknown;
+
 export type PostApiSellersBySellerIdCloseData = {
     path: {
         sellerId: string;
