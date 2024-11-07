@@ -24,8 +24,6 @@ provider:
   memorySize: 128
   timeout: 10
   logRetentionInDays: 7
-  httpApi:
-    cors: true
   iamRoleStatements:
     - Effect: "Allow"
       Action:
