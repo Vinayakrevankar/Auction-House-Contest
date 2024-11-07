@@ -89,7 +89,7 @@ export async function loginHander(req: Request, res: Response) {
     }
 
     const token = jwt.sign(
-      { username: user.username, id: emailAddress, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
+      { username: user.username, id: emailAddress, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, emailAddress: user.id, role: user.role, userType: user.userType, userId: user.userId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
