@@ -51,6 +51,9 @@ paths:
                       userType:
                         type: string
                         example: seller
+                      userId:
+                        type: string
+                        example: VIRE827829  
                       role: 
                         type: string
                         enum: [admin, user]
@@ -119,6 +122,9 @@ paths:
                       type: string
                       enum: [admin, user]
                       example: admin
+                    userId:
+                        type: string
+                        example: VIRE827829 
   /api/verify:
     post:
       summary: Create a seller account
