@@ -1,9 +1,11 @@
+// src/index.tsx
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { client } from './api';
+import { AuthProvider } from './AuthContext';
 
 client.setConfig({
   baseUrl: "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com",
@@ -14,7 +16,9 @@ const root = ReactDOM.createRoot(
 );
 root.render(
   <React.StrictMode>
-    <App />
+    <AuthProvider>
+      <App />
+    </AuthProvider>
   </React.StrictMode>
 );
 

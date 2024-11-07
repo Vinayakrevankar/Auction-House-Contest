@@ -16,7 +16,7 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                emailAddress:
                   type: string
                   format: email
                 password:
@@ -42,10 +42,22 @@ paths:
                   payload:
                     type: object
                     properties:
+                      username:
+                        type: string
+                        example: vinayakrevankar
+                      emailAddress:
+                        type: string
+                        example: vinayakanrevankar@gmail.com
+                      userType:
+                        type: string
+                        example: seller
+                      role: 
+                        type: string
+                        enum: [admin, user]
+                        example: admin
                       token:
                         type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
-
+                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8                 
   /api/register:
     post:
       summary: Register a new user
@@ -61,7 +73,7 @@ paths:
                 password:
                   type: string
                   format: password
-                email:
+                emailAddress:
                   type: string
                   format: email
                 firstName:
@@ -94,6 +106,19 @@ paths:
                   payload:
                     type: object
                     nullable: true
+                    username:
+                      type: string
+                      example: vinayakrevankar
+                    emailAddress:
+                      type: string
+                      example: vinayakanrevankar@gmail.com
+                    userType:
+                      type: string
+                      example: seller
+                    role: 
+                      type: string
+                      enum: [admin, user]
+                      example: admin
   /api/verify:
     post:
       summary: Create a seller account
@@ -418,7 +443,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ItemDetails'
+                $ref: '#/components/schemas/Item'
   /api/items/recently-sold:
     get:
       summary: Search and sort recently sold items
@@ -806,8 +831,13 @@ components:
           format: date-time
     ItemPublishResponse:
       type: object
+      required:
+        - itemId
+        - itemState
+        - startDate
+        - endDate
       properties:
-        id:
+        itemId:
           type: string
         itemState:
           type: string
@@ -819,6 +849,10 @@ components:
           format: date-time
     ItemStateResponse:
       type: object
+      required:
+        - message
+        - itemId
+        - itemState
       properties:
         message:
           type: string
@@ -969,11 +1003,14 @@ components:
       required:
         - id
         - bidUserId
+        - bidItemId
         - bidAmount
         - bidTime
         - createAt
       properties:
         id:
+          type: string
+        bidItemId:
           type: string
         bidUserId:
           type: string
