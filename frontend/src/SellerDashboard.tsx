@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { deleteApiSellersBySellerIdItemsByItemId, getApiItemsByItemId, getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
 import { useAuth } from './AuthContext';
 import { ItemSimple, itemToSimple } from './models/ItemSimple';
