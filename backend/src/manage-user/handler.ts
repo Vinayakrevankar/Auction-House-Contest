@@ -10,16 +10,16 @@ const JWT_SECRET = 'JqaXPsfAMN4omyJWj9c8o9nbEQStbsiJ';
 const USER_DB = "dev-users3";
 
 export async function registerHandler(req: Request, res: Response) {
-  const { username, password, email, firstName, lastName, userType, role } = req.body;
+  const { username, password, emailAddress, firstName, lastName, userType, role } = req.body;
 
-  if (!username || !password || !email || !firstName || !lastName) {
+  if (!username || !password || !emailAddress || !firstName || !lastName) {
     return res.status(400).json(getBadRequest([null, "All fields are required."]));
   }
 
   try {
     const getUserCommand = new GetCommand({
       TableName: USER_DB,
-      Key: { id: email }
+      Key: { id: emailAddress }
     });
     const existingUser = await dclient.send(getUserCommand);
 
@@ -38,7 +38,7 @@ export async function registerHandler(req: Request, res: Response) {
         createdAt: timestamp,
         username,
         password: hashedPassword,
-        id: email,
+        id: emailAddress,
         firstName,
         lastName,
         userType,
@@ -51,7 +51,7 @@ export async function registerHandler(req: Request, res: Response) {
     await dclient.send(putUserCommand);
 
     const token = jwt.sign(
-      { username, id: email, email, role, userType, firstName, lastName, isActive: true, userId: uniqueId },
+      { username, id: emailAddress, emailAddress, role, userType, firstName, lastName, isActive: true, userId: uniqueId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -64,16 +64,16 @@ export async function registerHandler(req: Request, res: Response) {
 }
 
 export async function loginHander(req: Request, res: Response) {
-  const { email, password } = req.body;
+  const { emailAddress, password } = req.body;
 
-  if (!email || !password) {
+  if (!emailAddress || !password) {
     return res.status(400).json(getBadRequest([null, "Email and password are required."]));
   }
 
   try {
     const getUserCommand = new GetCommand({
       TableName: USER_DB,
-      Key: { id: email }
+      Key: { id: emailAddress }
     });
     const userResult = await dclient.send(getUserCommand);
 
@@ -89,7 +89,7 @@ export async function loginHander(req: Request, res: Response) {
     }
 
     const token = jwt.sign(
-      { username: user.username, id: email, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
+      { username: user.username, id: emailAddress, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, email: user.id, role: user.role, userType: user.userType, userId: user.userId },
       JWT_SECRET,
       { expiresIn: '15m' }
     );
@@ -102,9 +102,9 @@ export async function loginHander(req: Request, res: Response) {
 }
 
 export async function editProfileHandler(req: Request, res: Response) {
-  const { email, firstName, lastName, username, password, userType, role } = req.body;
+  const { emailAddress, firstName, lastName, username, password, userType, role } = req.body;
 
-  if (!email) {
+  if (!emailAddress) {
     return res.status(400).json(getBadRequest([null, "Email is required to update profile."]));
   }
 
@@ -156,7 +156,7 @@ export async function editProfileHandler(req: Request, res: Response) {
   try {
     const updateCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { id: email },
+      Key: { id: emailAddress },
       UpdateExpression: `SET ${updateExpressions.join(", ")}`,
       ExpressionAttributeNames: expressionAttributeNames,
       ExpressionAttributeValues: expressionAttributeValues,
