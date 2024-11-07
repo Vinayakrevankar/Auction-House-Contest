@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import LoginModal from './components/LoginModal';
-import SignupModal from './components/SignupModal';
+import SignupModal from './components/SignupModal'; 
 
 const LandingPage = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
