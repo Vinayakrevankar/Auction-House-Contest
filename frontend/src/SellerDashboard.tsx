@@ -12,7 +12,6 @@ import LogoutButton from './components/LogoutButton';
 //R
 
 const SellerDashboard = () => {
-  const navigate = useNavigate();
   const { userInfo } = useAuth();
   const [init, setInit] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
@@ -24,9 +23,6 @@ const SellerDashboard = () => {
 
   const openAddModal = () => {
     setShowAddModal(true);
-  };
-  const logout = () => {
-    navigate('/Auction-House-Contest/');
   };
   const closeAddModal = () => {
     setShowAddModal(false);
