@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
 // import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
-import { publishItem, unpublishItem } from './manage-item/handler'
+import { publishItem, reviewItems, unpublishItem } from './manage-item/handler'
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
@@ -47,20 +47,19 @@ app.get('/', authFilterMiddleware, (_, res) => {
 // );
 // Fulfill Item
 
-app.post('/api/items/publish', (req, res) => {
-  const { sellerId, itemId } = req.body;
-  if (!sellerId || !itemId) {
-    return res.status(400).json({ error: 'sellerId and itemId are required' });
-  }
-  publishItem(sellerId, itemId, res);
-});
-app.post('/api/items/unpublish', (req, res) => {
-  const { sellerId, itemId } = req.body;
-  if (!sellerId || !itemId) {
-    return res.status(400).json({ error: 'sellerId and itemId are required' });
-  }
-  unpublishItem(sellerId, itemId, res);
-});
+app.post(
+  '/api/sellers/:sellerId/items/:itemId/publish',
+  authFilterMiddleware,
+  (req, res) => publishItem(req.params['sellerId'], req.params['itemId'], req.body["startDate"], req.body["endDate"], res),
+);
+app.post(
+  '/api/sellers/:sellerId/items/:itemId/unpublish',
+  authFilterMiddleware, (req, res) => unpublishItem(req.params['sellerId'], req.params['itemId'], res),
+);
+app.get(
+  '/api/sellers/:sellerId/items',
+  authFilterMiddleware, (req, res) => reviewItems(req.params['sellerId'], res),
+);
 
 
 app.post(
