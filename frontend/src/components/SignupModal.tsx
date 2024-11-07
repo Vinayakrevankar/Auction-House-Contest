@@ -1,11 +1,13 @@
-// src/components/SignupModal.tsx
 import React, { useState } from 'react';
+import { postApiRegister } from '../api/services.gen'; // Import the API function
+import { useNavigate } from 'react-router-dom';
 
 interface SignupModalProps {
   onClose: () => void;
 }
 
 const SignupModal = ({ onClose }: SignupModalProps) => {
+  const navigate = useNavigate();
   const [form, setForm] = useState({
     username: '',
     password: '',
@@ -13,27 +15,43 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
     email: '',
     firstName: '',
     lastName: '',
-    userType: 'buyer', // Default to buyer
+    userType: 'seller',
   });
+
+  const [error, setError] = useState(''); // State to handle errors
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
+   
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       alert("Passwords do not match");
       return;
     }
-    const signupData = {
-      ...form,
-      role: "user",
-      isActive: true,
-    };
-    console.log('Signing up with', signupData);
-    onClose();
+    try {
+      const signupData = {
+        username: form.username,
+        password: form.password,
+        emailAddress: form.email,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        userType: form.userType as 'seller' | 'buyer',
+        role: 'user' as 'user' | 'admin',
+        isActive: true,
+      };
+      
+      const response = await postApiRegister({ body: signupData }); // Call the API function
+      console.log('Signup successful', response);
+      onClose(); // Close the modal on successful registration
+      navigate('/Auction-House-Contest/seller-dashboard');
+    } catch (error) {
+      setError('Failed to register. Please try again.'); // Set error message on failure
+      console.error('Signup error:', error);
+    }
   };
 
   return (
@@ -88,6 +106,8 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
               </label>
             </div>
           </div>
+
+          {error && <p className="text-red-500">{error}</p>} {/* Display error message if any */}
 
           <button type="submit" className="w-full btn-primary">
             Signup
