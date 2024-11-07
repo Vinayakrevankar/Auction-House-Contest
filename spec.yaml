@@ -138,7 +138,36 @@ paths:
       responses:
         '201':
           description: Verified successfully
-
+  /api/upload-image:
+    post:
+      summary: Upload an image
+      tags:
+        - Images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                  description: The image file to upload
+      responses:
+        '200':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: File uploaded successfully
+                  key:
+                    type: string
+                    example: e24951e4-4b64-4cb2-9d62-2083d0ca18bb
   /api/sellers/{sellerId}/close:
     post:
       summary: Close seller account

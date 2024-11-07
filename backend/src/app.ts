@@ -10,9 +10,9 @@ import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, 
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
-import { S3Client, PutObjectCommand, ObjectCannedACL, GetObjectCommand } from '@aws-sdk/client-s3';
-import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
-
+import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
+// import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import path from 'path';
 // Initialize S3 client
 const s3Client = new S3Client({ region: 'us-east-1' });
 import multer from 'multer';
@@ -109,7 +109,9 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   }
 
   const file = req.file;
-  const uniqueKey = `${uuidv4()}`;
+  const fileExtension = path.extname(file.originalname); // Extract the file extension
+  const uniqueKey = `${uuidv4()}${fileExtension}`; // Append extension to unique key
+
 
   try {
     const params = {
