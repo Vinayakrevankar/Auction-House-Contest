@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../AuthContext';
-import { postApiLogin } from '../api/services.gen';
+import { postApiLogin } from '../api';
 import { useNavigate } from 'react-router-dom';
 interface LoginModalProps {
   onClose: () => void;
