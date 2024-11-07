@@ -1,15 +1,15 @@
-import React, { useState } from 'react';
-import { useAuth } from '../AuthContext';
-import { postApiLogin } from '../api';
-import { useNavigate } from 'react-router-dom';
+import React, { useState } from "react";
+import { useAuth } from "../AuthContext";
+import { postApiLogin } from "../api";
+import { useNavigate } from "react-router-dom";
 interface LoginModalProps {
   onClose: () => void;
 }
 
 const LoginModal = ({ onClose }: LoginModalProps) => {
   const navigate = useNavigate();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const { setUserInfo } = useAuth(); // Access the setter function from context
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -31,24 +31,26 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
           token: info.token!,
         });
         onClose(); // Close the modal on successful login
-        if(info.userType === 'buyer'){
-          navigate('/Auction-House-Contest/buyer-dashboard');
-        }else{
-          navigate('/Auction-House-Contest/seller-dashboard');
+        if (info.userType === "buyer") {
+          navigate("/Auction-House-Contest/buyer-dashboard");
+        } else {
+          navigate("/Auction-House-Contest/seller-dashboard");
         }
       } else {
-        alert('Login failed: Invalid credentials');
+        alert("Login failed: Invalid credentials");
       }
     } catch (error) {
-      console.error('Login error:', error);
-      alert('Login failed: Unable to connect');
+      console.error("Login error:", error);
+      alert("Login failed: Unable to connect");
     }
   };
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
-        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
+        <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+          Login
+        </h2>
 
         <form onSubmit={handleLogin}>
           <div className="mb-5 flex items-center">
@@ -73,12 +75,20 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
             />
           </div>
 
-          <button type="submit" className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">
+          <button
+            type="submit"
+            className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700"
+          >
             Login
           </button>
         </form>
 
-        <button onClick={onClose} className="mt-6 text-gray-500 hover:text-gray-700">Close</button>
+        <button
+          onClick={onClose}
+          className="mt-6 text-gray-500 hover:text-gray-700"
+        >
+          Close
+        </button>
       </div>
     </div>
   );
