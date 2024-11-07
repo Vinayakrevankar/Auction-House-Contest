@@ -16,7 +16,7 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                emailAddress:
                   type: string
                   format: email
                 password:
@@ -61,7 +61,7 @@ paths:
                 password:
                   type: string
                   format: password
-                email:
+                emailAddress:
                   type: string
                   format: email
                 firstName:
