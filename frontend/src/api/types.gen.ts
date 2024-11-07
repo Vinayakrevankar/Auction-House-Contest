@@ -185,6 +185,7 @@ export type BidResponse = {
 
 export type Bid = {
     id: string;
+    bidItemId: string;
     bidUserId: string;
     bidAmount: number;
     bidTime: string;
@@ -294,7 +295,7 @@ export type PostApiRegisterData = {
     body: {
         username?: string;
         password?: string;
-        email?: string;
+        emailAddress?: string;
         firstName?: string;
         lastName?: string;
         userType?: 'seller' | 'buyer';
@@ -519,7 +520,7 @@ export type GetApiItemsByItemIdData = {
     };
 };
 
-export type GetApiItemsByItemIdResponse = (ItemDetails);
+export type GetApiItemsByItemIdResponse = (Item);
 
 export type GetApiItemsByItemIdError = unknown;
 

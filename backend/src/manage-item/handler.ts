@@ -1,9 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
-import { REGION, TABLE_NAMES, ITEM_STATES, MESSAGES } from "./constants";
-import { Item, ItemPublishResponse, ItemStateResponse } from "../api";
+import { TABLE_NAMES } from "./constants";
+import { Item, ItemDetails, ItemPublishResponse, ItemStateResponse } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -239,7 +239,7 @@ export function publishItem(sellerId: string, itemId: string, startDate: string,
   });
 }
 //Unpublish item
-export async function unpublishItem(sellerId: string, itemId: string, res: Response) {
+export function unpublishItem(sellerId: string, itemId: string, res: Response) {
   let cmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
@@ -267,7 +267,7 @@ export async function unpublishItem(sellerId: string, itemId: string, res: Respo
 }
 
 //Review item
-export async function reviewItems(
+export function reviewItems(
   sellerId: string,
   res: Response
 ) {
@@ -279,15 +279,65 @@ export async function reviewItems(
     },
   });
 
-  try {
-    const result = await dclient.send(scanCmd);
-    const items = result.Items ?? [];
-
-    res.json(items);
-  } catch (err: any) {
-    res.status(400).send({
-      error: err,
-    });
-  }
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    } else {
+      res.send(data?.Items ?? []);
+    }
+  });
 }
 
+export function getActiveItems(res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
+    FilterExpression: "itemState = :state",
+    ExpressionAttributeValues: {
+      ":state": "active",
+    },
+    Limit: 50,
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    } else {
+      res.send(data?.Items ?? []);
+    }
+  });
+}
+
+export function getItemDetails(itemId: string, res: Response) {
+  const getCmd = new GetCommand({
+    TableName: TABLE_NAMES.ITEMS,
+    Key: {
+      "id": itemId,
+    },
+  });
+  dclient.send(getCmd, (err, data) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    } else if (data?.Item === undefined) {
+      res.status(404).send({ error: "Item not found." });
+    } else {
+      res.send(data.Item as Item);
+    }
+  });
+}
+
+export function getItemBids(itemId: string, res: Response) {
+  const scanBidCmd = new ScanCommand({
+    TableName: "dev-bids3",
+    FilterExpression: "bidItemId = :id",
+    ExpressionAttributeValues: {
+      ":id": itemId,
+    },
+  });
+  dclient.send(scanBidCmd, (err, data) => {
+    if (err) {
+      res.status(500).send({ error: err });
+    } else {
+      res.send(data?.Items ?? []);
+    }
+  });
+}

@@ -6,7 +6,7 @@ import helmet from 'helmet';
 import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
 // import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
-import { publishItem, reviewItems, unpublishItem } from './manage-item/handler'
+import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
@@ -45,7 +45,6 @@ app.get('/', authFilterMiddleware, (_, res) => {
 //   '/api/sellers/:sellerId/items/:itemId',
 //   (req, res) => removeInactiveItem(req.params['sellerId'], req.params['itemId'], res),
 // );
-// Fulfill Item
 
 app.post(
   '/api/sellers/:sellerId/items/:itemId/publish',
@@ -62,6 +61,7 @@ app.get(
 );
 
 
+// Fulfill Item
 app.post(
   '/api/sellers/:sellerId/items/:itemId/fulfill',
   authFilterMiddleware, (req, res) => fulfillItem(req.params['sellerId'], req.params['itemId'], res),
@@ -76,6 +76,10 @@ app.post(
   '/api/sellers/:sellerId/items/:itemId/request-unfreeze',
   authFilterMiddleware, (req, res) => requestUnfreezeItem(req.params['sellerId'], req.params['itemId'], res),
 );
+
+app.get('/api/items/active', (_, res) => getActiveItems(res));
+app.get('/api/items/:itemId', (req, res) => getItemDetails(req.params["itemId"], res));
+app.get('/api/items/:itemId/bids', (req, res) => getItemBids(req.params["itemId"], res));
 
 // login and register
 app.post('/api/register', registerHandler);

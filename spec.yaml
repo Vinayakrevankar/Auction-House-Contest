@@ -443,7 +443,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ItemDetails'
+                $ref: '#/components/schemas/Item'
   /api/items/recently-sold:
     get:
       summary: Search and sort recently sold items
@@ -1003,11 +1003,14 @@ components:
       required:
         - id
         - bidUserId
+        - bidItemId
         - bidAmount
         - bidTime
         - createAt
       properties:
         id:
+          type: string
+        bidItemId:
           type: string
         bidUserId:
           type: string

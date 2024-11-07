@@ -544,9 +544,12 @@ export const BidResponseSchema = {
 
 export const BidSchema = {
     type: 'object',
-    required: ['id', 'bidUserId', 'bidAmount', 'bidTime', 'createAt'],
+    required: ['id', 'bidUserId', 'bidItemId', 'bidAmount', 'bidTime', 'createAt'],
     properties: {
         id: {
+            type: 'string'
+        },
+        bidItemId: {
             type: 'string'
         },
         bidUserId: {
