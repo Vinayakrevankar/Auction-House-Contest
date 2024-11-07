@@ -231,7 +231,7 @@ const SellerDashboard = () => {
           </thead>
           <tbody>
             {/* R */}
-            {items.map((item) => (
+            {items?.map((item) => (
               <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                 <td className="p-4">{item.id}</td>
                 <td className="p-4">{item.name}</td>
