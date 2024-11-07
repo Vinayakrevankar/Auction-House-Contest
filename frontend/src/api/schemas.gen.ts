@@ -167,8 +167,7 @@ export const AddItemRequestSchema = {
         images: {
             type: 'array',
             items: {
-                type: 'string',
-                format: 'binary'
+                type: 'string'
             }
         }
     }
@@ -176,7 +175,7 @@ export const AddItemRequestSchema = {
 
 export const ItemSchema = {
     type: 'object',
-    required: ['id', 'name', 'description', 'initPrice', 'startDate', 'endDate', 'itemState', 'isFrozen', 'images', 'sellerId', 'createAt'],
+    required: ['id', 'name', 'description', 'initPrice', 'startDate', 'endDate', 'lengthOfAuction', 'itemState', 'isFrozen', 'images', 'sellerId', 'createAt'],
     properties: {
         id: {
             type: 'string'
@@ -197,6 +196,9 @@ export const ItemSchema = {
         endDate: {
             type: 'string',
             format: 'date-time'
+        },
+        lengthOfAuction: {
+            type: 'number'
         },
         itemState: {
             type: 'string',
@@ -279,11 +281,13 @@ export const EditItemRequestSchema = {
         initPrice: {
             type: 'number'
         },
+        lengthOfAuction: {
+            type: 'integer'
+        },
         images: {
             type: 'array',
             items: {
-                type: 'string',
-                format: 'binary'
+                type: 'string'
             }
         }
     }

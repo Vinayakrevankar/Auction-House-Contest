@@ -55,7 +55,7 @@ export type AddItemRequest = {
     description: string;
     initPrice: number;
     lengthOfAuction: number;
-    images: Array<((Blob | File))>;
+    images: Array<(string)>;
 };
 
 export type Item = {
@@ -65,6 +65,7 @@ export type Item = {
     initPrice: number;
     startDate: string;
     endDate: string;
+    lengthOfAuction: number;
     itemState: 'inactive' | 'active' | 'failed' | 'completed' | 'archived';
     isFrozen: boolean;
     images: Array<(string)>;
@@ -92,7 +93,8 @@ export type EditItemRequest = {
     name?: string;
     description?: string;
     initPrice?: number;
-    images?: Array<((Blob | File))>;
+    lengthOfAuction?: number;
+    images?: Array<(string)>;
 };
 
 export type ActionResponse = {
@@ -287,7 +289,7 @@ export type PostApiLoginResponse = ({
     payload?: {
         username?: string;
         emailAddress?: string;
-        userType?: string;
+        userType?: 'seller' | 'buyer';
         userId?: string;
         role?: 'admin' | 'user';
         token?: string;
@@ -327,6 +329,22 @@ export type PostApiVerifyData = {
 export type PostApiVerifyResponse = (unknown);
 
 export type PostApiVerifyError = unknown;
+
+export type PostApiUploadImageData = {
+    body: {
+        /**
+         * The image file to upload
+         */
+        image?: (Blob | File);
+    };
+};
+
+export type PostApiUploadImageResponse = ({
+    message?: string;
+    key?: string;
+});
+
+export type PostApiUploadImageError = unknown;
 
 export type PostApiSellersBySellerIdCloseData = {
     path: {

@@ -64,8 +64,13 @@ resources:
     ApiGatewayV2Api:
       Type: AWS::ApiGatewayV2::Api
       Properties:
-        Name: ${self:service}-api
-        ProtocolType: HTTP
+        BucketName: ${self:custom.bucketName}
+        CorsConfiguration:
+          CorsRules:
+            - AllowedOrigins: ["*"]
+              AllowedMethods: ["GET", "PUT", "POST", "DELETE"]
+              AllowedHeaders: ["*"]
+              MaxAge: 3000
 
     UsersTable3:
       Type: AWS::DynamoDB::Table

@@ -3,13 +3,13 @@ import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } fro
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
-import { Item, ItemDetails, ItemPublishResponse, ItemStateResponse } from "../api";
+import { AddItemRequest, EditItemRequest, Item, ItemPublishResponse, ItemStateResponse } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export async function addItem(
   sellerId: string,
-  itemData: any,
+  itemData: AddItemRequest,
   res: Response<any, Record<string, any>>
 ) {
   // Validate input data according to AddItemRequest schema
@@ -35,10 +35,10 @@ export async function addItem(
   const createAt = Date.now();
 
   // Calculate startDate and endDate based on lengthOfAuction
-  const startDate = new Date().toISOString(); // Auction starts now
-  const endDate = new Date(Date.now() + itemData.lengthOfAuction * 24 * 60 * 60 * 1000).toISOString();
+  const startDate = new Date(); // Auction starts now
+  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction * 24 * 60 * 60 * 1000);
 
-  const item = {
+  const item: Item = {
     id: itemId,
     sellerId: sellerId,
     name: itemData.name,
@@ -46,17 +46,16 @@ export async function addItem(
     images: itemData.images,
     initPrice: itemData.initPrice,
     lengthOfAuction: itemData.lengthOfAuction,
-    startDate: startDate,
-    endDate: endDate,
+    startDate: startDate.toISOString(),
+    endDate: endDate.toISOString(),
     itemState: "inactive", // Initial state is inactive
     isFrozen: false,
     createAt: createAt,
-    updateAt: createAt,
     // Initialize optional fields
-    currentBidId: null,
+    currentBidId: undefined,
     pastBidIds: [],
-    soldTime: null,
-    soldBidId: null,
+    soldTime: undefined,
+    soldBidId: undefined,
   };
 
   const cmd = new PutCommand({
@@ -77,7 +76,7 @@ export async function addItem(
 export async function editItem(
   sellerId: string,
   itemId: string,
-  itemData: any,
+  itemData: EditItemRequest,
   res: Response<any, Record<string, any>>
 ) {
   // Fetch the item to verify ownership and state
@@ -137,6 +136,15 @@ export async function editItem(
       }
       updateExpression += ", initPrice = :initPrice";
       expressionAttributeValues[":initPrice"] = itemData.initPrice;
+    }
+
+    if (itemData.lengthOfAuction) {
+      if (itemData.lengthOfAuction < 1) {
+        res.status(400).send({ error: "lengthOfAuction must be at least 1 day" });
+        return;
+      }
+      updateExpression += ", lengthOfAuction = :lengthOfAuction";
+      expressionAttributeValues[":lengthOfAuction"] = itemData.lengthOfAuction;
     }
 
     const updateCmd = new UpdateCommand({
