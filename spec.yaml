@@ -806,8 +806,13 @@ components:
           format: date-time
     ItemPublishResponse:
       type: object
+      required:
+        - itemId
+        - itemState
+        - startDate
+        - endDate
       properties:
-        id:
+        itemId:
           type: string
         itemState:
           type: string
@@ -819,6 +824,10 @@ components:
           format: date-time
     ItemStateResponse:
       type: object
+      required:
+        - message
+        - itemId
+        - itemState
       properties:
         message:
           type: string
