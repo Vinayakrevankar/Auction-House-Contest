@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState } from 'react';
+import { createContext, useContext } from 'react';
 
 // Define types for the context value and provider props
 interface AuthContextProps {
@@ -6,21 +6,7 @@ interface AuthContextProps {
   setUserJWTToken: (token: string) => void;
 }
 
-const AuthContext = createContext<AuthContextProps | undefined>(undefined);
-
-interface AuthProviderProps {
-  children: React.ReactNode;
-}
-
-export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [userJWTToken, setUserJWTToken] = useState<string | null>(null);
-
-  return (
-    <AuthContext.Provider value={{ userJWTToken, setUserJWTToken }}>
-      {children}
-    </AuthContext.Provider>
-  );
-};
+export const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
 export const useAuth = () => {
   const context = useContext(AuthContext);
