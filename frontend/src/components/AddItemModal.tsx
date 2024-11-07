@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'flowbite-react';
 import { ItemSimple } from '../models/ItemSimple';
+import { postApiUploadImage } from '../api';
 
 interface AddItemModalProps {
   show: boolean;
@@ -27,11 +28,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       return; // Add validation messages if needed
     }
 
-    const images = await Promise.all(Array.from(newItemImages).map(async file => {
-      const result = await new Promise<string>((resolve, reject) => {
+    const imageData = await Promise.all(Array.from(newItemImages).map(async file => {
+      const result = await new Promise<ArrayBuffer>((resolve, reject) => {
         const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (_) => resolve(reader.result as string);
+        reader.readAsArrayBuffer(file);
+        reader.onload = (_) => resolve(reader.result as ArrayBuffer);
         reader.onerror = (_) => reject(reader.error);
       }).catch(err => {
         // TODO: file upload error notification.
@@ -41,6 +42,14 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
         return;
       }
       return result;
+    }));
+    const images = await Promise.all(imageData.filter(v => v !== undefined).map(async data => {
+      const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
+      if (resp.error) {
+        console.error(resp.error);
+      } else {
+        return resp.data?.key!;
+      }
     }));
     const newItem: ItemSimple = {
       id: `${Date.now()}`, // Use a better unique ID in production

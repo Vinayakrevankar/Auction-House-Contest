@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'flowbite-react';
 import { ItemSimple } from '../models/ItemSimple';
+import { postApiUploadImage } from '../api';
 
 interface EditItemModalProps {
   show: boolean;
@@ -39,11 +40,11 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
     let images = itemToEdit.images;
     if (editItemImages && editItemImages.length > 0) {
-      images = (await Promise.all(Array.from(editItemImages).map(async file => {
-        const result = await new Promise<string>((resolve, reject) => {
+      const imageData = await Promise.all(Array.from(editItemImages).map(async file => {
+        const result = await new Promise<ArrayBuffer>((resolve, reject) => {
           const reader = new FileReader();
-          reader.readAsDataURL(file);
-          reader.onload = (_) => resolve(reader.result as string);
+          reader.readAsArrayBuffer(file);
+          reader.onload = (_) => resolve(reader.result as ArrayBuffer);
           reader.onerror = (_) => reject(reader.error);
         }).catch(err => {
           // TODO: file upload error notification.
@@ -53,7 +54,17 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
           return;
         }
         return result;
-      }))).filter((v) => v !== undefined);
+      }));
+      images = (await Promise.all(imageData.map(async data => {
+        if (data !== undefined) {
+          const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
+          if (resp.error) {
+            console.error(resp.error);
+          } else {
+            return resp.data?.key!;
+          }
+        }
+      }))).filter(v => v !== undefined);
     }
     const updatedItem: ItemSimple = {
       ...itemToEdit,
