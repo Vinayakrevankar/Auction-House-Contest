@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'flowbite-react';
+import { ItemSimple } from '../models/ItemSimple';
 
 interface AddItemModalProps {
   show: boolean;
@@ -9,7 +10,6 @@ interface AddItemModalProps {
 
 const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem }) => {
   const [newItemName, setNewItemName] = useState('');
-  const [newItemStatus, setNewItemStatus] = useState('Unpublished');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [newItemInitPrice, setNewItemInitPrice] = useState('');
   const [newItemLengthOfAuction, setNewItemLengthOfAuction] = useState('');
@@ -27,10 +27,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       return; // Add validation messages if needed
     }
 
-    const newItem = {
-      id: Date.now(), // Use a better unique ID in production
+    const newItem: ItemSimple = {
+      id: `${Date.now()}`, // Use a better unique ID in production
       name: newItemName,
-      status: newItemStatus,
       description: newItemDescription,
       initPrice: parseFloat(newItemInitPrice),
       lengthOfAuction: parseInt(newItemLengthOfAuction),
@@ -40,7 +39,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
     onAddItem(newItem);
     // Reset form fields
     setNewItemName('');
-    setNewItemStatus('Unpublished');
     setNewItemDescription('');
     setNewItemInitPrice('');
     setNewItemLengthOfAuction('');
@@ -119,17 +117,6 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
             </div>
 
             {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                value={newItemStatus}
-                onChange={(e) => setNewItemStatus(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              >
-                <option value="Unpublished">Unpublished</option>
-                <option value="Published">Published</option>
-              </select>
-            </div>
 
             {/* Buttons */}
             <div className="flex justify-end space-x-2">

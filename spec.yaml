@@ -50,6 +50,7 @@ paths:
                         example: vinayakanrevankar@gmail.com
                       userType:
                         type: string
+                        enum: [seller, buyer]
                         example: seller
                       userId:
                         type: string
@@ -750,7 +751,7 @@ components:
           type: array
           items:
             type: string
-            format: binary
+            # format: binary
     Item:
       type: object
       required:
@@ -760,6 +761,7 @@ components:
         - initPrice
         - startDate
         - endDate
+        - lengthOfAuction
         - itemState
         - isFrozen
         - images
@@ -780,6 +782,8 @@ components:
         endDate:
           type: string
           format: date-time
+        lengthOfAuction:
+          type: number
         itemState:
           type: string
           enum: [inactive, active, failed, completed, archived]
@@ -842,11 +846,12 @@ components:
           type: string
         initPrice:
           type: number
+        lengthOfAuction:
+          type: integer
         images:
           type: array
           items:
             type: string
-            format: binary
     ActionResponse:
       type: object
       properties:

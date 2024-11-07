@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { getApiSellersBySellerIdItems, Item } from './api';
+import { deleteApiSellersBySellerIdItemsByItemId, getApiItemsByItemId, getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
 import { useAuth } from './AuthContext';
+import { ItemSimple, itemToSimple } from './models/ItemSimple';
 
 //R
 import AddItemModal from './components/AddItemModal';
@@ -8,14 +9,14 @@ import EditItemModal from './components/EditItemModal';
 //R
 
 const SellerDashboard = () => {
-  const { userJWTToken } = useAuth();
+  const { userInfo } = useAuth();
   const [init, setInit] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
 
   //R
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [itemToEdit, setItemToEdit] = useState<Item | null>(null);
+  const [itemToEdit, setItemToEdit] = useState<ItemSimple | null>(null);
 
   const openAddModal = () => {
     setShowAddModal(true);
@@ -25,12 +26,42 @@ const SellerDashboard = () => {
     setShowAddModal(false);
   };
 
-  const handleAddItem = (newItem: Item) => {
-    setItems([...items, newItem]);
+  const handleAddItem = async (newItem: ItemSimple) => {
+    let addResp = await postApiSellersBySellerIdItems({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: { sellerId: userInfo?.userId! },
+      body: {
+        name: newItem.name,
+        description: newItem.description,
+        initPrice: newItem.initPrice,
+        lengthOfAuction: newItem.lengthOfAuction,
+        images: newItem.images,
+      }
+    });
+    if (addResp.error) {
+      // TODO: Error notificcation.
+      console.error(addResp.error);
+      return;
+    }
+    // TODO: Make add item return item's id such that we won't need to scan.
+    let getResp = await getApiSellersBySellerIdItems({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: { sellerId: userInfo?.userId! },
+    });
+    if (getResp.error) {
+      // TODO: Error notificcation.
+      console.error(getResp.error);
+      return;
+    }
+    setItems(getResp.data!);
   };
 
   const openEditModal = (item: Item) => {
-    setItemToEdit(item);
+    setItemToEdit(itemToSimple(item));
     setShowEditModal(true);
   };
 
@@ -39,11 +70,59 @@ const SellerDashboard = () => {
     setShowEditModal(false);
   };
 
-  const handleUpdateItem = (updatedItem: Item) => {
-    setItems(items.map(item => item.id === updatedItem.id ? updatedItem : item));
+  const handleUpdateItem = async (updatedItem: ItemSimple) => {
+    // let itemUpdated = itemFromSimple(updatedItem, userInfo?.userId!);
+    // setItems(items.map(item => item.id === updatedItem.id ? itemUpdated : item));
+    let updateResp = await putApiSellersBySellerIdItemsByItemId({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: {
+        sellerId: userInfo?.userId!,
+        itemId: updatedItem.id,
+      },
+      body: {
+        name: updatedItem.name,
+        description: updatedItem.description,
+        initPrice: updatedItem.initPrice,
+        lengthOfAuction: updatedItem.lengthOfAuction,
+        images: updatedItem.images,
+      },
+    });
+    if (updateResp.error) {
+      // TODO: Error notificcation.
+      console.error(updateResp.error);
+      return;
+    }
+    let getResp = await getApiItemsByItemId({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: { itemId: updatedItem.id },
+    });
+    if (getResp.error) {
+      // TODO: Error notificcation.
+      console.error(getResp.error);
+      return;
+    }
+    setItems(items.map(x => x.id === updatedItem.id ? getResp.data! : x));
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
+    let resp = await deleteApiSellersBySellerIdItemsByItemId({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: {
+        sellerId: userInfo?.userId!,
+        itemId: id,
+      },
+    });
+    if (resp.error) {
+      // TODO: Error notificcation.
+      console.error(resp.error);
+      return;
+    }
     setItems(items.filter(item => item.id !== id));
   };
   //R
@@ -51,15 +130,13 @@ const SellerDashboard = () => {
   if (init) {
     getApiSellersBySellerIdItems({
       headers: {
-        "Authorization": userJWTToken || "",
+        "Authorization": userInfo?.token || "",
       },
-      path: { sellerId: "VIRE89444757" },
+      path: { sellerId: userInfo?.userId! },
     }).then(resp => {
       if (resp.error !== undefined) {
         console.error(resp.error);
       } else {
-        console.log("Success");
-        console.log(resp.data!);
         setItems(resp.data!);
       }
     });
@@ -67,13 +144,41 @@ const SellerDashboard = () => {
   }
 
   //R
-  const handlePublish = (id: string) => {
+  const handlePublish = async (id: string) => {
+    let resp = await postApiSellersBySellerIdItemsByItemIdPublish({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: {
+        sellerId: userInfo?.userId!,
+        itemId: id,
+      },
+    });
+    if (resp.error) {
+      // TODO: Error notificcation.
+      console.error(resp.error);
+      return;
+    }
     setItems(items.map(item =>
       item.id === id ? { ...item, itemState: 'active' } : item
     ));
   };
 
-  const handleUnpublish = (id: string) => {
+  const handleUnpublish = async (id: string) => {
+    let resp = await postApiSellersBySellerIdItemsByItemIdUnpublish({
+      headers: {
+        "Authorization": userInfo?.token || "",
+      },
+      path: {
+        sellerId: userInfo?.userId!,
+        itemId: id,
+      },
+    });
+    if (resp.error) {
+      // TODO: Error notificcation.
+      console.error(resp.error);
+      return;
+    }
     setItems(items.map(item =>
       item.id === id ? { ...item, itemState: 'inactive' } : item
     ));

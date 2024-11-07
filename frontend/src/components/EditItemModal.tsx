@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'flowbite-react';
+import { ItemSimple } from '../models/ItemSimple';
 
 interface EditItemModalProps {
   show: boolean;
   onClose: () => void;
-  onUpdateItem: (item: any) => void;
-  itemToEdit: any;
+  onUpdateItem: (item: ItemSimple) => void;
+  itemToEdit: ItemSimple;
 }
 
 const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateItem, itemToEdit }) => {
   const [editItemName, setEditItemName] = useState('');
-  const [editItemStatus, setEditItemStatus] = useState('');
   const [editItemDescription, setEditItemDescription] = useState('');
   const [editItemInitPrice, setEditItemInitPrice] = useState('');
   const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState('');
@@ -19,7 +19,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
   useEffect(() => {
     if (itemToEdit) {
       setEditItemName(itemToEdit.name);
-      setEditItemStatus(itemToEdit.status);
       setEditItemDescription(itemToEdit.description);
       setEditItemInitPrice(itemToEdit.initPrice.toString());
       setEditItemLengthOfAuction(itemToEdit.lengthOfAuction.toString());
@@ -38,10 +37,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
       return; // Add validation messages if needed
     }
 
-    const updatedItem = {
+    const updatedItem: ItemSimple = {
       ...itemToEdit,
       name: editItemName,
-      status: editItemStatus,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
       lengthOfAuction: parseInt(editItemLengthOfAuction),
@@ -53,7 +51,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
     onUpdateItem(updatedItem);
     // Reset form fields
     setEditItemName('');
-    setEditItemStatus('');
     setEditItemDescription('');
     setEditItemInitPrice('');
     setEditItemLengthOfAuction('');
@@ -128,19 +125,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
                 onChange={(e) => setEditItemImages(e.target.files)}
                 className="mt-1 block w-full"
               />
-            </div>
-
-            {/* Status */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                value={editItemStatus}
-                onChange={(e) => setEditItemStatus(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              >
-                <option value="Unpublished">Unpublished</option>
-                <option value="Published">Published</option>
-              </select>
             </div>
 
             {/* Buttons */}
