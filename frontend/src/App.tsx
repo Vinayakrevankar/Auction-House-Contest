@@ -1,13 +1,16 @@
-import React from 'react';
+import { AuthProvider, useAuth } from './AuthContext';
 import LandingPage from './LandingPage';
-import './App.css';
 
-function App() {
+const App = () => {
+  const { userJWTToken } = useAuth(); // Access the JWT token here
+
   return (
-    <div className="App">
-      <LandingPage />
-    </div>
+    <AuthProvider>
+      <div className="App">
+        <LandingPage />
+      </div>
+    </AuthProvider>
   );
-}
+};
 
 export default App;

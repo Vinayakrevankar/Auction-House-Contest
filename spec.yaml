@@ -106,6 +106,19 @@ paths:
                   payload:
                     type: object
                     nullable: true
+                    username:
+                      type: string
+                      example: vinayakrevankar
+                    emailAddress:
+                      type: string
+                      example: vinayakanrevankar@gmail.com
+                    userType:
+                      type: string
+                      example: seller
+                    role: 
+                      type: string
+                      enum: [admin, user]
+                      example: admin
   /api/verify:
     post:
       summary: Create a seller account

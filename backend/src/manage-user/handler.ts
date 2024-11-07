@@ -56,7 +56,7 @@ export async function registerHandler(req: Request, res: Response) {
       { expiresIn: '15m' }
     );
 
-    return res.status(201).json(getCreated({ token }, "User registered successfully."));
+    return res.status(201).json(getCreated({ username, emailAddress, userType, role, token }, "User registered successfully."));
   } catch (error) {
     console.error("Error registering user:", error);
     return res.status(500).json(getException([null, "Could not register user."]));
@@ -94,7 +94,7 @@ export async function loginHander(req: Request, res: Response) {
       { expiresIn: '15m' }
     );
 
-    return res.status(200).json(getSuccess({ token }, "Login successful"));
+    return res.status(200).json(getSuccess({ username: user.username, emailAddress, userType: user.userType, role: user.role, token }, "Login successful"));
   } catch (error) {
     console.error("Error logging in:", error);
     return res.status(500).json(getException([null, "Could not log in."]));

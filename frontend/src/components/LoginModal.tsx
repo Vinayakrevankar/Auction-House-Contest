@@ -1,5 +1,7 @@
 // src/components/LoginModal.tsx
 import React, { useState } from 'react';
+import { useAuth } from '../AuthContext';
+import { postApiLogin } from '../api/services.gen';
 
 interface LoginModalProps {
   onClose: () => void;
@@ -8,16 +10,31 @@ interface LoginModalProps {
 const LoginModal = ({ onClose }: LoginModalProps) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const { setUserJWTToken } = useAuth(); // Access the setter function from context
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Logging in with', { email, password });
-    onClose();
+
+    try {
+      const response = await postApiLogin({
+        body: { emailAddress: email, password },
+      });
+
+      if (response.data?.payload?.token) {
+        setUserJWTToken(response.data.payload.token); // Store the token in context
+        onClose(); // Close the modal on successful login
+      } else {
+        alert('Login failed: Invalid credentials');
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      alert('Login failed: Unable to connect');
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
-      <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full transform transition-all duration-300">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
+      <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Login</h2>
         
         <form onSubmit={handleLogin}>
@@ -43,7 +60,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
             />
           </div>
           
-          <button type="submit" className="w-full btn-primary">
+          <button type="submit" className="w-full bg-blue-600 text-white font-semibold py-2 rounded-lg hover:bg-blue-700">
             Login
           </button>
         </form>

@@ -274,7 +274,7 @@ export type ParameterSortOrder = 'asc' | 'desc';
 
 export type PostApiLoginData = {
     body: {
-        email?: string;
+        emailAddress?: string;
         password?: string;
     };
 };
