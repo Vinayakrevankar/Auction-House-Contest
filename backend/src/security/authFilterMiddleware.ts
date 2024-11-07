@@ -15,7 +15,7 @@ interface User {
   id: string;
   firstName: string;
   lastName: string;
-  email: string;
+  emailAddress: string;
   role: string;
   userType: string;
   userId: string;
@@ -41,18 +41,18 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
         return;
       }
 
-      const { email, firstName, lastName, username, role, userType, userId } = userInfo;
+      const { emailAddress, firstName, lastName, username, role, userType, userId } = userInfo;
 
-      const user = await securityDA.getUser(req.app.locals.dynamoDBClient, email) as User | undefined;
+      const user = await securityDA.getUser(req.app.locals.dynamoDBClient, emailAddress) as User | undefined;
 
-      if (!user || user.id !== email || user.username !== username) {
+      if (!user || user.id !== emailAddress || user.username !== username) {
         res.json(httpUtil.getUnauthorized());
         return;
       }
 
       // Store additional user info in res.locals
-      res.locals.id = email;
-      res.locals.email = email;
+      res.locals.id = emailAddress;
+      res.locals.emailAddress = emailAddress;
       res.locals.firstName = firstName;
       res.locals.lastName = lastName;
       res.locals.username = username;
