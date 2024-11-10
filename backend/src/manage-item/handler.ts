@@ -250,11 +250,12 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
       "id": itemId,
     },
     UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid AND currentBidId = null",
+    ConditionExpression: "itemState = :old AND sellerId = :sid AND (attribute_not_exists(currentBidId) OR currentBidId = :null)",
     ExpressionAttributeValues: {
       ":new": "inactive",
       ":old": "active",
       ":sid": sellerId,
+      ":null": null,
     },
   });
   dclient.send(cmd, (err, _) => {
