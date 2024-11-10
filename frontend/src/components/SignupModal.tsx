@@ -26,7 +26,7 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-   
+
     e.preventDefault();
     if (form.password !== form.confirmPassword) {
       alert("Passwords do not match");
@@ -47,11 +47,7 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
       const response = await postApiRegister({ body: signupData }); // Call the API function
       console.log('Signup successful', response);
       onClose(); // Close the modal on successful registration
-      if(signupData.userType === 'buyer'){
-        navigate('/Auction-House-Contest/buyer-dashboard');
-      }else{
-        navigate('/Auction-House-Contest/seller-dashboard');
-      }
+      navigate('/Auction-House-Contest/', { state: { openLoginModal: true } });
     } catch (error) {
       setError('Failed to register. Please try again.'); // Set error message on failure
       console.error('Signup error:', error);

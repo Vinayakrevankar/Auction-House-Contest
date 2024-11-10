@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
-import { postApiLogin } from "../api";
+import { postApiLogin } from "../api/services.gen";
 import { useNavigate } from "react-router-dom";
 interface LoginModalProps {
   onClose: () => void;
@@ -22,14 +22,18 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
 
       if (response.data?.payload?.token) {
         const info = response.data.payload;
-        setUserInfo({
-          username: info.username!,
-          emailAddress: info.emailAddress!,
-          userType: info.userType!,
-          userId: info.userId!,
-          role: info.role!,
-          token: info.token!,
-        });
+
+        // Store user info in context and session storage
+        const userInfo = {
+          username: info.username || "",
+          emailAddress: info.emailAddress || "",
+          userType: info.userType as "seller" | "buyer" || "buyer",
+          userId: info.userId || "",
+          role: (info.role === "admin" || info.role === "user") ? info.role : "user",
+          token: info.token || "",
+        };
+
+        setUserInfo(userInfo);
         onClose(); // Close the modal on successful login
         if (info.userType === "buyer") {
           navigate("/Auction-House-Contest/buyer-dashboard");

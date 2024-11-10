@@ -1,10 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal'; 
+import { useLocation } from 'react-router-dom';
 
 const LandingPage = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
+  const location = useLocation();
+
+  useEffect(() => {
+    // Open the login modal if "openLoginModal" is true in the state
+    if (location.state?.openLoginModal) {
+      setIsLoginOpen(true);
+    }
+  }, [location.state]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-center">

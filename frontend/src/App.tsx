@@ -1,16 +1,12 @@
-import { useState } from 'react';
-import { AuthContext, UserInfo } from './AuthContext';
-import LandingPage from './LandingPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { AuthProvider } from './AuthContext';
+import LandingPage from './LandingPage';
 import SellerDashboard from './SellerDashboard';
 import BuyerDashboard from './BuyerDashboard';
 
-
 const App = () => {
-  const [userInfo, setUserInfo] = useState<UserInfo | null>(null);
-
   return (
-    <AuthContext.Provider value={{ userInfo, setUserInfo }}>
+    <AuthProvider>
       <Router>
         <Routes>
           <Route path="/Auction-House-Contest/" element={<LandingPage />} />
@@ -18,7 +14,7 @@ const App = () => {
           <Route path="/Auction-House-Contest/buyer-dashboard" element={<BuyerDashboard />} />
         </Routes>
       </Router>
-    </AuthContext.Provider>
+    </AuthProvider>
   );
 };
 
