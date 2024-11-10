@@ -22,7 +22,8 @@ jobs:
   build:
     runs-on: ubuntu-latest
     if: |
-      github.event_name == 'push' && contains(github.event.head_commit.message, 'frontend/') ||
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' && contains(github.event.head_commit.message, 'frontend/')) ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     steps:
       - name: Checkout
@@ -55,7 +56,8 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     if: |
-      github.event_name == 'push' && contains(github.event.head_commit.message, 'frontend/') ||
+      github.ref == 'refs/heads/main' &&
+      (github.event_name == 'push' && contains(github.event.head_commit.message, 'frontend/')) ||
       (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
     steps:
       - name: Deploy to GitHub Pages
