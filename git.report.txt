@@ -1,3 +1,22 @@
+commit 37b7a200391966ca67bf3cc3183363dc94dbf588
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:46:59 2024 -0500
+
+    added git report and updated readme file
+
+ README.md      |    6 +-
+ git.report.txt | 1575 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1577 insertions(+), 4 deletions(-)
+
+commit f18ceccece24b5345301e65693b6734b5d64676b
+Merge: 7283815 17275d0
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:28:50 2024 -0500
+
+    Merge pull request #5 from Vinayakrevankar/dev1
+    
+    seller: Update unpublish condition expression.
+
 commit 17275d07c698e90c5ba301bbf751577834d0059d
 Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
 Date:   Sat Nov 9 23:25:17 2024 -0500
@@ -6,6 +25,15 @@ Date:   Sat Nov 9 23:25:17 2024 -0500
 
  backend/src/manage-item/handler.ts | 3 ++-
  1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 7283815650dc65048268b4807fc8ef25973911fd
+Merge: e0cd004 f41856a
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:11:32 2024 -0500
+
+    Merge pull request #4 from Vinayakrevankar/dev1
+    
+    Seller UI changes
 
 commit f41856ae8b40113fe7773f33a287218a792fa7f3
 Merge: a273faf 5c80114
@@ -38,6 +66,15 @@ Date:   Sat Nov 9 22:58:57 2024 -0500
  frontend/src/api/types.gen.ts      |  8 -------
  spec.yaml                          | 44 +++++++++++++++++++-------------------
  8 files changed, 29 insertions(+), 93 deletions(-)
+
+commit e0cd004130659fa6fe8607b4860abe3810e45056
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 22:11:08 2024 -0500
+
+    reverted the code added for S3
+
+ backend/src/manage-item/handler.ts | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
 
 commit 343870351b5f1f6ae6162036a6a32c0b9a7abeef
 Merge: c924931 3240c80
