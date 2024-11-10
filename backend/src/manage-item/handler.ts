@@ -4,7 +4,7 @@ import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
 import { AddItemRequest, EditItemRequest, Item, ItemPublishResponse, ItemStateResponse } from "../api";
-import { S3_BUCKET_URL } from "./../constants";
+// import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export async function addItem(
@@ -275,13 +275,7 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
 }
 
 function updateURLs(data: any): Item[] {
-  let items = data?.Items ?? [] as Item[];
-  items.forEach(val => {
-    val.images = val.images.map((fileName: string) => {
-      return S3_BUCKET_URL + fileName;
-    });
-  });
-  return items;
+  return  data?.Items ?? [] as Item[];
 }
 
 //Review item
