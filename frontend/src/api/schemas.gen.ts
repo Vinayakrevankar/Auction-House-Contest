@@ -311,37 +311,15 @@ export const ActionResponseSchema = {
     }
 } as const;
 
-export const PublishItemRequestSchema = {
-    type: 'object',
-    properties: {
-        startDate: {
-            type: 'string',
-            format: 'date-time'
-        },
-        endDate: {
-            type: 'string',
-            format: 'date-time'
-        }
-    }
-} as const;
-
 export const ItemPublishResponseSchema = {
     type: 'object',
-    required: ['itemId', 'itemState', 'startDate', 'endDate'],
+    required: ['itemId', 'itemState'],
     properties: {
         itemId: {
             type: 'string'
         },
         itemState: {
             type: 'string'
-        },
-        startDate: {
-            type: 'string',
-            format: 'date-time'
-        },
-        endDate: {
-            type: 'string',
-            format: 'date-time'
         }
     }
 } as const;

@@ -66,7 +66,7 @@ app.delete(
 app.post(
   '/api/sellers/:sellerId/items/:itemId/publish',
   authFilterMiddleware,
-  (req, res) => publishItem(req.params['sellerId'], req.params['itemId'], req.body["startDate"], req.body["endDate"], res),
+  (req, res) => publishItem(req.params['sellerId'], req.params['itemId'], res),
 );
 app.post(
   '/api/sellers/:sellerId/items/:itemId/unpublish',

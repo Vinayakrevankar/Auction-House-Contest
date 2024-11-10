@@ -268,11 +268,11 @@ paths:
         - $ref: '#/components/parameters/ItemId'
       security:
         - bearerAuth: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PublishItemRequest'
+      # requestBody:
+      #   content:
+      #     application/json:
+      #       schema:
+      #         $ref: '#/components/schemas/PublishItemRequest'
       responses:
         '200':
           description: Item published successfully
@@ -892,33 +892,33 @@ components:
           type: string
         buyerId:
           type: string
-    PublishItemRequest:
-      type: object
-      properties:
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
+    # PublishItemRequest:
+    #   type: object
+    #   properties:
+    #     startDate:
+    #       type: string
+    #       format: date-time
+    #     endDate:
+    #       type: string
+    #       format: date-time
     ItemPublishResponse:
       type: object
       required:
         - itemId
         - itemState
-        - startDate
-        - endDate
+        # - startDate
+        # - endDate
       properties:
         itemId:
           type: string
         itemState:
           type: string
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
+        # startDate:
+        #   type: string
+        #   format: date-time
+        # endDate:
+        #   type: string
+        #   format: date-time
     ItemStateResponse:
       type: object
       required:
