@@ -7,6 +7,8 @@ Application URL: [https://vinayakrevankar.com/Auction-House-Contest/](https://vi
 - `frontend/`: Frontend React app.
 - `backend/`: AWS Lambda Deployment Files.
 - `spec.yaml`: OpenAPI schema.
+- `serverless.yml`: Configuration file for deploying AWS Lambda functions and S3.
+- `.github/workflows/`: Automates deployment for both client and server, and sends commit and merge notifications to discord.
 
 ## Implemented use cases
 
@@ -26,7 +28,3 @@ Application URL: [https://vinayakrevankar.com/Auction-House-Contest/](https://vi
   - frontend:
     - Login Account
     - Create Account
-
-> [!NOTE]
-> Image is not displayed currently for items in seller's dashboard but
-> the images are uploaded to S3 bucket.
