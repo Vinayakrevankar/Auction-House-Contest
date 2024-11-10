@@ -1,0 +1,1632 @@
+commit 2076c7539eaf368e1cdb25a88d4bd8a8b9c8cc07
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:52:19 2024 -0500
+
+    added github link on landing page
+
+ frontend/package-lock.json   | 76 ++++++++++++++++++++++++++++++++++++++++++++
+ frontend/package.json        |  4 +++
+ frontend/src/LandingPage.tsx | 14 ++++++++
+ 3 files changed, 94 insertions(+)
+
+commit 36d8470008271c53f0e805fbca6b2b2d31002831
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:47:30 2024 -0500
+
+    updated git.report
+
+ git.report.txt | 37 +++++++++++++++++++++++++++++++++++++
+ 1 file changed, 37 insertions(+)
+
+commit 37b7a200391966ca67bf3cc3183363dc94dbf588
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:46:59 2024 -0500
+
+    added git report and updated readme file
+
+ README.md      |    6 +-
+ git.report.txt | 1575 ++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 1577 insertions(+), 4 deletions(-)
+
+commit f18ceccece24b5345301e65693b6734b5d64676b
+Merge: 7283815 17275d0
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:28:50 2024 -0500
+
+    Merge pull request #5 from Vinayakrevankar/dev1
+    
+    seller: Update unpublish condition expression.
+
+commit 17275d07c698e90c5ba301bbf751577834d0059d
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Nov 9 23:25:17 2024 -0500
+
+    seller: Update unpublish condition expression.
+
+ backend/src/manage-item/handler.ts | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 7283815650dc65048268b4807fc8ef25973911fd
+Merge: e0cd004 f41856a
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 23:11:32 2024 -0500
+
+    Merge pull request #4 from Vinayakrevankar/dev1
+    
+    Seller UI changes
+
+commit f41856ae8b40113fe7773f33a287218a792fa7f3
+Merge: a273faf 5c80114
+Author: Rickyash <1145967792@qq.com>
+Date:   Sat Nov 9 23:08:48 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit a273fafdb9b679999493e957155ccc067492ff90
+Author: Rickyash <1145967792@qq.com>
+Date:   Sat Nov 9 23:07:49 2024 -0500
+
+    update the successfully running SellerDashboard.tsx
+
+ frontend/src/SellerDashboard.tsx | 136 ++++-----------------------------------
+ 1 file changed, 14 insertions(+), 122 deletions(-)
+
+commit 5c80114e634e76a71104d05c70cfe7527da7ee68
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Nov 9 22:58:57 2024 -0500
+
+    seller: Remove `startDate` & `endDate` from publish item.
+
+ backend/src/api/index.ts           |  2 +-
+ backend/src/api/schemas.gen.ts     | 24 +--------------------
+ backend/src/api/types.gen.ts       |  8 -------
+ backend/src/app.ts                 |  2 +-
+ backend/src/manage-item/handler.ts | 10 +++------
+ frontend/src/api/schemas.gen.ts    | 24 +--------------------
+ frontend/src/api/types.gen.ts      |  8 -------
+ spec.yaml                          | 44 +++++++++++++++++++-------------------
+ 8 files changed, 29 insertions(+), 93 deletions(-)
+
+commit e0cd004130659fa6fe8607b4860abe3810e45056
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 22:11:08 2024 -0500
+
+    reverted the code added for S3
+
+ backend/src/manage-item/handler.ts | 10 ++--------
+ 1 file changed, 2 insertions(+), 8 deletions(-)
+
+commit 343870351b5f1f6ae6162036a6a32c0b9a7abeef
+Merge: c924931 3240c80
+Author: Rickyash <1145967792@qq.com>
+Date:   Sat Nov 9 21:54:56 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 212178a9bff907d81dfe8cc7b02a2a18bcffe0cf
+Merge: c924931 3240c80
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 21:27:25 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 3240c8095d3afd1aa21d3098d92f4a71f96fb759
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 21:22:06 2024 -0500
+
+     Deploy code with every commit push
+
+ .github/workflows/deploy.yml | 16 ++++++++--------
+ 1 file changed, 8 insertions(+), 8 deletions(-)
+
+commit 45ae36c2c85911bd720ac6837b2304958e1e5dbb
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 21:17:40 2024 -0500
+
+    minor changes
+
+ .github/workflows/deploy.yml | 6 ++++--
+ 1 file changed, 4 insertions(+), 2 deletions(-)
+
+commit b6c04890ecae785ec21eca4b2d424812d7d958fe
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 21:15:13 2024 -0500
+
+    handled session and minor changes
+
+ frontend/src/App.tsx                    |  12 +-
+ frontend/src/AuthContext.tsx            |  31 +++-
+ frontend/src/LandingPage.tsx            |  11 +-
+ frontend/src/SellerDashboard.tsx        | 248 ++++++++++++++------------------
+ frontend/src/components/LoginModal.tsx  |  22 +--
+ frontend/src/components/SignupModal.tsx |   8 +-
+ 6 files changed, 166 insertions(+), 166 deletions(-)
+
+commit c9249316cc6665233fd26e26fbc7739bda54447c
+Author: Rickyash <1145967792@qq.com>
+Date:   Sat Nov 9 20:10:44 2024 -0500
+
+    Update the Table UI to display all the attributes, Fixed EditItem bug
+
+ frontend/src/SellerDashboard.tsx          | 141 ++++++++++++++++++------------
+ frontend/src/components/EditItemModal.tsx |  95 ++++++++++++--------
+ frontend/src/models/ItemSimple.ts         |   2 +-
+ 3 files changed, 141 insertions(+), 97 deletions(-)
+
+commit 7cb63e7b8da16b0a1caabb0e5eb1e072b7eaa9bd
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Nov 9 13:53:10 2024 -0500
+
+    API returning image URL
+
+ backend/src/constants.ts           |  4 +++-
+ backend/src/manage-item/handler.ts | 18 ++++++++++++++----
+ 2 files changed, 17 insertions(+), 5 deletions(-)
+
+commit 2fce0d459228e46d5398d2e9bcab57690998e8bf
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Nov 8 11:38:13 2024 -0500
+
+    frontend/ - Updated deploy script
+
+ .github/workflows/deploy.yml | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+commit fea0ecd17b83f3a7e31627fb8473fa49584db4f5
+Merge: 517a737 45a255b
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Fri Nov 8 11:14:26 2024 -0500
+
+    Merge pull request #3 from Vinayakrevankar/dev1
+
+commit 45a255b25188f178110a517f71333ed2f697ab2d
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Fri Nov 8 11:09:03 2024 -0500
+
+    frontend/ - Add APP URL to README; Add length check to `items.map`.
+
+ README.md                        | 2 ++
+ frontend/src/SellerDashboard.tsx | 4 ++--
+ 2 files changed, 4 insertions(+), 2 deletions(-)
+
+commit 517a7372e7921c946d3be74248ba7b04f75d0c37
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 18:04:14 2024 -0500
+
+    frontend/ - Updated title to Auction House Contest
+
+ frontend/public/index.html    | 2 +-
+ frontend/public/manifest.json | 4 ++--
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 898edc2ae402bbb4c8cb9dc7a9a2a0b1196abcb2
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 16:40:43 2024 -0500
+
+    frontend/ - Update README.md
+
+ README.md | 11 +++++++++++
+ 1 file changed, 11 insertions(+)
+
+commit b05c9dc8fe07d6b0fcd83ff7c16acf08bf921e2a
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:30:03 2024 -0500
+
+    frontend/ - linted loginModal.tsx
+
+ frontend/src/components/LoginModal.tsx | 42 +++++++++++++++++++++-------------
+ 1 file changed, 26 insertions(+), 16 deletions(-)
+
+commit 7c80c23e4c96033da2cfd3880bed97d1795be0a6
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 16:25:28 2024 -0500
+
+    Update README.md for implemented use cases.
+
+ README.md | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+commit b09a785e92b506ab63eace7a804ba00c210aebd4
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:25:24 2024 -0500
+
+    frontend/ - added navigation code in signup
+
+ frontend/src/components/SignupModal.tsx | 6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+commit 6ac81ecce1b5c3d10c1a142e2d4e478c2e7e8cca
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:20:19 2024 -0500
+
+    frontend/ - updated message
+
+ frontend/src/BuyerDashboard.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b37ffe850e03b9dcdb52f3321b20206b96558d40
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:19:47 2024 -0500
+
+    added logout button on buyer screen
+
+ frontend/src/BuyerDashboard.tsx | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+commit 7344f4c83388e9a8616adf29c5bad97187f31258
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:18:50 2024 -0500
+
+    frontend/ - updated message
+
+ frontend/src/BuyerDashboard.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 4520aa8930a12a03277a87ae8f5afa577755ca6c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:18:16 2024 -0500
+
+    added buyer navigation
+
+ frontend/src/App.tsx                   | 3 +++
+ frontend/src/components/LoginModal.tsx | 6 +++++-
+ 2 files changed, 8 insertions(+), 1 deletion(-)
+
+commit b86e54cb30414fc9079f24faa898f150ae345519
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:09:22 2024 -0500
+
+    frontend/ - deploy
+
+ frontend/src/SellerDashboard.tsx | 9 ++-------
+ 1 file changed, 2 insertions(+), 7 deletions(-)
+
+commit eb34cd54881a63586e6492304ea19b9186051bff
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 16:05:31 2024 -0500
+
+    minor change
+
+ frontend/src/SellerDashboard.tsx | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+commit 8c1536e0e84be9b9e842b8249fa62e80b59c353d
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 15:59:08 2024 -0500
+
+    frontend/ - Fixed unused import.
+
+ frontend/src/SellerDashboard.tsx | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 648bbda0689776a078c0fd2d31b2424a0632a484
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 15:57:35 2024 -0500
+
+    frontend/ - Fixed variable unused error.
+
+ frontend/src/SellerDashboard.tsx | 4 ----
+ 1 file changed, 4 deletions(-)
+
+commit be398ae196bd763cd422a9b94dff10b990e2c1f5
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 15:54:04 2024 -0500
+
+    frontend/ - Fix map behaviour on empty items.
+
+ frontend/src/SellerDashboard.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit b6fa858a105a4b3ad63f6dc2aa60b490c208f9c0
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:45:04 2024 -0500
+
+    removed ApiGatewayV2Api
+
+ serverless.yml | 12 ------------
+ 1 file changed, 12 deletions(-)
+
+commit ac61ac5c04bb4ba33b6812c77dfc56bff113c6dc
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:43:38 2024 -0500
+
+    deleted service.gen.ts
+
+ backend/src/api/services.gen.ts | 281 ----------------------------------------
+ 1 file changed, 281 deletions(-)
+
+commit c88c3c2e7e0a8ae7695c4b614cce8ed3d9f3d0f4
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:41:07 2024 -0500
+
+    regenerated spec
+
+ backend/src/api/index.ts               |   2 +-
+ backend/src/api/services.gen.ts        | 281 +++++++++++++++++++++++++++++++++
+ frontend/src/components/LoginModal.tsx |   2 +-
+ 3 files changed, 283 insertions(+), 2 deletions(-)
+
+commit e1358839026d3cc81704cc79e952e4341ca582e9
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:38:17 2024 -0500
+
+    minor changes
+
+ backend/src/manage-user/handler.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c1ec11781f36e4383b1b09242a5b64c3bb92ed4b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:37:37 2024 -0500
+
+    minor changes in attribute name
+
+ backend/src/security/authFilterMiddleware.ts | 12 ++++++------
+ frontend/src/SellerDashboard.tsx             | 10 ++++++++--
+ 2 files changed, 14 insertions(+), 8 deletions(-)
+
+commit 11d6b98a6303b02d160add7941db39e150a565e3
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:37:06 2024 -0500
+
+    added logout button
+
+ frontend/src/components/LogoutButton.tsx | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+commit 912a42e9ba96745d9063ee089c7345c26e72aaf7
+Merge: 1dc84b0 6f60b08
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 15:16:29 2024 -0500
+
+    frontend/ Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit 6f60b08efb2efedfc122acbb22c386679a03fd11
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 15:10:42 2024 -0500
+
+    frontend/ - Added S3 image upload.
+
+ frontend/src/components/AddItemModal.tsx  | 17 +++++++++++++----
+ frontend/src/components/EditItemModal.tsx | 21 ++++++++++++++++-----
+ 2 files changed, 29 insertions(+), 9 deletions(-)
+
+commit f297aefcb093fb5a45014a1242714af7c11dfd76
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 15:01:23 2024 -0500
+
+    Update types & services.
+
+ backend/src/api/types.gen.ts     | 16 ++++++++++++++++
+ frontend/src/api/services.gen.ts | 19 +++++++++++++++++--
+ frontend/src/api/types.gen.ts    | 16 ++++++++++++++++
+ 3 files changed, 49 insertions(+), 2 deletions(-)
+
+commit b9ef89ce4e03158600415bc31dca2be2c7ab4971
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 12:22:35 2024 -0500
+
+    updated spec and minor changes in app.ts
+
+ backend/src/app.ts | 10 ++++++----
+ spec.yaml          | 31 ++++++++++++++++++++++++++++++-
+ 2 files changed, 36 insertions(+), 5 deletions(-)
+
+commit 61022f1eac0a34d26be1d803105b244e2ccb54be
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 12:11:29 2024 -0500
+
+    removed presigned url
+
+ backend/src/app.ts | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 1ebc24fad34ac20b1c58b62bec0be3f41db9f86c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 12:10:46 2024 -0500
+
+    created api for uploading image
+
+ backend/src/app.ts |   60 ++-
+ package-lock.json  | 1238 ++++++++++++++++++++++++++++++++++++++++++----------
+ package.json       |    3 +
+ serverless.yml     |    6 -
+ 4 files changed, 1066 insertions(+), 241 deletions(-)
+
+commit 9bc519362c17a331d71f646f669b82aaed452fa7
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 11:23:25 2024 -0500
+
+    frontend/ - Implemented file upload.
+
+ frontend/src/components/AddItemModal.tsx  | 19 +++++++++++++++++--
+ frontend/src/components/EditItemModal.tsx | 24 ++++++++++++++++++++----
+ 2 files changed, 37 insertions(+), 6 deletions(-)
+
+commit 1dc84b05d9813a46c827ee27094dd78bfc52a332
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 10:50:28 2024 -0500
+
+    removed duplicate key
+
+ serverless.yml | 2 --
+ 1 file changed, 2 deletions(-)
+
+commit c22e44c5f8d8aa5e315f5c2f693739ee7de72fb3
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 10:49:40 2024 -0500
+
+    removed httpApi duplicate key
+
+ serverless.yml | 27 +++++++++++++++++++++++----
+ 1 file changed, 23 insertions(+), 4 deletions(-)
+
+commit 5c6ebf24c0f32d98f494744d3cd40911ad7c30e7
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Nov 7 10:46:38 2024 -0500
+
+    added s3 bucket for item image
+
+ serverless.yml | 23 ++++++++++++++++++++++-
+ 1 file changed, 22 insertions(+), 1 deletion(-)
+
+commit e3b183f7f56ea5f921fe62df451665e057b287d6
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 09:42:13 2024 -0500
+
+    frontend/ - Mount functions to buttons.
+
+ backend/src/api/schemas.gen.ts            |  14 ++--
+ backend/src/api/types.gen.ts              |   8 +-
+ backend/src/manage-item/handler.ts        |  34 +++++---
+ frontend/src/App.tsx                      |  16 ++--
+ frontend/src/AuthContext.tsx              |  13 ++-
+ frontend/src/SellerDashboard.tsx          | 135 ++++++++++++++++++++++++++----
+ frontend/src/api/schemas.gen.ts           |  14 ++--
+ frontend/src/api/types.gen.ts             |   8 +-
+ frontend/src/components/AddItemModal.tsx  |  19 +----
+ frontend/src/components/EditItemModal.tsx |  24 +-----
+ frontend/src/components/LoginModal.tsx    |  38 +++++----
+ frontend/src/models/ItemSimple.ts         |  42 ++++++++++
+ spec.yaml                                 |   9 +-
+ 13 files changed, 267 insertions(+), 107 deletions(-)
+
+commit c010db0220dc2daefe307f4ad1e2d323c01133ec
+Author: Rickyash <1145967792@qq.com>
+Date:   Thu Nov 7 00:56:38 2024 -0500
+
+    Upload the Additem Modal and Edititem Modal, with one working SellerDashboard
+
+ frontend/src/SellerDashboard.tsx          | 103 +++++++++++++++++--
+ frontend/src/components/AddItemModal.tsx  | 150 +++++++++++++++++++++++++++
+ frontend/src/components/EditItemModal.tsx | 162 ++++++++++++++++++++++++++++++
+ 3 files changed, 404 insertions(+), 11 deletions(-)
+
+commit 8b4f0700f2943175098f122868297c2f589f59fa
+Merge: b0db8f6 342549f
+Author: Rickyash <1145967792@qq.com>
+Date:   Thu Nov 7 00:23:58 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 342549f6310025ac2a75547f34e048877a5d25be
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Nov 7 00:20:58 2024 -0500
+
+    frontend/ - Update spec; Update Seller Dashboard to map items from DB
+
+ backend/src/api/types.gen.ts       | 21 +++++++++++-
+ backend/src/manage-item/handler.ts |  2 +-
+ frontend/package-lock.json         | 42 ++++++++++++++++++++++++
+ frontend/package.json              |  1 +
+ frontend/src/SellerDashboard.tsx   | 65 ++++++++++++++++++++++++--------------
+ frontend/src/api/services.gen.ts   | 22 ++++++++++++-
+ frontend/src/api/types.gen.ts      | 21 +++++++++++-
+ spec.yaml                          | 44 ++++++++++++++++++++++----
+ 8 files changed, 185 insertions(+), 33 deletions(-)
+
+commit b0db8f661f43e07140342e1aca3713b140460fac
+Merge: 2844bbf 2308d71
+Author: Rickyash <1145967792@qq.com>
+Date:   Thu Nov 7 00:09:25 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 2308d7124c8afdeee66a0e6473d3499aa31e652e
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 23:51:17 2024 -0500
+
+    Update app.ts: uncomment the add item, edit item, remove item functions
+
+ backend/src/app.ts | 28 ++++++++++++++--------------
+ 1 file changed, 14 insertions(+), 14 deletions(-)
+
+commit 3ef391dd6b8f425c29265c8ba9ad4ce005fd392d
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 23:48:33 2024 -0500
+
+    Update handler.ts: change the dev-items1 to dev-items3
+
+ backend/src/manage-item/handler.ts | 10 +++++-----
+ 1 file changed, 5 insertions(+), 5 deletions(-)
+
+commit 056cee80d23dddd3598b45b93ba404d55b8b567e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 23:38:13 2024 -0500
+
+    on successfull sign up navigate to seller dashboard
+
+ frontend/src/components/SignupModal.tsx | 40 ++++++++++++++++++++++++---------
+ 1 file changed, 30 insertions(+), 10 deletions(-)
+
+commit 8f2aa610aad3691df7f827f3aeae829869d73706
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 23:17:24 2024 -0500
+
+    updated login page to navigate to seller dashboard
+
+ frontend/src/components/LoginModal.tsx | 31 ++++++++++++++++---------------
+ 1 file changed, 16 insertions(+), 15 deletions(-)
+
+commit 631d0a96e11a6bb5a30c7771463e64aa73e56bd4
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 23:16:21 2024 -0500
+
+    updated manage-user handler and spec
+
+ backend/src/manage-user/handler.ts |  4 ++--
+ frontend/src/App.tsx               | 11 ++++++++---
+ spec.yaml                          |  6 ++++++
+ 3 files changed, 16 insertions(+), 5 deletions(-)
+
+commit 2f7639bf7c290f332e2c217af65f46484a058811
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 22:48:10 2024 -0500
+
+    frontend/ - Fix AuthContext.
+
+ frontend/src/App.tsx                   |  8 +++++---
+ frontend/src/AuthContext.tsx           | 18 ++----------------
+ frontend/src/components/LoginModal.tsx | 26 +++++++++++++-------------
+ frontend/src/index.tsx                 |  6 ++----
+ 4 files changed, 22 insertions(+), 36 deletions(-)
+
+commit 2844bbfad66c5bc411df745dae116c6a4c315f7e
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 22:39:36 2024 -0500
+
+    Update the app.ts
+
+ backend/src/app.ts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit b3554d2011bdb2555a1acdc89e632a682d0b230c
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 22:30:51 2024 -0500
+
+    Update the dev1 handler
+
+ backend/src/manage-item/handler.ts | 194 ++-----------------------------------
+ 1 file changed, 6 insertions(+), 188 deletions(-)
+
+commit f6153c23f670d755c7a3698a076e1ff9567c9173
+Merge: 8587d83 18f50c9
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 22:23:35 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 18f50c9fa615cf1b3c51c93466902d136a10729b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 22:18:48 2024 -0500
+
+    removed variable
+
+ frontend/src/App.tsx | 1 -
+ 1 file changed, 1 deletion(-)
+
+commit 78efac1c5c6806b3b0a851c3d2488a30a5df121e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 22:16:22 2024 -0500
+
+    frontend/ added dashboard screens
+
+ frontend/package-lock.json       | 1947 ++++++++++++++++++++++----------------
+ frontend/package.json            |    2 +-
+ frontend/src/AdminDashboard.tsx  |    7 +
+ frontend/src/AuthContext.tsx     |   15 +-
+ frontend/src/BuyerDashboard.tsx  |    7 +
+ frontend/src/SellerDashboard.tsx |   70 ++
+ 6 files changed, 1234 insertions(+), 814 deletions(-)
+
+commit ae11103c3f2035272a1a8abbaa6705245f638053
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 21:02:14 2024 -0500
+
+    seller: Added some handlers from other usecase categories for demo.
+
+ backend/src/api/schemas.gen.ts     |  5 ++-
+ backend/src/api/types.gen.ts       |  7 ++--
+ backend/src/app.ts                 |  8 +++-
+ backend/src/manage-item/handler.ts | 78 +++++++++++++++++++++++++++++++-------
+ frontend/src/api/schemas.gen.ts    |  5 ++-
+ frontend/src/api/types.gen.ts      |  5 ++-
+ spec.yaml                          |  5 ++-
+ 7 files changed, 89 insertions(+), 24 deletions(-)
+
+commit 252a8da7c53d4814c9ae19c0b06cfcf4146a8d0a
+Merge: f50a57b b11154d
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:43:39 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit f50a57b49afebe8c22794c3bc41fe9e304ae9830
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:43:38 2024 -0500
+
+    updated login spec and minor changes in manage-user handler
+
+ backend/src/manage-user/handler.ts     |  4 ++--
+ frontend/src/App.tsx                   | 19 +++++++++++--------
+ frontend/src/AuthContext.tsx           | 28 ++++++++++++++++++++++++++++
+ frontend/src/api/types.gen.ts          |  2 +-
+ frontend/src/components/LoginModal.tsx | 29 +++++++++++++++++++++++------
+ frontend/src/index.tsx                 |  6 +++++-
+ spec.yaml                              | 13 +++++++++++++
+ 7 files changed, 83 insertions(+), 18 deletions(-)
+
+commit 40a830b1dc424c5c23fdda8f32f828ae7303fe0b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:36:25 2024 -0500
+
+    updated login spec
+
+ spec.yaml | 16 ++++++++++++++--
+ 1 file changed, 14 insertions(+), 2 deletions(-)
+
+commit b11154d3d4cfe0ef0bfd716b4c32ce6f5d498eb0
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 20:28:43 2024 -0500
+
+    Update schema & regenerate types.
+
+ backend/src/api/schemas.gen.ts     |  4 +++-
+ backend/src/api/types.gen.ts       | 14 +++++++-------
+ backend/src/manage-item/handler.ts |  2 +-
+ frontend/src/api/schemas.gen.ts    |  4 +++-
+ frontend/src/api/types.gen.ts      | 14 +++++++-------
+ spec.yaml                          | 11 ++++++++++-
+ 6 files changed, 31 insertions(+), 18 deletions(-)
+
+commit 3b5adc4a3bc51eddf9aed74b17720b8fc4273d1c
+Merge: 6f98bef e50e9ca
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:28:16 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit 6f98bef8ffb17eb0bfb8e43e099b30f7aceb5836
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:28:09 2024 -0500
+
+    updated attribute name to emailAddress
+
+ backend/src/manage-user/handler.ts | 24 ++++++++++++------------
+ 1 file changed, 12 insertions(+), 12 deletions(-)
+
+commit e50e9ca39b738d10292db97ebdfa74077dfae0e2
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 20:20:04 2024 -0500
+
+    seller: Format document; Fix implementation to comply with schema.
+
+ backend/src/app.ts                 |  29 +-
+ backend/src/manage-item/handler.ts | 578 ++++++++++++++-----------------------
+ 2 files changed, 238 insertions(+), 369 deletions(-)
+
+commit 6b6ee0c5e5041f97ad573d475394a7ebb84d789c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 20:07:46 2024 -0500
+
+    updated spec
+
+ spec.yaml | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 823aa6b21a2ff57ddecc27bb19e41fd12e54190c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 19:46:35 2024 -0500
+
+    frontend/ - deploy
+
+ frontend/src/LandingPage.tsx | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 5f3b5341c1a29e42810b0ea291e79b1d8f0fd0c7
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 6 19:43:41 2024 -0500
+
+    added UI compontent for login and register
+
+ frontend/package-lock.json              |   2 +-
+ frontend/package.json                   |   2 +-
+ frontend/src/App.tsx                    |  20 +------
+ frontend/src/LandingPage.tsx            |  36 +++++++++++
+ frontend/src/components/LoginModal.tsx  |  57 ++++++++++++++++++
+ frontend/src/components/SignupModal.tsx | 103 ++++++++++++++++++++++++++++++++
+ frontend/src/index.css                  |   4 ++
+ 7 files changed, 205 insertions(+), 19 deletions(-)
+
+commit 8587d83b24cd2585563d366626e4e334d0a9c21c
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 17:45:56 2024 -0500
+
+    Update the app.ts
+
+ backend/src/app.ts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit 743f0d584e356c6dd0f93809921e62e05ceb5e82
+Merge: 5ec3c6c 62a4c70
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 17:04:00 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 62a4c7054874d9ce1291d1c16c852527d3c335e1
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 17:02:10 2024 -0500
+
+    frontend/ - Setup tailwind css, flowbite, and flowbite-react.
+
+ frontend/package-lock.json  | 252 +++++++++++++++++++++++++++++++++++++++++++-
+ frontend/package.json       |   6 +-
+ frontend/src/index.css      |   4 +
+ frontend/src/index.tsx      |   5 +
+ frontend/tailwind.config.js |  17 +++
+ 5 files changed, 282 insertions(+), 2 deletions(-)
+
+commit 147b7f1fd5c2dbacd28e85085ea9ff60964fbfd7
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Nov 7 02:34:20 2024 +0800
+
+    Update handler.ts
+
+ backend/src/manage-item/handler.ts | 151 +++++++++++++++++++++++++++----------
+ 1 file changed, 110 insertions(+), 41 deletions(-)
+
+commit 412fa520e1aba683ac8abad66b9174f416bad996
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Nov 7 02:33:34 2024 +0800
+
+    Update constants.ts
+
+ backend/src/manage-item/constants.ts | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit c00c250bf29226a822d6a83bad4b571f6b65f9e1
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Nov 7 02:32:50 2024 +0800
+
+    Update app.ts
+
+ backend/src/app.ts | 9 ++++-----
+ 1 file changed, 4 insertions(+), 5 deletions(-)
+
+commit 71d96b84a7b596b12c8dd00c7eff56d7b219a735
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 08:33:32 2024 -0500
+
+    frontend/ - Add notes comment.
+
+ frontend/src/App.tsx | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 6d0b48ce0932d08a2c79b32c0bf08c64c1ff5b26
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 08:28:40 2024 -0500
+
+    Update frontend project to use typescript.
+
+ frontend/README.md                                 |   38 +-
+ frontend/package-lock.json                         | 2839 ++++++++++++++++----
+ frontend/package.json                              |   13 +-
+ frontend/src/{App.test.js => App.test.tsx}         |    1 +
+ frontend/src/{App.js => App.tsx}                   |    3 +-
+ frontend/src/{index.js => index.tsx}               |    4 +-
+ frontend/src/react-app-env.d.ts                    |    1 +
+ .../src/{reportWebVitals.js => reportWebVitals.ts} |    4 +-
+ frontend/src/{setupTests.js => setupTests.ts}      |    0
+ frontend/tsconfig.json                             |   26 +
+ 10 files changed, 2365 insertions(+), 564 deletions(-)
+
+commit 06ab039ca50acd499c4ceb05b388cdbcd5c36b2c
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 6 08:03:58 2024 -0500
+
+    Update .gitignore
+
+ .gitignore | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 334286d574a130be15a19b86d64b9a7bae73ea5e
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 17:13:38 2024 +0800
+
+    Update constants.ts
+
+ backend/src/manage-item/constants.ts | 9 +++++++--
+ 1 file changed, 7 insertions(+), 2 deletions(-)
+
+commit fa7f98fc63976b6ffb24f33f429830f580f2c80f
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 17:12:58 2024 +0800
+
+    Update handler.ts
+
+ backend/src/manage-item/handler.ts | 107 ++++++++++++++++++++++++-------------
+ 1 file changed, 70 insertions(+), 37 deletions(-)
+
+commit 44685ad00a01b723f6c6882e02e8644759f77e48
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 16:21:09 2024 +0800
+
+    Update app.ts
+
+ backend/src/app.ts | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 5765fa734d1df7a174acb59c7e77d55fe46f435c
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 15:36:05 2024 +0800
+
+    Update app.ts
+
+ backend/src/app.ts | 20 ++++++++------------
+ 1 file changed, 8 insertions(+), 12 deletions(-)
+
+commit 8c44aee1cf3a6888f040c3b114da05d4e75bc09c
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 15:33:30 2024 +0800
+
+    Update app.ts
+
+ backend/src/app.ts | 18 +++++++++++++-----
+ 1 file changed, 13 insertions(+), 5 deletions(-)
+
+commit 21bcda424ff182c56398f840043250bea2563fed
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 6 15:14:19 2024 +0800
+
+    Update app.ts
+
+ backend/src/app.ts | 14 ++++++++++++++
+ 1 file changed, 14 insertions(+)
+
+commit 5ec3c6c910047a51747acd987a4729c795b6c10c
+Merge: 7c8c863 ce4fac5
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 6 00:48:21 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit ce4fac57395a395978db2d5a856cb983ce855403
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 19:25:56 2024 -0500
+
+    frontend/ - minor changes
+
+ frontend/src/App.js | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 6b5c8f991c42cb681301e4e2d79a6a5cb9b2446e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 19:05:44 2024 -0500
+
+    updated deploy code
+
+ .github/workflows/deploy.yml | 2 ++
+ 1 file changed, 2 insertions(+)
+
+commit 0cda2d82bc499f1d32595f2377e16a242212199b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 18:40:22 2024 -0500
+
+    updated description
+
+ package.json | 5 +++--
+ 1 file changed, 3 insertions(+), 2 deletions(-)
+
+commit 7c8c863184ccb816129b6d1e0c44260a3dacfb36
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:38:39 2024 -0500
+
+    update the app.ts
+
+ backend/src/app.ts | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+commit bd002a002ef142ced45be72300c669497e6d574a
+Merge: 7fdaa7a fd6715c
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:36:53 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit fd6715c5d22a4b30be835cb7a9854a6465ea6b63
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 18:36:15 2024 -0500
+
+    updated version to 1.0.0
+
+ package-lock.json | 4 ++--
+ package.json      | 2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
+
+commit 7fdaa7a043fe6919475134d3b485f9c65726e967
+Merge: f6882eb 7d83f90
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:36:11 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 7d83f90d3d244910ac32234060b9a5296aeb47b2
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 18:35:41 2024 -0500
+
+    removed dependencies
+
+ .envrc            |    15 -
+ flake.lock        |   658 --
+ flake.nix         |    64 -
+ package-lock.json | 23353 +++++++++++++++++-----------------------------------
+ package.json      |    25 +-
+ 5 files changed, 7508 insertions(+), 16607 deletions(-)
+
+commit f6882eb058ea4e2584bbf9400ea8a6283bcefc27
+Merge: 607846a 0c57f3b
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:34:35 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 607846af06f275374a9ed0e7eb80308f7feff0f3
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:30:15 2024 -0500
+
+    update the app.ts
+
+ backend/src/app.ts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit 1cc481fd69fab5e63b79cefd542a99262ab47985
+Merge: ec7de1b 02102c3
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 18:29:38 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 0c57f3ba7efa0ee2dc3f693470346758df09a943
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 18:27:38 2024 -0500
+
+    Added API for updating profile and minor changes
+
+ backend/src/app.ts                 |  7 ++--
+ backend/src/manage-user/handler.ts | 78 ++++++++++++++++++++++++++++++++++++--
+ 2 files changed, 79 insertions(+), 6 deletions(-)
+
+commit 02102c3a59cc7e483d377d0d21458127829ee067
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 16:59:55 2024 -0500
+
+    added constant at the src/ folder
+
+ backend/src/constants.ts             | 1 +
+ backend/src/manage-seller/handler.ts | 2 +-
+ backend/src/manage-user/constants.ts | 1 -
+ 3 files changed, 2 insertions(+), 2 deletions(-)
+
+commit b0e4a3a6ffeae3df1ece1d571219a929e0e158cd
+Merge: c0b9cb6 225016e
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 11:26:58 2024 -0500
+
+    Merge pull request #2 from Vinayakrevankar/poyehchen-iteration1
+
+commit 225016e353df6028b901783244a9d3ef1c074c56
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Tue Nov 5 09:14:46 2024 -0500
+
+    seller: Implemented request unfreeze.
+    router: Fix middleware notation.
+    schema: Added Admin entity.
+
+ backend/src/api/schemas.gen.ts       | 29 +++++++++++
+ backend/src/api/types.gen.ts         |  9 ++++
+ backend/src/app.ts                   | 18 ++++---
+ backend/src/manage-seller/handler.ts | 96 +++++++++++++++++++++++++-----------
+ backend/src/manage-user/constants.ts |  1 +
+ frontend/src/api/schemas.gen.ts      | 29 +++++++++++
+ frontend/src/api/types.gen.ts        |  9 ++++
+ spec.yaml                            | 24 +++++++++
+ 8 files changed, 178 insertions(+), 37 deletions(-)
+
+commit c0b9cb6757b40101212a377ab7f1e3351937f152
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Tue Nov 5 08:24:34 2024 -0500
+
+    schema: Regenerated types.
+
+ backend/src/api/types.gen.ts     | 70 +++++++++++++++++++++++-----------------
+ frontend/src/api/services.gen.ts | 46 ++++++++------------------
+ frontend/src/api/types.gen.ts    | 70 +++++++++++++++++++++++-----------------
+ 3 files changed, 93 insertions(+), 93 deletions(-)
+
+commit ec7de1b0420bd0cf8a5c1d93530df963d5e49b34
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 03:00:51 2024 -0500
+
+    update the edit item for testing
+
+ backend/src/app.ts | 8 ++++----
+ 1 file changed, 4 insertions(+), 4 deletions(-)
+
+commit ae5af135710ba921da54df8cf1810c5d59780297
+Merge: b237618 f5bcd50
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 01:59:06 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit f5bcd50d55fb9717a0a74a8a270a9fed86babdd1
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Nov 5 00:55:57 2024 -0500
+
+    fixed authorization
+
+ backend/src/app.ts                           |  8 ++++----
+ backend/src/manage-user/handler.ts           | 29 +++++++++------------------
+ backend/src/security/authFilterMiddleware.ts | 30 ++++++++++++----------------
+ backend/src/security/securityDA.ts           | 22 ++++++++++----------
+ 4 files changed, 37 insertions(+), 52 deletions(-)
+
+commit b2376185df908b541e09e67d6bf18caef81e0245
+Merge: 0b120ba eddb8f7
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 5 00:36:28 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit eddb8f747254be5bbb7a7f27869b69f50392a6c4
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 23:29:43 2024 -0500
+
+    minor changes
+
+ frontend/package.json | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 0b120ba80bfa4e29a819cc567944ef8def391ac8
+Merge: 1419d18 91d39a2
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 23:12:47 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 1419d1802a33a0f8c25bdadeed7086abd5502795
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 23:11:50 2024 -0500
+
+    updated the current change
+
+ backend/src/app.ts                   | 12 +++++++-----
+ backend/src/manage-item/constants.ts |  2 +-
+ backend/src/manage-item/handler.ts   | 10 +++++-----
+ 3 files changed, 13 insertions(+), 11 deletions(-)
+
+commit 91d39a214fab2362ba7795d8eab7718931abfc53
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 23:10:53 2024 -0500
+
+    updated spec and minor changes in API
+
+ backend/src/app.ts                           |  11 ++-
+ backend/src/manage-user/handler.ts           |   6 +-
+ backend/src/security/authFilterMiddleware.ts |  26 +++---
+ backend/src/security/securityDA.ts           |   2 +-
+ spec.yaml                                    | 132 ++++++++++++++++-----------
+ 5 files changed, 103 insertions(+), 74 deletions(-)
+
+commit 13970a17a1da53d7c678a0dade66aa45800ea147
+Merge: ef560b5 3626d7e
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 22:28:32 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit ef560b593c69b816469c23aedfc021f3b230f9d1
+Merge: 57fc6b1 7c1b258
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 22:28:28 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 7c1b258d309e37207864b5464c777f9d37fba328
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Tue Nov 5 11:27:51 2024 +0800
+
+    Update handler.ts
+
+ backend/src/manage-item/handler.ts | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit a6fac1e0716da1fe8b1524278addd9425e0f291f
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Tue Nov 5 11:27:19 2024 +0800
+
+    Update constants.ts
+
+ backend/src/manage-item/constants.ts | 18 ++++++++++++++++++
+ 1 file changed, 18 insertions(+)
+
+commit bac1a8bd2da518899d2d06dcb23d3f9734202564
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Tue Nov 5 11:27:01 2024 +0800
+
+    Update handler.ts
+
+ backend/src/manage-item/handler.ts | 113 ++++++++++++++++++++++++++++++++++++-
+ 1 file changed, 112 insertions(+), 1 deletion(-)
+
+commit 87944de81f2e66614defc11297df7c23f76813ea
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:47:11 2024 -0500
+
+    reverted code
+
+ .github/workflows/deploy.yml | 21 ---------------------
+ 1 file changed, 21 deletions(-)
+
+commit 3626d7ec12aa59b09ac57a447d73175e64dccbcb
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:39:14 2024 -0500
+
+    reverted code
+
+ .github/workflows/deploy.yml | 21 ---------------------
+ 1 file changed, 21 deletions(-)
+
+commit 57fc6b19342e2829120d2248c9596a80d7e1dbd9
+Merge: 7b0a6c9 a7d21ed
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 19:24:57 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 7b0a6c9cc49911411cc1c55f80e988d96ac83aab
+Merge: a60a1e4 1940c51
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 19:24:49 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit a7d21ed3732e92c71341bccf51305bba710d43d3
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:20:59 2024 -0500
+
+    created dev1 env
+
+ .github/workflows/serverless-dev1.yml | 48 +++++++++++++++++++++++++++++++++++
+ .github/workflows/serverless.yml      |  2 +-
+ 2 files changed, 49 insertions(+), 1 deletion(-)
+
+commit a60a1e45f806db980cd7f632ad72bad8f1417085
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:13:38 2024 -0500
+
+    updated env to dev1
+
+ serverless.yml | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+
+commit 1940c5187f5888d32e4e22c9b561268d5072ad44
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:12:32 2024 -0500
+
+    deploy react only changes are made
+
+ .github/workflows/deploy.yml | 21 +++++++++++++++++++++
+ 1 file changed, 21 insertions(+)
+
+commit e6a1190f1407cf994e562338ffc7f0b6a3f7978f
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Mon Nov 4 19:06:10 2024 -0500
+
+    seller: fulfillItem: Update unhandled parts.
+
+ backend/src/manage-seller/handler.ts | 29 +++++++++++++++++++++++++----
+ 1 file changed, 25 insertions(+), 4 deletions(-)
+
+commit 25130037969c93ada08c18ef58d8731167076f7d
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 19:01:25 2024 -0500
+
+    removed validation
+
+ backend/src/app.ts | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 1523f0e2c34039ab0beb15c67e06135fcfbc86a5
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 18:56:36 2024 -0500
+
+    removed old table
+
+ backend/src/app.ts | 30 +++++++++++++++---------------
+ serverless.yml     | 48 ------------------------------------------------
+ 2 files changed, 15 insertions(+), 63 deletions(-)
+
+commit 22d32497cbeaf7ad130b13914e6cbb760de80f74
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Mon Nov 4 18:49:00 2024 -0500
+
+    seller: Fix attribute typos.
+
+ backend/src/manage-seller/handler.ts |   6 +-
+ package-lock.json                    | 233 ++++++-----------------------------
+ 2 files changed, 39 insertions(+), 200 deletions(-)
+
+commit 3f9d07441ea64f724945b4f211e6b7beae3e44bf
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Nov 4 18:19:52 2024 -0500
+
+    update add item, edit item and remove inactive item funtions.
+
+ backend/src/app.ts                 |  16 +++
+ backend/src/manage-item/handler.ts | 208 +++++++++++++++++++++++++++++++++++++
+ 2 files changed, 224 insertions(+)
+
+commit 433253d8d671efd7203ff9aab9984ae4ce0c15b8
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Mon Nov 4 18:02:58 2024 -0500
+
+    seller: Update table names.
+
+ backend/src/manage-seller/handler.ts | 12 ++++++------
+ 1 file changed, 6 insertions(+), 6 deletions(-)
+
+commit 684bf0a829cc44b8de72ae6a3ad54d0731f46a8f
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 17:38:11 2024 -0500
+
+    login and register api completed
+
+ backend/src/app.ts                 | 18 +++++------
+ backend/src/constant.ts            |  3 --
+ backend/src/index.js               | 14 ---------
+ backend/src/manage-user/handler.ts | 62 +++++++++++++++++++++-----------------
+ package-lock.json                  |  7 +++++
+ package.json                       |  4 +--
+ serverless.yml                     | 42 ++++++++++++++++++++++++++
+ 7 files changed, 95 insertions(+), 55 deletions(-)
+
+commit 4cf894274b034b1afe0d9c3ce6615cd15f20aef9
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 14:59:03 2024 -0500
+
+    minor change
+
+ serverless.yml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+commit ae88957000897b06f7a8fd13d4e4af222692664b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 14:58:26 2024 -0500
+
+    minor change
+
+ backend/src/app.ts      |    3 +-
+ backend/src/constant.ts |    3 +
+ backend/src/index.js    |   14 +
+ package-lock.json       | 5290 +++++++++++++++++------------------------------
+ package.json            |   11 +-
+ serverless.yml          |    7 +-
+ 6 files changed, 1969 insertions(+), 3359 deletions(-)
+
+commit 2133fc59943cf5644f0346aa79a2c57a39bb43ad
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 14:17:47 2024 -0500
+
+    minor changes
+
+ package-lock.json | 292 ++++++++++++++++++++++--------------------------------
+ package.json      |   2 +
+ serverless.yml    |  10 +-
+ 3 files changed, 127 insertions(+), 177 deletions(-)
+
+commit 380534ddc7062429e2631865ca4615edff373224
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 14:11:56 2024 -0500
+
+    excludeDevDependencies set to true
+
+ serverless.yml | 1 +
+ 1 file changed, 1 insertion(+)
+
+commit 1d4f1a7c9960e6f4de9c1d8ea4d3cf814a76d7d1
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 14:09:08 2024 -0500
+
+    added register and login seller/buyer
+
+ .github/workflows/serverless.yml             |   2 +-
+ backend/src/app.ts                           |  14 +-
+ backend/src/manage-user/constants.ts         |   0
+ backend/src/manage-user/handler.ts           | 105 ++++
+ backend/src/security/asyncMiddleware.ts      |   7 +
+ backend/src/security/authFilterMiddleware.ts |  73 +++
+ backend/src/security/securityDA.ts           |  19 +
+ backend/src/util/httpUtil.ts                 |  56 ++
+ backend/src/util/index.ts                    |  18 +
+ package-lock.json                            | 851 +++++++++++++++++++++++++--
+ package.json                                 |   9 +-
+ 11 files changed, 1106 insertions(+), 48 deletions(-)
+
+commit fec7d66014a0c5f7723991b245eb05bae7ee97bc
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 11:01:35 2024 -0500
+
+    changed script from next.js to react.js
+
+ .github/workflows/deploy.yml |  41 +-----
+ frontend/package-lock.json   | 297 +------------------------------------------
+ frontend/package.json        |  20 ++-
+ 3 files changed, 16 insertions(+), 342 deletions(-)
+
+commit ebcd8664e3b47256d138fee9c86c0b5b80ad8d60
+Merge: 7ee90b0 c05670a
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 10:45:55 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit 7ee90b088355407cc58297e00d3d191e44328465
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 10:45:53 2024 -0500
+
+    Created v3 table and added github actions
+
+ .github/workflows/deploy.yml       |  83 +++++++++++
+ .github/workflows/notification.yml |  30 ++++
+ .github/workflows/serverless.yml   |  48 ++++++
+ frontend/package-lock.json         | 293 +++++++++++++++++++++++++++++++++++++
+ frontend/package.json              |  15 +-
+ serverless.yml                     |  60 +-------
+ 6 files changed, 470 insertions(+), 59 deletions(-)
+
+commit c05670a70d39eee72d2e514b661a06d1d6903fe4
+Merge: 7908792 133a881
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Mon Nov 4 10:34:02 2024 -0500
+
+    Merge pull request #1 from Vinayakrevankar/poyehchen-iteration1
+    
+    Archive item & Fulfill item usecase.
+
+commit 133a88182166eab39b883a1cf4e6488f002941e3
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Nov 3 13:21:44 2024 -0500
+
+    seller: Finished fulfill item usecase.
+
+ backend/src/app.ts                   |   6 +-
+ backend/src/manage-seller/handler.ts | 108 ++++++++++++++++++++++++++++++++---
+ 2 files changed, 106 insertions(+), 8 deletions(-)
+
+commit a42fac6fed9e8e49aaa11d5dba086766bb508408
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Nov 3 12:13:41 2024 -0500
+
+    seller: Updated aws sdk to v3
+
+ backend/src/api/schemas.gen.ts       |  10 +-
+ backend/src/api/types.gen.ts         |  13 ++-
+ backend/src/manage-seller/handler.ts |  19 +--
+ frontend/src/api/schemas.gen.ts      |  10 +-
+ frontend/src/api/types.gen.ts        |  13 ++-
+ package-lock.json                    | 217 ++++++++++++++++++++++-------------
+ package.json                         |   2 +
+ serverless.yml                       |   4 +-
+ spec.yaml                            |  13 ++-
+ 9 files changed, 193 insertions(+), 108 deletions(-)
+
+commit 7908792d96d8d29cca18d86d01094e241f74f33f
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Nov 3 09:12:33 2024 -0500
+
+    schema: update generated types.
+
+ backend/src/api/schemas.gen.ts  | 16 ++++++++++++++--
+ backend/src/api/types.gen.ts    | 34 +++++++++++++++++++---------------
+ frontend/src/api/schemas.gen.ts | 16 ++++++++++++++--
+ frontend/src/api/types.gen.ts   | 34 +++++++++++++++++++---------------
+ 4 files changed, 66 insertions(+), 34 deletions(-)
+
+commit f534f6f61e96760c0e559bb1770a0cd7934cca92
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Oct 31 13:51:28 2024 -0400
+
+    added 3 more dynamodb table
+
+ serverless.yml | 45 +++++++++++++++++++++++++++++++++++++++++++++
+ 1 file changed, 45 insertions(+)
+
+commit 73c934648aa8b20242dd87ef9eb248266e35cfff
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Thu Oct 31 11:30:11 2024 -0400
+
+    seller: added archiveItem and aws-sdk dependency.
+    schema: Use ids instead of full object in various fields.
+    schema: Added required for Seller, Buyer, Item
+
+ backend/src/api/schemas.gen.ts       |  26 ++--
+ backend/src/api/types.gen.ts         |  31 +++--
+ backend/src/app.ts                   |  20 +++
+ backend/src/manage-seller/handler.ts |  38 +++++
+ frontend/src/api/schemas.gen.ts      |  26 ++--
+ frontend/src/api/types.gen.ts        |  31 +++--
+ package-lock.json                    | 260 +++++++++++++++++++++++++++--------
+ package.json                         |   6 +-
+ spec.yaml                            |  74 ++++++++--
+ 9 files changed, 386 insertions(+), 126 deletions(-)
+
+commit 67576a9d429391b45fd085cd2729aeb529d36e40
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Oct 30 20:33:54 2024 -0400
+
+    Update OpenAPI schema & re-genrate files; Add .DS_Store to gitignore.
+
+ .gitignore                       |   2 +
+ backend/.DS_Store                | Bin 6148 -> 0 bytes
+ backend/src/.DS_Store            | Bin 6148 -> 0 bytes
+ backend/src/api/types.gen.ts     |  66 +++++------------------
+ frontend/src/api/services.gen.ts |  60 ++++-----------------
+ frontend/src/api/types.gen.ts    |  66 +++++------------------
+ spec.yaml                        | 111 ++++-----------------------------------
+ 7 files changed, 45 insertions(+), 260 deletions(-)
+
+commit 52b1cce6e6aed950fa989950a915bc2875157cbd
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Oct 30 00:39:49 2024 -0400
+
+    removed cognito related code
+
+ serverless.yml | 38 +++-----------------------------------
+ 1 file changed, 3 insertions(+), 35 deletions(-)
+
+commit 813c482eb3815bf0ff81926abd7b62d76bf79af3
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Oct 30 00:36:11 2024 -0400
+
+    added congito pool domain
+
+ serverless.yml | 13 +++++++++++++
+ 1 file changed, 13 insertions(+)
+
+commit eafd6c9e0697ddea8dd8353cd2ea267ad5db40bb
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Oct 30 00:18:12 2024 -0400
+
+    added congito
+
+ serverless.yml | 68 ++++++++++++++++++++++++++++++++++++----------------------
+ 1 file changed, 42 insertions(+), 26 deletions(-)
+
+commit adfdc427b94315e2f3db9dcec776f0d827ded966
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Oct 29 23:37:25 2024 -0400
+
+    minor changes
+
+ backend/src/{api => }/app.test.ts            |  0
+ backend/src/{api => }/app.ts                 |  0
+ backend/src/{api => }/handler.ts             |  0
+ backend/{ => src}/manage-admin/constants.ts  |  0
+ backend/{ => src}/manage-admin/handler.ts    |  0
+ backend/{ => src}/manage-buyer/constants.ts  |  0
+ backend/{ => src}/manage-buyer/handler.ts    |  0
+ backend/{ => src}/manage-item/constants.ts   |  0
+ backend/{ => src}/manage-item/handler.ts     |  0
+ backend/{ => src}/manage-seller/constants.ts |  0
+ backend/{ => src}/manage-seller/handler.ts   |  0
+ serverless.yml                               | 10 +++++-----
+ 12 files changed, 5 insertions(+), 5 deletions(-)
+
+commit e072cf208e1bdfcd9eb2cc1c651802e66428f737
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Oct 29 17:17:15 2024 -0400
+
+    minor change
+
+ backend/{manage-customer => manage-admin}/constants.ts | 0
+ backend/{manage-customer => manage-admin}/handler.ts   | 0
+ backend/{manage-report => manage-buyer}/constants.ts   | 0
+ backend/{manage-report => manage-buyer}/handler.ts     | 0
+ backend/manage-item/constants.ts                       | 0
+ backend/manage-item/handler.ts                         | 0
+ 6 files changed, 0 insertions(+), 0 deletions(-)
+
+commit 1cbee86b70e3f66bfd66bdd271f7b515cfadfcba
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Oct 29 17:08:27 2024 -0400
+
+    created dynamo table
+
+ serverless.yml | 64 +++++++++++++++++++++++++++++++++++++++++++++++++++-------
+ 1 file changed, 57 insertions(+), 7 deletions(-)
+
+commit 115c091a70de3ba37716bb327361f485b801dae9
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Oct 29 16:39:47 2024 -0400
+
+    backend setup
+
+ backend/.DS_Store                    |   Bin 0 -> 6148 bytes
+ backend/manage-customer/constants.ts |     0
+ backend/manage-customer/handler.ts   |     0
+ backend/manage-report/constants.ts   |     0
+ backend/manage-report/handler.ts     |     0
+ backend/manage-seller/constants.ts   |     0
+ backend/manage-seller/handler.ts     |     0
+ backend/src/.DS_Store                |   Bin 0 -> 6148 bytes
+ backend/src/api/app.test.ts          |    21 +
+ backend/src/api/app.ts               |    27 +
+ backend/src/api/handler.ts           |     5 +
+ package-lock.json                    | 28252 ++++++++++++++++++++++++++++++++-
+ package.json                         |    71 +-
+ serverless.yml                       |    49 +
+ 14 files changed, 27990 insertions(+), 435 deletions(-)
+
+commit bc014c1472c18693f5975369af4b09ff44844bf6
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Oct 27 10:25:16 2024 -0400
+
+    Added project skeleton and generated OpenAPI stuff to both ends.
+
+ .envrc                           |    15 +
+ .gitignore                       |   135 +
+ README.md                        |     5 +
+ backend/src/api/index.ts         |     3 +
+ backend/src/api/schemas.gen.ts   |   660 ++
+ backend/src/api/types.gen.ts     |   589 ++
+ flake.lock                       |   658 ++
+ flake.nix                        |    64 +
+ frontend/.envrc                  |     1 +
+ frontend/.gitignore              |    23 +
+ frontend/README.md               |    70 +
+ frontend/package-lock.json       | 16301 +++++++++++++++++++++++++++++++++++++
+ frontend/package.json            |    39 +
+ frontend/public/favicon.ico      |   Bin 0 -> 3870 bytes
+ frontend/public/index.html       |    43 +
+ frontend/public/logo192.png      |   Bin 0 -> 5347 bytes
+ frontend/public/logo512.png      |   Bin 0 -> 9664 bytes
+ frontend/public/manifest.json    |    25 +
+ frontend/public/robots.txt       |     3 +
+ frontend/src/App.css             |    38 +
+ frontend/src/App.js              |    25 +
+ frontend/src/App.test.js         |     8 +
+ frontend/src/api/index.ts        |     4 +
+ frontend/src/api/schemas.gen.ts  |   660 ++
+ frontend/src/api/services.gen.ts |   306 +
+ frontend/src/api/types.gen.ts    |   589 ++
+ frontend/src/index.css           |    13 +
+ frontend/src/index.js            |    17 +
+ frontend/src/logo.svg            |     1 +
+ frontend/src/reportWebVitals.js  |    13 +
+ frontend/src/setupTests.js       |     5 +
+ package-lock.json                |   704 ++
+ package.json                     |     5 +
+ spec.yaml                        |  1066 +++
+ 34 files changed, 22088 insertions(+)
