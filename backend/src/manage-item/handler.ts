@@ -216,18 +216,16 @@ export async function removeInactiveItem(
 
 
 //Publish item
-export function publishItem(sellerId: string, itemId: string, startDate: string, endDate: string, res: Response) {
+export function publishItem(sellerId: string, itemId: string, res: Response) {
   let cmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
       "id": itemId,
     },
-    UpdateExpression: "SET itemState = :new, startDate = :sd, endDate = :ed",
+    UpdateExpression: "SET itemState = :new",
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
-      ":sd": startDate,
-      ":ed": endDate,
       ":old": "inactive",
       ":sid": sellerId,
     },
@@ -236,12 +234,10 @@ export function publishItem(sellerId: string, itemId: string, startDate: string,
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.send(<ItemPublishResponse>{
+      res.send({
         message: "Success",
         itemId: itemId,
         itemState: "active",
-        startDate: startDate,
-        endDate: endDate,
       });
     }
   });

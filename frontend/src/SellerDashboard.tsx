@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteApiSellersBySellerIdItemsByItemId, getApiItemsByItemId, getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
+import { deleteApiSellersBySellerIdItemsByItemId,  getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
 import { useAuth } from './AuthContext';
 import { ItemSimple, itemToSimple } from './models/ItemSimple';
 
@@ -72,16 +72,7 @@ const SellerDashboard = () => {
       console.error(addResp.error);
       return;
     }
-    // TODO: Make add item return item's id such that we won't need to scan.
-    const getResp = await getApiSellersBySellerIdItems({
-      headers: { "Authorization": userInfo.token },
-      path: { sellerId: userInfo.userId },
-    });
-    if (getResp.error) {
-      console.error(getResp.error);
-      return;
-    }
-    setItems(getResp.data!);
+    setInit(true)
   };
 
   const openEditModal = (item: Item) => {
@@ -114,15 +105,8 @@ const SellerDashboard = () => {
       console.error(updateResp.error);
       return;
     }
-    const getResp = await getApiItemsByItemId({
-      headers: { "Authorization": userInfo.token },
-      path: { itemId: updatedItem.id },
-    });
-    if (getResp.error) {
-      console.error(getResp.error);
-      return;
-    }
-    setItems(items.map(x => x.id === updatedItem.id ? getResp.data! : x));
+    setInit(true)
+
   };
 
   const handleDelete = async (id: string) => {
@@ -183,9 +167,13 @@ const SellerDashboard = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-200 border-b-2 border-gray-300">
-            <tr>
+          <tr>
               <th className="p-4 text-left text-gray-600 font-semibold">ID</th>
               <th className="p-4 text-left text-gray-600 font-semibold">Name</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Description</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Initial Price</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Length of Auction</th>
+              <th className="p-4 text-left text-gray-600 font-semibold">Images</th>
               <th className="p-4 text-left text-gray-600 font-semibold">Status</th>
               <th className="p-4 text-left text-gray-600 font-semibold">Actions</th>
             </tr>
@@ -196,6 +184,13 @@ const SellerDashboard = () => {
                 <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-4">{item.id}</td>
                   <td className="p-4">{item.name}</td>
+                  <td className="p-4">{item.description}</td>
+                  <td className="p-4">{item.initPrice}</td>
+                  <td className="p-4">{item.lengthOfAuction}</td>
+                  <td className="p-4">
+                    {item.images.map((image, idx) => (
+                      <img key={idx} src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/`+image} alt="item" className="w-8 h-8 object-cover inline-block" />
+                    ))}</td>
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded-full text-sm ${item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
                       {item.itemState}

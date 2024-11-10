@@ -37,6 +37,6 @@ export function itemToSimple(v: Item): ItemSimple {
     description: v.description,
     initPrice: v.initPrice,
     lengthOfAuction: v.lengthOfAuction,
-    images: v.images,
+    images: v.images || [], 
   };
 }

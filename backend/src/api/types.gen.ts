@@ -104,16 +104,9 @@ export type ActionResponse = {
     buyerId?: string;
 };
 
-export type PublishItemRequest = {
-    startDate?: string;
-    endDate?: string;
-};
-
 export type ItemPublishResponse = {
     itemId: string;
     itemState: string;
-    startDate: string;
-    endDate: string;
 };
 
 export type ItemStateResponse = {
@@ -401,7 +394,6 @@ export type DeleteApiSellersBySellerIdItemsByItemIdResponse = (ActionResponse);
 export type DeleteApiSellersBySellerIdItemsByItemIdError = unknown;
 
 export type PostApiSellersBySellerIdItemsByItemIdPublishData = {
-    body?: PublishItemRequest;
     path: {
         itemId: string;
         sellerId: string;
