@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal'; 
 import { useLocation } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faGithub } from '@fortawesome/free-brands-svg-icons';
 
 const LandingPage = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -38,6 +40,18 @@ const LandingPage = () => {
       {/* Render Login and Signup Modals */}
       {isLoginOpen && <LoginModal onClose={() => setIsLoginOpen(false)} />}
       {isSignupOpen && <SignupModal onClose={() => setIsSignupOpen(false)} />}
+
+      {/* GitHub Icon */}
+      <div className="mt-12">
+        <a
+          href="https://github.com/Vinayakrevankar/Auction-House-Contest"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-white hover:text-gray-300 transition duration-200 ease-in-out"
+        >
+          <FontAwesomeIcon icon={faGithub} size="3x" />
+        </a>
+      </div>
     </div>
   );
 };
