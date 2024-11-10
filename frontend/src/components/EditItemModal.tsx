@@ -10,7 +10,12 @@ interface EditItemModalProps {
   itemToEdit: ItemSimple;
 }
 
-const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateItem, itemToEdit }) => {
+const EditItemModal: React.FC<EditItemModalProps> = ({
+  show,
+  onClose,
+  onUpdateItem,
+  itemToEdit,
+}) => {
   const [editItemName, setEditItemName] = useState('');
   const [editItemDescription, setEditItemDescription] = useState('');
   const [editItemInitPrice, setEditItemInitPrice] = useState('');
@@ -38,34 +43,42 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
       return; // Add validation messages if needed
     }
 
-    let images = itemToEdit.images;
+    let images = itemToEdit.images || [];
+
     if (editItemImages && editItemImages.length > 0) {
-      const imageData = await Promise.all(Array.from(editItemImages).map(async file => {
-        const result = await new Promise<ArrayBuffer>((resolve, reject) => {
-          const reader = new FileReader();
-          reader.readAsArrayBuffer(file);
-          reader.onload = (_) => resolve(reader.result as ArrayBuffer);
-          reader.onerror = (_) => reject(reader.error);
-        }).catch(err => {
-          // TODO: file upload error notification.
-          console.error(`Failed to read file ${file.name}: ${err}`);
-        });
-        if (!result) {
-          return;
-        }
-        return result;
-      }));
-      images = (await Promise.all(imageData.map(async data => {
-        if (data !== undefined) {
-          const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
-          if (resp.error) {
-            console.error(resp.error);
-          } else {
-            return resp.data?.key!;
-          }
-        }
-      }))).filter(v => v !== undefined);
+      const imageData = await Promise.all(
+        Array.from(editItemImages).map(async (file) => {
+          const result = await new Promise<ArrayBuffer>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.readAsArrayBuffer(file);
+            reader.onload = () => resolve(reader.result as ArrayBuffer);
+            reader.onerror = () => reject(reader.error);
+          }).catch((err) => {
+            // TODO: file upload error notification.
+            console.error(`Failed to read file ${file.name}: ${err}`);
+            return undefined;
+          });
+          return result;
+        })
+      );
+
+      const uploadedImages = await Promise.all(
+        imageData
+          .filter((data): data is ArrayBuffer => data !== undefined)
+          .map(async (data) => {
+            const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
+            if (resp.error) {
+              console.error(resp.error);
+              return undefined;
+            } else {
+              return resp.data?.key!;
+            }
+          })
+      );
+
+      images = uploadedImages.filter((key): key is string => key !== undefined);
     }
+
     const updatedItem: ItemSimple = {
       ...itemToEdit,
       name: editItemName,
@@ -87,15 +100,15 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
   return (
     <Modal show={show} size="lg" popup onClose={onClose}>
-      <Modal.Header>
-        Edit Item
-      </Modal.Header>
+      <Modal.Header>Edit Item</Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit}>
           <div className="space-y-4">
             {/* Item Name */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Item Name</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Item Name
+              </label>
               <input
                 type="text"
                 value={editItemName}
@@ -107,7 +120,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
             {/* Description */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Description</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
               <textarea
                 value={editItemDescription}
                 onChange={(e) => setEditItemDescription(e.target.value)}
@@ -118,7 +133,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
             {/* Initial Price */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Initial Price</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Initial Price
+              </label>
               <input
                 type="number"
                 min="1"
@@ -132,7 +149,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
             {/* Length of Auction */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Length of Auction (days)</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Length of Auction (days)
+              </label>
               <input
                 type="number"
                 min="1"
@@ -145,7 +164,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
             {/* Images */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Images (Upload to replace existing)</label>
+              <label className="block text-sm font-medium text-gray-700">
+                Images (Upload to replace existing)
+              </label>
               <input
                 type="file"
                 multiple
@@ -156,9 +177,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({ show, onClose, onUpdateIt
 
             {/* Buttons */}
             <div className="flex justify-end space-x-2">
-              <Button type="submit">
-                Update Item
-              </Button>
+              <Button type="submit">Update Item</Button>
               <Button color="gray" onClick={onClose}>
                 Cancel
               </Button>
