@@ -36,9 +36,9 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         setUserInfo(userInfo);
         onClose(); // Close the modal on successful login
         if (info.userType === "buyer") {
-          navigate("/Auction-House-Contest/buyer-dashboard");
+          navigate("/buyer-dashboard");
         } else {
-          navigate("/Auction-House-Contest/seller-dashboard");
+          navigate("/seller-dashboard");
         }
       } else {
         alert("Login failed: Invalid credentials");
