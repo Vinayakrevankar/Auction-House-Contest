@@ -26,7 +26,7 @@ const SellerDashboard = () => {
   useEffect(() => {
     if (!userInfo) {
       // If userInfo is missing, redirect to the login page
-      navigate('/Auction-House-Contest/', { state: { openLoginModal: true } });
+      navigate('/', { state: { openLoginModal: true } });
     } else {
       setLoading(false); // UserInfo is loaded, disable loading
     }
