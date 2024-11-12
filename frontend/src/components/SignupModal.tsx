@@ -47,7 +47,7 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
       const response = await postApiRegister({ body: signupData }); // Call the API function
       console.log('Signup successful', response);
       onClose(); // Close the modal on successful registration
-      navigate('/Auction-House-Contest/', { state: { openLoginModal: true } });
+      navigate('/', { state: { openLoginModal: true } });
     } catch (error) {
       setError('Failed to register. Please try again.'); // Set error message on failure
       console.error('Signup error:', error);

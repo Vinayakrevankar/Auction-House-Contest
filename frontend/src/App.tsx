@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import LandingPage from './LandingPage';
 import SellerDashboard from './SellerDashboard';
@@ -9,9 +9,9 @@ const App = () => {
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/Auction-House-Contest/" element={<LandingPage />} />
-          <Route path="/Auction-House-Contest/seller-dashboard" element={<SellerDashboard />} />
-          <Route path="/Auction-House-Contest/buyer-dashboard" element={<BuyerDashboard />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/seller-dashboard" element={<SellerDashboard />} />
+          <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
         </Routes>
       </Router>
     </AuthProvider>
