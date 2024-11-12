@@ -5,7 +5,7 @@ const LogoutButton = () => {
   const navigate = useNavigate();
 
   const logout = () => {
-    navigate('/Auction-House-Contest/');
+    navigate('/');
   };
 
   return (
