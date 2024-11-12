@@ -9,13 +9,14 @@ const LandingPage = () => {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isSignupOpen, setIsSignupOpen] = useState(false);
   const location = useLocation();
+  const [handledLoginModal, setHandledLoginModal] = useState(false);
 
   useEffect(() => {
-    // Open the login modal if "openLoginModal" is true in the state
-    if (location.state?.openLoginModal) {
+    if (location.state?.openLoginModal && !handledLoginModal) {
       setIsLoginOpen(true);
+      setHandledLoginModal(true);  // Prevent reopening on refresh
     }
-  }, [location.state]);
+  }, [location.state, handledLoginModal]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 text-center">

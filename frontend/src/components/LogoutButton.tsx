@@ -1,11 +1,14 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from './../AuthContext';
 
 const LogoutButton = () => {
   const navigate = useNavigate();
+  const { setUserInfo } = useAuth();
 
   const logout = () => {
-    navigate('/');
+    setUserInfo(null); // Clear user info from context and localStorage
+    navigate('/');     // Redirect to home or login page
   };
 
   return (
