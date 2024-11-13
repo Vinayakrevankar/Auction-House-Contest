@@ -1,16 +1,16 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand, ScanCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
-import { AddItemRequest, EditItemRequest, Item, ItemPublishResponse, ItemStateResponse } from "../api";
+import { Item, ItemRequestPayload } from "../api";
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export async function addItem(
   sellerId: string,
-  itemData: AddItemRequest,
-  res: Response<any, Record<string, any>>
+  itemData: ItemRequestPayload,
+  res: Response
 ) {
   // Validate input data according to AddItemRequest schema
   const requiredFields = ['name', 'description', 'initPrice', 'lengthOfAuction', 'images'];
@@ -54,7 +54,6 @@ export async function addItem(
     // Initialize optional fields
     currentBidId: undefined,
     pastBidIds: [],
-    soldTime: undefined,
     soldBidId: undefined,
   };
 
@@ -76,8 +75,8 @@ export async function addItem(
 export async function editItem(
   sellerId: string,
   itemId: string,
-  itemData: EditItemRequest,
-  res: Response<any, Record<string, any>>
+  itemData: ItemRequestPayload,
+  res: Response
 ) {
   // Fetch the item to verify ownership and state
   const getCmd = new GetCommand({
@@ -106,8 +105,8 @@ export async function editItem(
 
     // Prepare the update expression and attribute values
     let updateExpression = "SET updateAt = :updateAt";
-    const expressionAttributeValues: any = { ":updateAt": Date.now() };
-    const expressionAttributeNames: any = {};
+    const expressionAttributeValues = { ":updateAt": Date.now() };
+    const expressionAttributeNames = {};
 
     if (itemData.name) {
       updateExpression += ", #name = :name";
@@ -170,7 +169,7 @@ export async function editItem(
 export async function removeInactiveItem(
   sellerId: string,
   itemId: string,
-  res: Response<any, Record<string, any>>
+  res: Response
 ) {
   // Fetch the item to verify ownership and state
   const getCmd = new GetCommand({
@@ -217,7 +216,7 @@ export async function removeInactiveItem(
 
 //Publish item
 export function publishItem(sellerId: string, itemId: string, res: Response) {
-  let cmd = new UpdateCommand({
+  const cmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
       "id": itemId,
@@ -230,7 +229,7 @@ export function publishItem(sellerId: string, itemId: string, res: Response) {
       ":sid": sellerId,
     },
   });
-  dclient.send(cmd, (err, _) => {
+  dclient.send(cmd, (err) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
@@ -244,7 +243,7 @@ export function publishItem(sellerId: string, itemId: string, res: Response) {
 }
 //Unpublish item
 export function unpublishItem(sellerId: string, itemId: string, res: Response) {
-  let cmd = new UpdateCommand({
+  const cmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
       "id": itemId,
@@ -258,21 +257,17 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
       ":null": null,
     },
   });
-  dclient.send(cmd, (err, _) => {
+  dclient.send(cmd, (err) => {
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.send(<ItemStateResponse>{
-        message: "Success",
-        itemId: itemId,
-        itemState: "inactive",
-      });
+      res.status(200).send();
     }
   });
 }
 
-function updateURLs(data: any): Item[] {
-  return  data?.Items ?? [] as Item[];
+function updateURLs(data: ScanCommandOutput | undefined): Item[] {
+  return (data?.Items ?? []) as Item[];
 }
 
 //Review item
