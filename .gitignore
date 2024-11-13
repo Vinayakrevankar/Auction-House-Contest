@@ -138,3 +138,6 @@ dist
 
 .DS_Store
 .esbuild/
+
+.env
+.env.*
