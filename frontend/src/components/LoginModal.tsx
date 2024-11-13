@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
-import { userLogin } from "../api/services.gen";
+import { postApiLogin } from "../api/services.gen";
 import { useNavigate } from "react-router-dom";
 interface LoginModalProps {
   onClose: () => void;
@@ -16,12 +16,12 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
     e.preventDefault();
 
     try {
-      const response = await userLogin({
+      const response = await postApiLogin({
         body: { emailAddress: email, password },
       });
 
-      if (response.data?.info?.token) {
-        const info = response.data.info;
+      if (response.data?.payload?.token) {
+        const info = response.data.payload;
 
         // Store user info in context and session storage
         const userInfo = {

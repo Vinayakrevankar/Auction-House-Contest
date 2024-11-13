@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { userRegister } from '../api/services.gen'; // Import the API function
+import { postApiRegister } from '../api/services.gen'; // Import the API function
 import { useNavigate } from 'react-router-dom';
 
 interface SignupModalProps {
@@ -43,8 +43,8 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
         role: 'user' as 'user' | 'admin',
         isActive: true,
       };
-
-      const response = await userRegister({ body: signupData }); // Call the API function
+      
+      const response = await postApiRegister({ body: signupData }); // Call the API function
       console.log('Signup successful', response);
       onClose(); // Close the modal on successful registration
       navigate('/', { state: { openLoginModal: true } });
@@ -58,7 +58,7 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 transition-opacity duration-300">
       <div className="bg-white p-8 rounded-lg shadow-xl max-w-lg w-full transform transition-all duration-300">
         <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">Signup</h2>
-
+        
         <form onSubmit={handleSubmit}>
           {[
             { label: "Username", name: "username", type: "text" },
@@ -85,22 +85,22 @@ const SignupModal = ({ onClose }: SignupModalProps) => {
             <label className="w-1/3 text-gray-600 font-medium">User Type</label>
             <div className="w-2/3 flex items-center space-x-6">
               <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="userType"
-                  value="seller"
-                  checked={form.userType === 'seller'}
-                  onChange={handleChange}
+                <input 
+                  type="radio" 
+                  name="userType" 
+                  value="seller" 
+                  checked={form.userType === 'seller'} 
+                  onChange={handleChange} 
                   className="mr-2"
                 /> Seller
               </label>
               <label className="flex items-center">
-                <input
-                  type="radio"
-                  name="userType"
-                  value="buyer"
-                  checked={form.userType === 'buyer'}
-                  onChange={handleChange}
+                <input 
+                  type="radio" 
+                  name="userType" 
+                  value="buyer" 
+                  checked={form.userType === 'buyer'} 
+                  onChange={handleChange} 
                   className="mr-2"
                 /> Buyer
               </label>

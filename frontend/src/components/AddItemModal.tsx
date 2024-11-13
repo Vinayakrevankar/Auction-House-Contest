@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button } from 'flowbite-react';
 import { ItemSimple } from '../models/ItemSimple';
-import { imageUpload } from '../api';
+import { postApiUploadImage } from '../api';
 
 interface AddItemModalProps {
   show: boolean;
@@ -44,11 +44,11 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       return result;
     }));
     const images = await Promise.all(imageData.filter(v => v !== undefined).map(async data => {
-      const resp = await imageUpload({ body: { image: new Blob([data]) } });
-      if (resp.data === undefined) {
+      const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
+      if (resp.error) {
         console.error(resp.error);
       } else {
-        return resp.data.key;
+        return resp.data?.key!;
       }
     }));
     const newItem: ItemSimple = {
