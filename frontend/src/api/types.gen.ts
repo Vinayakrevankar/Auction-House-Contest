@@ -206,6 +206,40 @@ export type ItemRequestPayload = {
     images: Array<(string)>;
 };
 
+export type ItemFulfillResponsePayload = {
+    itemId: string;
+    soldBid: Bid;
+    soldTime: string;
+};
+
+export type AddFundsResponsePayload = {
+    /**
+     * User ID of the target user
+     */
+    userId: string;
+    /**
+     * Funds after operation
+     */
+    funds: string;
+};
+
+export type ErrorResponsePayload = {
+    status: number;
+    errorCode?: string;
+    message: string;
+};
+
+export type PlainSuccessResponsePayload = {
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+};
+
 export type ParameterSellerID = string;
 
 export type ParameterItemID = string;
@@ -226,19 +260,18 @@ export type UserLoginData = {
 };
 
 export type UserLoginResponse = ({
-    info: UserInfo;
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: UserInfo;
 });
 
-export type UserLoginError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type UserLoginError = (ErrorResponsePayload);
 
 export type UserRegisterData = {
     body?: {
@@ -274,21 +307,20 @@ export type UserRegisterData = {
 };
 
 export type UserRegisterResponse = ({
-    info: UserInfo;
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: UserInfo;
 });
 
-export type UserRegisterError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type UserRegisterError = (ErrorResponsePayload);
 
-export type ImageUploadData = {
+export type UploadImageData = {
     body?: {
         /**
          * Image data to upload
@@ -297,23 +329,27 @@ export type ImageUploadData = {
     };
 };
 
-export type ImageUploadResponse = ({
+export type UploadImageResponse = ({
     /**
-     * S3 object key
+     * Response HTTP status
      */
-    key: string;
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: {
+        /**
+         * S3 object key
+         */
+        key: string;
+    };
 });
 
-export type ImageUploadError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type UploadImageError = (ErrorResponsePayload);
 
 export type SellerCloseData = {
     path: {
@@ -321,18 +357,9 @@ export type SellerCloseData = {
     };
 };
 
-export type SellerCloseResponse = (unknown);
+export type SellerCloseResponse = (PlainSuccessResponsePayload);
 
-export type SellerCloseError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerCloseError = (ErrorResponsePayload);
 
 export type SellerReviewItemData = {
     path: {
@@ -340,18 +367,22 @@ export type SellerReviewItemData = {
     };
 };
 
-export type SellerReviewItemResponse = (Array<Item>);
-
-export type SellerReviewItemError = (unknown | {
+export type SellerReviewItemResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Item>;
 });
+
+export type SellerReviewItemError = (ErrorResponsePayload);
 
 export type SellerAddItemData = {
     body?: ItemRequestPayload;
@@ -360,18 +391,9 @@ export type SellerAddItemData = {
     };
 };
 
-export type SellerAddItemResponse = (unknown);
+export type SellerAddItemResponse = (PlainSuccessResponsePayload);
 
-export type SellerAddItemError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerAddItemError = (ErrorResponsePayload);
 
 export type SellerDeleteItemData = {
     path: {
@@ -380,18 +402,9 @@ export type SellerDeleteItemData = {
     };
 };
 
-export type SellerDeleteItemResponse = (unknown);
+export type SellerDeleteItemResponse = (PlainSuccessResponsePayload);
 
-export type SellerDeleteItemError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerDeleteItemError = (ErrorResponsePayload);
 
 export type SellerUpdateItemData = {
     body?: ItemRequestPayload;
@@ -401,18 +414,9 @@ export type SellerUpdateItemData = {
     };
 };
 
-export type SellerUpdateItemResponse = (unknown);
+export type SellerUpdateItemResponse = (PlainSuccessResponsePayload);
 
-export type SellerUpdateItemError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerUpdateItemError = (ErrorResponsePayload);
 
 export type SellerItemPublishData = {
     path: {
@@ -421,18 +425,9 @@ export type SellerItemPublishData = {
     };
 };
 
-export type SellerItemPublishResponse = (unknown);
+export type SellerItemPublishResponse = (PlainSuccessResponsePayload);
 
-export type SellerItemPublishError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerItemPublishError = (ErrorResponsePayload);
 
 export type SellerItemUnpublishData = {
     path: {
@@ -441,18 +436,9 @@ export type SellerItemUnpublishData = {
     };
 };
 
-export type SellerItemUnpublishResponse = (unknown);
+export type SellerItemUnpublishResponse = (PlainSuccessResponsePayload);
 
-export type SellerItemUnpublishError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type SellerItemUnpublishError = (ErrorResponsePayload);
 
 export type SellerItemFulfillData = {
     path: {
@@ -462,21 +448,18 @@ export type SellerItemFulfillData = {
 };
 
 export type SellerItemFulfillResponse = ({
-    itemId: string;
-    soldBid: Bid;
-    soldTime: string;
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: ItemFulfillResponsePayload;
 });
 
-export type SellerItemFulfillError = ({
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-} | unknown);
+export type SellerItemFulfillError = (ErrorResponsePayload);
 
 export type SellerItemArchiveData = {
     path: {
@@ -485,18 +468,9 @@ export type SellerItemArchiveData = {
     };
 };
 
-export type SellerItemArchiveResponse = (unknown);
+export type SellerItemArchiveResponse = (PlainSuccessResponsePayload);
 
-export type SellerItemArchiveError = ({
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-} | unknown);
+export type SellerItemArchiveError = (ErrorResponsePayload);
 
 export type SellerItemRequestUnfreezeData = {
     path: {
@@ -505,18 +479,9 @@ export type SellerItemRequestUnfreezeData = {
     };
 };
 
-export type SellerItemRequestUnfreezeResponse = (unknown);
+export type SellerItemRequestUnfreezeResponse = (PlainSuccessResponsePayload);
 
-export type SellerItemRequestUnfreezeError = ({
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-} | unknown);
+export type SellerItemRequestUnfreezeError = (ErrorResponsePayload);
 
 export type BuyerCloseData = {
     path: {
@@ -524,18 +489,9 @@ export type BuyerCloseData = {
     };
 };
 
-export type BuyerCloseResponse = (unknown);
+export type BuyerCloseResponse = (PlainSuccessResponsePayload);
 
-export type BuyerCloseError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type BuyerCloseError = (ErrorResponsePayload);
 
 export type BuyerAddFundsData = {
     body?: {
@@ -551,25 +507,17 @@ export type BuyerAddFundsData = {
 
 export type BuyerAddFundsResponse = ({
     /**
-     * ID of the buyer
+     * Response HTTP status
      */
-    buyerId: string;
+    status: number;
     /**
-     * Current fund of the buyer
+     * Response message
      */
-    funds: number;
+    message: string;
+    payload: AddFundsResponsePayload;
 });
 
-export type BuyerAddFundsError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type BuyerAddFundsError = (ErrorResponsePayload);
 
 export type BuyerBidsData = {
     path: {
@@ -577,18 +525,22 @@ export type BuyerBidsData = {
     };
 };
 
-export type BuyerBidsResponse = (Array<Bid>);
-
-export type BuyerBidsError = (unknown | {
+export type BuyerBidsResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Bid>;
 });
+
+export type BuyerBidsError = (ErrorResponsePayload);
 
 export type BuyerBidsPlaceData = {
     /**
@@ -610,19 +562,18 @@ export type BuyerBidsPlaceData = {
 };
 
 export type BuyerBidsPlaceResponse = ({
-    bid: Bid;
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: Bid;
 });
 
-export type BuyerBidsPlaceError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type BuyerBidsPlaceError = (ErrorResponsePayload);
 
 export type BuyerPurchasesData = {
     path: {
@@ -630,18 +581,22 @@ export type BuyerPurchasesData = {
     };
 };
 
-export type BuyerPurchasesResponse = (Array<Purchase>);
-
-export type BuyerPurchasesError = (unknown | {
+export type BuyerPurchasesResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Purchase>;
 });
+
+export type BuyerPurchasesError = (ErrorResponsePayload);
 
 export type ItemSearchData = {
     query?: {
@@ -668,24 +623,38 @@ export type ItemSearchData = {
     };
 };
 
-export type ItemSearchResponse = (Array<Item>);
-
-export type ItemSearchError = (unknown | {
+export type ItemSearchResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    payload: Item;
 });
+
+export type ItemSearchError = (ErrorResponsePayload);
 
 export type ItemGetActiveData = unknown;
 
-export type ItemGetActiveResponse = (Array<Item>);
+export type ItemGetActiveResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Item>;
+});
 
-export type ItemGetActiveError = unknown;
+export type ItemGetActiveError = (ErrorResponsePayload);
 
 export type ItemDetailData = {
     path: {
@@ -693,18 +662,19 @@ export type ItemDetailData = {
     };
 };
 
-export type ItemDetailResponse = (Item);
-
-export type ItemDetailError = (unknown | {
+export type ItemDetailResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    payload: Item;
 });
+
+export type ItemDetailError = (ErrorResponsePayload);
 
 export type ItemBidsData = {
     path: {
@@ -712,9 +682,22 @@ export type ItemBidsData = {
     };
 };
 
-export type ItemBidsResponse = (Array<Bid>);
+export type ItemBidsResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Bid>;
+});
 
-export type ItemBidsError = unknown;
+export type ItemBidsError = (ErrorResponsePayload);
 
 export type ItemRecentlySoldData = {
     query?: {
@@ -741,18 +724,22 @@ export type ItemRecentlySoldData = {
     };
 };
 
-export type ItemRecentlySoldResponse = (Array<Item>);
-
-export type ItemRecentlySoldError = ({
+export type ItemRecentlySoldResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Item>;
 });
+
+export type ItemRecentlySoldError = (ErrorResponsePayload);
 
 export type AdminFreezeItemData = {
     body?: {
@@ -768,49 +755,58 @@ export type AdminFreezeItemData = {
 
 export type AdminFreezeItemResponse = ({
     /**
-     * Target item ID, in UUID
+     * Response HTTP status
      */
-    itemId: string;
-    isFrozen: boolean;
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: {
+        /**
+         * Target item ID
+         */
+        itemId: string;
+        /**
+         * Freeze state after operation
+         */
+        isFrozen: string;
+    };
 });
 
-export type AdminFreezeItemError = (unknown | {
-    /**
-     * Error source
-     */
-    error: string;
-    /**
-     * Error message from error source
-     */
-    src: string;
-});
+export type AdminFreezeItemError = (ErrorResponsePayload);
 
 export type AdminAuctionReportData = unknown;
 
-export type AdminAuctionReportResponse = (AuctionReport);
-
-export type AdminAuctionReportError = (unknown | {
+export type AdminAuctionReportResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    payload: AuctionReport;
 });
+
+export type AdminAuctionReportError = (ErrorResponsePayload);
 
 export type AdminForensicReportData = unknown;
 
-export type AdminForensicReportResponse = (ForensicReport);
-
-export type AdminForensicReportError = (unknown | {
+export type AdminForensicReportResponse = ({
     /**
-     * Error source
+     * Response HTTP status
      */
-    error: string;
+    status: number;
     /**
-     * Error message from error source
+     * Response message
      */
-    src: string;
+    message: string;
+    payload: ForensicReport;
 });
+
+export type AdminForensicReportError = (ErrorResponsePayload);

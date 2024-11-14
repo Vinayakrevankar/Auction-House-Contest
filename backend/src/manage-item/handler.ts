@@ -1,9 +1,9 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand, ScanCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
-import { Item, ItemRequestPayload } from "../api";
+import { ErrorResponsePayload, Item, ItemRequestPayload, PlainSuccessResponsePayload } from "../api";
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -16,18 +16,27 @@ export async function addItem(
   const requiredFields = ['name', 'description', 'initPrice', 'lengthOfAuction', 'images'];
   for (const field of requiredFields) {
     if (!itemData[field]) {
-      res.status(400).send({ error: `${field} is required` });
+      res.status(400).send(<ErrorResponsePayload>{
+        status: 400,
+        message: `${field} is required`,
+      });
       return;
     }
   }
 
   if (itemData.initPrice < 1) {
-    res.status(400).send({ error: "initPrice must be at least $1" });
+    res.status(400).send(<ErrorResponsePayload>{
+      status: 400,
+      message: "initPrice must be at least $1",
+    });
     return;
   }
 
   if (!Array.isArray(itemData.images) || itemData.images.length === 0) {
-    res.status(400).send({ error: "At least one image is required" });
+    res.status(400).send(<ErrorResponsePayload>{
+      status: 400,
+      message: "At least one image is required",
+    });
     return;
   }
 
@@ -64,12 +73,15 @@ export async function addItem(
 
   try {
     await dclient.send(cmd);
-    res.status(201).send({
+    res.status(201).send(<PlainSuccessResponsePayload>{
+      status: 201,
       message: "Item added successfully",
-      item: item,
     });
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: err,
+    });
   }
 }
 export async function editItem(
@@ -89,17 +101,26 @@ export async function editItem(
     const item = result.Item;
 
     if (!item) {
-      res.status(404).send({ error: "Item not found" });
+      res.status(404).send(<ErrorResponsePayload>{
+        status: 404,
+        message: "Item not found",
+      });
       return;
     }
 
     if (item.sellerId !== sellerId) {
-      res.status(403).send({ error: "You can only edit your own items" });
+      res.status(403).send(<ErrorResponsePayload>{
+        status: 403,
+        message: "You can only edit your own items",
+      });
       return;
     }
 
     if (item.itemState !== "inactive") {
-      res.status(403).send({ error: "Only inactive items can be edited" });
+      res.status(403).send(<ErrorResponsePayload>{
+        status: 403,
+        message: "Only inactive items can be edited",
+      });
       return;
     }
 
@@ -121,7 +142,10 @@ export async function editItem(
 
     if (itemData.images) {
       if (!Array.isArray(itemData.images) || itemData.images.length === 0) {
-        res.status(400).send({ error: "At least one image is required" });
+        res.status(400).send(<ErrorResponsePayload>{
+          status: 400,
+          message: "At least one image is required",
+        });
         return;
       }
       updateExpression += ", images = :images";
@@ -130,7 +154,10 @@ export async function editItem(
 
     if (itemData.initPrice) {
       if (itemData.initPrice < 1) {
-        res.status(400).send({ error: "initPrice must be at least $1" });
+        res.status(400).send(<ErrorResponsePayload>{
+          status: 400,
+          message: "initPrice must be at least $1",
+        });
         return;
       }
       updateExpression += ", initPrice = :initPrice";
@@ -139,7 +166,10 @@ export async function editItem(
 
     if (itemData.lengthOfAuction) {
       if (itemData.lengthOfAuction < 1) {
-        res.status(400).send({ error: "lengthOfAuction must be at least 1 day" });
+        res.status(400).send(<ErrorResponsePayload>{
+          status: 400,
+          message: "lengthOfAuction must be at least 1 day",
+        });
         return;
       }
       updateExpression += ", lengthOfAuction = :lengthOfAuction";
@@ -157,12 +187,15 @@ export async function editItem(
 
     await dclient.send(updateCmd);
 
-    res.send({
+    res.status(200).send(<PlainSuccessResponsePayload>{
+      status: 200,
       message: "Item updated successfully",
-      itemId: itemId,
     });
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: err,
+    });
   }
 }
 
@@ -182,17 +215,26 @@ export async function removeInactiveItem(
     const item = result.Item;
 
     if (!item) {
-      res.status(404).send({ error: "Item not found" });
+      res.status(404).send(<ErrorResponsePayload>{
+        status: 404,
+        message: "Item not found",
+      });
       return;
     }
 
     if (item.sellerId !== sellerId) {
-      res.status(403).send({ error: "You can only remove your own items" });
+      res.status(403).send(<ErrorResponsePayload>{
+        status: 403,
+        message: "You can only remove your own items",
+      });
       return;
     }
 
     if (item.itemState !== "inactive") {
-      res.status(403).send({ error: "Only inactive items can be removed" });
+      res.status(403).send(<ErrorResponsePayload>{
+        status: 403,
+        message: "Only inactive items can be removed",
+      });
       return;
     }
 
@@ -204,12 +246,15 @@ export async function removeInactiveItem(
 
     await dclient.send(deleteCmd);
 
-    res.send({
+    res.status(200).send(<PlainSuccessResponsePayload>{
+      status: 200,
       message: "Item removed successfully",
-      itemId: itemId,
     });
   } catch (err) {
-    res.status(500).send({ error: err });
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: err,
+    });
   }
 }
 
@@ -231,12 +276,14 @@ export function publishItem(sellerId: string, itemId: string, res: Response) {
   });
   dclient.send(cmd, (err) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
     } else {
-      res.send({
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
         message: "Success",
-        itemId: itemId,
-        itemState: "active",
       });
     }
   });
@@ -259,15 +306,25 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
   });
   dclient.send(cmd, (err) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
     } else {
-      res.status(200).send();
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
+        message: "Success",
+      });
     }
   });
 }
 
-function updateURLs(data: ScanCommandOutput | undefined): Item[] {
-  return (data?.Items ?? []) as Item[];
+function updateURL(data: Item): Item {
+  return data;
+}
+
+function updateURLs(data: Item[]): Item[] {
+  return (data.length > 0 ? data.map(updateURL) : []);
 }
 
 //Review item
@@ -285,9 +342,16 @@ export function reviewItems(
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
     } else {
-      res.send(updateURLs(data));
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
     }
   });
 }
@@ -304,9 +368,16 @@ export function getActiveItems(res: Response) {
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 400,
+        message: err,
+      });
     } else {
-      res.send(updateURLs(data));
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
     }
   });
 }
@@ -320,11 +391,21 @@ export function getItemDetails(itemId: string, res: Response) {
   });
   dclient.send(getCmd, (err, data) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 400,
+        message: err,
+      });
     } else if (data?.Item === undefined) {
-      res.status(404).send({ error: "Item not found." });
+      res.status(404).send(<ErrorResponsePayload>{
+        status: 400,
+        message: "Item not found.",
+      });
     } else {
-      res.send(updateURLs(data));
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURL(data.Item as Item),
+      });
     }
   });
 }
@@ -339,9 +420,16 @@ export function getItemBids(itemId: string, res: Response) {
   });
   dclient.send(scanBidCmd, (err, data) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
     } else {
-      res.send(data?.Items ?? []);
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: data?.Items ?? [],
+      });
     }
   });
 }

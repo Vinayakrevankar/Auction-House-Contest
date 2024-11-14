@@ -20,8 +20,8 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         body: { emailAddress: email, password },
       });
 
-      if (response.data?.info?.token) {
-        const info = response.data.info;
+      if (response.data?.payload?.token) {
+        const info = response.data.payload;
 
         // Store user info in context and session storage
         const userInfo = {

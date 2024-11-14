@@ -270,3 +270,66 @@ export const ItemRequestPayloadSchema = {
     },
     required: ['name', 'description', 'initPrice', 'lengthOfAuction', 'images']
 } as const;
+
+export const ItemFulfillResponsePayloadSchema = {
+    type: 'object',
+    properties: {
+        itemId: {
+            type: 'string'
+        },
+        soldBid: {
+            '$ref': '#/components/schemas/Bid'
+        },
+        soldTime: {
+            type: 'string',
+            format: 'date-time'
+        }
+    },
+    required: ['itemId', 'soldBid', 'soldTime']
+} as const;
+
+export const AddFundsResponsePayloadSchema = {
+    type: 'object',
+    properties: {
+        userId: {
+            type: 'string',
+            description: 'User ID of the target user'
+        },
+        funds: {
+            type: 'string',
+            description: 'Funds after operation'
+        }
+    },
+    required: ['userId', 'funds']
+} as const;
+
+export const ErrorResponsePayloadSchema = {
+    type: 'object',
+    properties: {
+        status: {
+            type: 'integer'
+        },
+        errorCode: {
+            type: 'string'
+        },
+        message: {
+            type: 'string'
+        }
+    },
+    required: ['status', 'message']
+} as const;
+
+export const PlainSuccessResponsePayloadSchema = {
+    type: 'object',
+    properties: {
+        status: {
+            type: 'integer',
+            description: 'Response HTTP status'
+        },
+        message: {
+            type: 'string',
+            description: 'Response message'
+        }
+    },
+    required: ['status', 'message']
+} as const;

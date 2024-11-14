@@ -1,7 +1,7 @@
 import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
-import { Bid, SellerItemFulfillResponse, Item, Purchase } from "../api";
+import { Bid, Item, Purchase, PlainSuccessResponsePayload, ErrorResponsePayload, ItemFulfillResponsePayload } from "../api";
 import { ADMIN_ID } from "../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -21,12 +21,14 @@ export function archiveItem(sellerId: string, itemId: string, res: Response) {
   });
   dclient.send(cmd, (err, _) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: `${err}`,
+      });
     } else {
-      res.send({
-        message: "Success",
-        itemId: itemId,
-        itemState: "archived",
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
+        message: "Item archive success.",
       });
     }
   });
@@ -43,20 +45,27 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
     },
   });
   const queryItemResp = await dclient.send(queryItemCmd).catch(err => {
-    res.status(500).send({
-      error: err,
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: `${err}`,
     });
   });
   if (!queryItemResp) {
     return;
   } else if (queryItemResp.Items?.at(0) === undefined) {
-    res.status(404).send({ error: "Item not found." });
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found."
+    });
     return;
   }
 
   const item = queryItemResp.Items[0] as Item;
   if (item.itemState !== "completed" || item.currentBidId === undefined) {
-    res.status(400).send({ error: "This item cannot be fulfilled yet." });
+    res.status(400).send(<ErrorResponsePayload>{
+      status: 400,
+      message: "This item cannot be fulfilled yet."
+    });
     return;
   }
 
@@ -72,7 +81,10 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
   if (!getBidResp) {
     return;
   } else if (getBidResp.Item === undefined) {
-    res.status(404).send({ error: "Bid not found." });
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Bid not found."
+    });
     return;
   }
   const bid = getBidResp.Item as Bid;
@@ -132,10 +144,14 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
   if (!batchUpdateTransactionResp) {
     return;
   }
-  res.send(<SellerItemFulfillResponse>{
-    itemId: itemId,
-    soldBid: bid,
-    soldTime: bid.bidTime,
+  res.status(200).send({
+    status: 200,
+    message: "Item fulfill success.",
+    payload: <ItemFulfillResponsePayload>{
+      itemId: item.id,
+      soldBid: bid,
+      soldTime: bid.bidTime,
+    },
   });
 }
 
@@ -180,9 +196,9 @@ export async function requestUnfreezeItem(sellerId: string, itemId: string, res:
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.send({
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
         message: "Success",
-        itemId: itemId,
       });
     }
   });

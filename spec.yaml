@@ -59,11 +59,27 @@ paths:
         $ref: '#/components/requestBodies/UserLoginRequest'
       responses:
         '202':
-          $ref: '#/components/responses/UserAuthResponse'
-        '404':
-          description: User not exists
-          content: {}
           headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/UserInfo'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Login Success
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/register:
@@ -78,18 +94,34 @@ paths:
         $ref: '#/components/requestBodies/UserRegisterRequest'
       responses:
         '201':
-          $ref: '#/components/responses/UserAuthResponse'
-        '400':
-          description: Malformed Request
-          content: {}
           headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/UserInfo'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Register Success
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-  /api/image-upload:
+  /api/upload-image:
     post:
       summary: Upload image to S3
       description: ''
-      operationId: image-upload
+      operationId: upload-image
       tags:
         - Image
       parameters: []
@@ -109,13 +141,37 @@ paths:
               example1:
                 value:
                   image: <binary data...>
+        description: ''
       responses:
         '201':
-          $ref: '#/components/responses/ImageUploadResponse'
-        '415':
-          description: Bad image file
-          content: {}
           headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        description: S3 object key
+                    description: Response Payload
+                    required:
+                      - key
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Image uploaded to S3
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/sellers/{sellerId}/close:
@@ -131,17 +187,11 @@ paths:
         content: {}
       responses:
         '202':
-          description: Seller account closed.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -164,17 +214,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Seller not exists.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -193,17 +253,13 @@ paths:
               $ref: '#/components/schemas/ItemRequestPayload'
       responses:
         '201':
-          description: Item added successfully.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Seller not exists.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -222,17 +278,11 @@ paths:
       requestBody: &ref_3 {}
       responses:
         '200':
-          description: Item deleted successfully.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Seller or item not exists.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -252,17 +302,11 @@ paths:
               $ref: '#/components/schemas/ItemRequestPayload'
       responses:
         '200':
-          description: Item updated
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Seller or item not exists.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -281,20 +325,14 @@ paths:
       requestBody: *ref_3
       responses:
         '200':
-          description: Item published
-          content: &ref_6 {}
-          headers: &ref_7 {}
-        '401': &ref_8
-          description: ''
-          content: {}
-          headers: {}
-        '404': &ref_9
-          description: Seller or item not exists.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: &ref_10
+      security: &ref_6
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/unpublish:
     post:
@@ -306,14 +344,14 @@ paths:
       requestBody: *ref_3
       responses:
         '200':
-          description: Item unpublished
-          content: *ref_6
-          headers: *ref_7
-        '401': *ref_8
-        '404': *ref_9
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_10
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/fulfill:
     post:
       summary: Fulfill an item of seller
@@ -324,14 +362,34 @@ paths:
       requestBody: *ref_3
       responses:
         '200':
-          $ref: '#/components/responses/ItemFulfillResponse'
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/ItemFulfillResponsePayload'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Item fulfilled
         '400':
           $ref: '#/components/responses/ErrorResponse'
-        '401': *ref_8
-        '404': *ref_9
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_10
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/archive:
     post:
       summary: Archive an item of seller
@@ -342,16 +400,16 @@ paths:
       requestBody: *ref_3
       responses:
         '200':
-          description: Item archived
-          content: *ref_6
-          headers: *ref_7
-        '400': &ref_11
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400': &ref_7
           $ref: '#/components/responses/ErrorResponse'
-        '401': *ref_8
-        '404': *ref_9
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_10
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
     post:
       summary: Request unfreeze an item of seller.
@@ -362,15 +420,15 @@ paths:
       requestBody: *ref_3
       responses:
         '200':
-          description: Added request.
-          content: *ref_6
-          headers: *ref_7
-        '400': *ref_11
-        '401': *ref_8
-        '404': *ref_9
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400': *ref_7
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_10
+      security: *ref_6
   /api/buyers/{buyerId}/close:
     post:
       summary: Close buyer account.
@@ -383,17 +441,11 @@ paths:
       requestBody: {}
       responses:
         '202':
-          description: Buyer account closed.
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/PlainSuccessResponse'
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Buyer not found
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -411,15 +463,29 @@ paths:
         $ref: '#/components/requestBodies/AddFundRequest'
       responses:
         '200':
-          $ref: '#/components/responses/AddFundResponse'
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/AddFundsResponsePayload'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Funds added
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Buyer not exists
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -442,18 +508,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Bid'
-                description: List of bids
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bid'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Buyer not found
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -470,15 +545,29 @@ paths:
         $ref: '#/components/requestBodies/ItemBidRequest'
       responses:
         '202':
-          $ref: '#/components/responses/ItemBidResponse'
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Bid'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Bid placed
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Buyer or item not found
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -500,18 +589,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Purchase'
-                description: List of purchases
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Purchase'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Buyer not found
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -532,12 +630,12 @@ paths:
         - in: query
           name: minPrice
           description: Minimum price for item price range
-          schema: &ref_12
+          schema: &ref_8
             type: number
         - in: query
           name: maxPrice
           description: Maximum price for item price range
-          schema: *ref_12
+          schema: *ref_8
         - in: query
           name: sortBy
           description: Field to sort by
@@ -554,7 +652,7 @@ paths:
             enum:
               - asc
               - desc
-      requestBody: &ref_13 {}
+      requestBody: &ref_9 {}
       responses:
         '200':
           description: List of items
@@ -562,13 +660,20 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
-        '401':
-          description: ''
-          content: {}
-          headers: {}
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Item'
+                required:
+                  - status
+                  - message
+                  - payload
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/items/active:
@@ -579,7 +684,7 @@ paths:
       tags:
         - Item
       parameters: []
-      requestBody: *ref_13
+      requestBody: *ref_9
       responses:
         '200':
           description: List of items
@@ -587,9 +692,25 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/{itemId}:
     get:
       summary: Get item details
@@ -599,7 +720,7 @@ paths:
         - Item
       parameters:
         - $ref: '#/components/parameters/ItemID'
-      requestBody: *ref_13
+      requestBody: *ref_9
       responses:
         '200':
           description: Item
@@ -607,11 +728,22 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Item'
+                required:
+                  - status
+                  - message
+                  - payload
         '404':
-          description: Item not found
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/items/{itemId}/bids:
@@ -623,7 +755,7 @@ paths:
         - Item
       parameters:
         - $ref: '#/components/parameters/ItemID'
-      requestBody: *ref_13
+      requestBody: *ref_9
       responses:
         '200':
           description: List of bids
@@ -631,9 +763,27 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Bid'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bid'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/recently-sold:
     get:
       summary: Get recently sold items
@@ -650,12 +800,12 @@ paths:
         - in: query
           name: minPrice
           description: Minimum price for item price range
-          schema: &ref_14
+          schema: &ref_10
             type: number
         - in: query
           name: maxPrice
           description: Maximum price for item price range
-          schema: *ref_14
+          schema: *ref_10
         - in: query
           name: sortBy
           description: Field to sort by
@@ -680,9 +830,23 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
         '500':
           $ref: '#/components/responses/ErrorResponse'
   /api/admin/items/{itemId}/freeze:
@@ -698,15 +862,40 @@ paths:
         $ref: '#/components/requestBodies/ItemFreezeRequest'
       responses:
         '200':
-          $ref: '#/components/responses/ItemFreezeResponse'
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      itemId:
+                        type: string
+                        description: Target item ID
+                      isFrozen:
+                        type: string
+                        description: Freeze state after operation
+                    description: Response Payload
+                    required:
+                      - itemId
+                      - isFrozen
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Freeze state changed
         '401':
-          description: ''
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '404':
-          description: Item not exists
-          content: {}
-          headers: {}
+          $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
       security:
@@ -716,45 +905,70 @@ paths:
       summary: Get auction report
       description: ''
       operationId: admin-auction-report
-      tags: &ref_15
+      tags: &ref_11
         - Admin
-      parameters: &ref_16 []
-      requestBody: &ref_17 {}
+      parameters: &ref_12 []
+      requestBody: &ref_13 {}
       responses:
         '200':
-          description: ''
-          headers: &ref_18 {}
+          description: Report generated
+          headers: &ref_14 {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuctionReport'
-        '401': &ref_19
-          description: ''
-          content: {}
-          headers: {}
-        '500': &ref_20
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/AuctionReport'
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
           $ref: '#/components/responses/ErrorResponse'
-      security: &ref_21
+        '500': &ref_15
+          $ref: '#/components/responses/ErrorResponse'
+      security: &ref_16
         - http-jwt: []
   /api/admin/reports/forensic:
     get:
       summary: Get forensic report
       description: ''
       operationId: admin-forensic-report
-      tags: *ref_15
-      parameters: *ref_16
-      requestBody: *ref_17
+      tags: *ref_11
+      parameters: *ref_12
+      requestBody: *ref_13
       responses:
         '200':
-          description: ''
-          headers: *ref_18
+          description: Report generated
+          headers: *ref_14
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForensicReport'
-        '401': *ref_19
-        '500': *ref_20
-      security: *ref_21
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/ForensicReport'
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500': *ref_15
+      security: *ref_16
 components:
   schemas:
     UserInfo:
@@ -1001,6 +1215,56 @@ components:
         - initPrice
         - lengthOfAuction
         - images
+    ItemFulfillResponsePayload:
+      type: object
+      properties:
+        itemId:
+          type: string
+        soldBid:
+          $ref: '#/components/schemas/Bid'
+        soldTime:
+          type: string
+          format: date-time
+      required:
+        - itemId
+        - soldBid
+        - soldTime
+    AddFundsResponsePayload:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User ID of the target user
+        funds:
+          type: string
+          description: Funds after operation
+      required:
+        - userId
+        - funds
+    ErrorResponsePayload:
+      type: object
+      properties:
+        status:
+          type: integer
+        errorCode:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+        - message
+    PlainSuccessResponsePayload:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Response HTTP status
+        message:
+          type: string
+          description: Response message
+      required:
+        - status
+        - message
   securitySchemes:
     http-jwt:
       type: http
@@ -1125,130 +1389,20 @@ components:
             required:
               - action
   responses:
-    UserAuthResponse:
-      description: ''
-      headers: {}
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              info:
-                $ref: '#/components/schemas/UserInfo'
-            description: User Info
-            required:
-              - info
-          examples:
-            example1:
-              value:
-                info:
-                  username: vinayakrevankar
-                  emailAddress: vinayakanrevankar@gmail.com
-                  userType: seller
-                  userId: VIRE827829
-                  role: admin
-                  token: >-
-                    eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
-    ImageUploadResponse:
-      description: ''
-      headers: {}
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              key:
-                type: string
-                description: S3 object key
-                format: uuid
-            required:
-              - key
-          examples:
-            example1:
-              value:
-                key: e24951e4-4b64-4cb2-9d62-2083d0ca18bb
-    ItemFulfillResponse:
-      description: Item fulfilled.
-      headers: {}
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              itemId:
-                type: string
-              soldBid:
-                $ref: '#/components/schemas/Bid'
-              soldTime:
-                type: string
-                format: date-time
-            required:
-              - itemId
-              - soldBid
-              - soldTime
     ErrorResponse:
-      description: Internal error response
+      description: Error with code and message
       headers: {}
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              error:
-                type: string
-                description: Error source
-              src:
-                type: string
-                description: Error message from error source
-            required:
-              - error
-              - src
-    AddFundResponse:
-      description: ''
+            $ref: '#/components/schemas/ErrorResponsePayload'
+    PlainSuccessResponse:
+      description: Success Response without payload
       headers: {}
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              buyerId:
-                type: string
-                description: ID of the buyer
-              funds:
-                type: number
-                description: Current fund of the buyer
-            required:
-              - buyerId
-              - funds
-    ItemBidResponse:
-      description: ''
-      headers: {}
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              bid:
-                $ref: '#/components/schemas/Bid'
-            required:
-              - bid
-    ItemFreezeResponse:
-      description: ''
-      headers: {}
-      content:
-        application/json:
-          schema:
-            type: object
-            properties:
-              itemId:
-                type: string
-                description: Target item ID, in UUID
-                format: uuid
-              isFrozen:
-                type: boolean
-            required:
-              - itemId
-              - isFrozen
+            $ref: '#/components/schemas/PlainSuccessResponsePayload'
   parameters:
     SellerID:
       in: path
