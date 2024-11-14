@@ -24,6 +24,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
 });
 const bucketName = 'serverless-auction-house-dev-images';
+// const bucketName = process.env.BUCKET_NAME;
 const app = express();
 app.use(json());
 app.use(helmet());
@@ -130,8 +131,11 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     // const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL valid for 1 hour
 
     res.status(200).json({
+      status: 200,
       message: 'File uploaded successfully',
-      key: uniqueKey,
+      payload: {
+        key: uniqueKey,
+      },
       // url: signedUrl,
     });
   } catch (error) {

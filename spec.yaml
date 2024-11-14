@@ -126,8 +126,9 @@ paths:
         - Image
       parameters: []
       requestBody:
+        description: ''
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
@@ -141,7 +142,6 @@ paths:
               example1:
                 value:
                   image: <binary data...>
-        description: ''
       responses:
         '201':
           headers: {}
