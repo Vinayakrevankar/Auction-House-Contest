@@ -41,10 +41,10 @@ const SellerDashboard = () => {
         },
         path: { sellerId: userInfo.userId },
       }).then(resp => {
-        if (resp.error) {
+        if (resp.data === undefined) {
           console.error(resp.error);
         } else {
-          setItems(resp.data!);
+          setItems(resp.data.payload);
         }
       });
       setInit(false);

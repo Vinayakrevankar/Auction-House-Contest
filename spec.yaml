@@ -1,30 +1,65 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  version: '1.0.0'
-  title: Auction House API
-  description: API documentation for the Auction House system.
-servers:
-  - url: http://localhost:8000
+  title: Auction House
+  description: This is a sample description about this spec.
+  termsOfService: ''
+  contact:
+    email: pchen1@wpi.edu
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+externalDocs:
+  description: Find out more about spec
+  url: ''
+servers: []
+tags:
+  - name: Default
+    description: ''
+  - name: User
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
+  - name: Image
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
+  - name: Seller
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
+  - name: Buyer
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
+  - name: Item
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
+  - name: Admin
+    description: ''
+    externalDocs:
+      description: ''
+      url: ''
 paths:
   /api/login:
     post:
-      summary: Login endpoint
+      summary: User Login Endpoint
+      description: ''
+      operationId: user-login
+      tags:
+        - User
+      parameters: &ref_0 []
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                emailAddress:
-                  type: string
-                  format: email
-                password:
-                  type: string
-                  format: password
+        $ref: '#/components/requestBodies/UserLoginRequest'
       responses:
-        '200':
-          description: Login successful
+        '202':
+          headers: {}
           content:
             application/json:
               schema:
@@ -32,69 +67,34 @@ paths:
                 properties:
                   status:
                     type: integer
-                    example: 200
-                  errorCode:
-                    type: string
-                    nullable: true
+                    description: Response HTTP status
                   message:
                     type: string
-                    example: Login successful
+                    description: Response message
                   payload:
-                    type: object
-                    properties:
-                      username:
-                        type: string
-                        example: vinayakrevankar
-                      emailAddress:
-                        type: string
-                        example: vinayakanrevankar@gmail.com
-                      userType:
-                        type: string
-                        enum: [seller, buyer]
-                        example: seller
-                      userId:
-                        type: string
-                        example: VIRE827829
-                      role:
-                        type: string
-                        enum: [admin, user]
-                        example: admin
-                      token:
-                        type: string
-                        example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InZpbmF5YWtyZXZhbmthciIsImVtYWlsIjoidmluYXlha2FucmV2YW5rYXJAZ21haWwuY29tIiwicm9sZSI6ImFkbWluIiwidXNlclR5cGUiOiJzZWxsZXIiLCJzZWxsZXJJZCI6IlZJUkU4OTQ0NDc1NyIsImlhdCI6MTczMDc1OTMwMSwiZXhwIjoxNzMwNzYwMjAxfQ.b7eDEKKeyixU6fOTC2qo6uFZvc0W5m25wfg9Rr7hMk8
+                    $ref: '#/components/schemas/UserInfo'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Login Success
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/register:
     post:
-      summary: Register a new user
+      summary: User Register Endpoint
+      description: ''
+      operationId: user-register
+      tags:
+        - User
+      parameters: *ref_0
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                username:
-                  type: string
-                password:
-                  type: string
-                  format: password
-                emailAddress:
-                  type: string
-                  format: email
-                firstName:
-                  type: string
-                lastName:
-                  type: string
-                userType:
-                  type: string
-                  enum: [seller, buyer]
-                role:
-                  type: string
-                  enum: [admin, user]
-                isActive:
-                  type: boolean
+        $ref: '#/components/requestBodies/UserRegisterRequest'
       responses:
         '201':
-          description: User registered successfully
+          headers: {}
           content:
             application/json:
               schema:
@@ -102,1062 +102,1054 @@ paths:
                 properties:
                   status:
                     type: integer
-                  errorCode:
-                    type: string
-                    nullable: true
+                    description: Response HTTP status
                   message:
                     type: string
+                    description: Response message
                   payload:
-                    type: object
-                    nullable: true
-                    username:
-                      type: string
-                      example: vinayakrevankar
-                    emailAddress:
-                      type: string
-                      example: vinayakanrevankar@gmail.com
-                    userType:
-                      type: string
-                      example: seller
-                    role:
-                      type: string
-                      enum: [admin, user]
-                      example: admin
-                    userId:
-                        type: string
-                        example: VIRE827829
-  /api/verify:
-    post:
-      summary: Create a seller account
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/OTP'
-      responses:
-        '201':
-          description: Verified successfully
+                    $ref: '#/components/schemas/UserInfo'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Register Success
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/upload-image:
     post:
-      summary: Upload an image
+      summary: Upload image to S3
+      description: ''
+      operationId: upload-image
       tags:
-        - Images
+        - Image
+      parameters: []
       requestBody:
-        required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
               type: object
               properties:
                 image:
                   type: string
+                  description: Image data to upload
                   format: binary
-                  description: The image file to upload
+              required:
+                - image
+            examples:
+              example1:
+                value:
+                  image: <binary data...>
+        description: ''
       responses:
-        '200':
-          description: File uploaded successfully
+        '201':
+          headers: {}
           content:
             application/json:
               schema:
                 type: object
                 properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
                   message:
                     type: string
-                    example: File uploaded successfully
-                  key:
-                    type: string
-                    example: e24951e4-4b64-4cb2-9d62-2083d0ca18bb
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      key:
+                        type: string
+                        description: S3 object key
+                    description: Response Payload
+                    required:
+                      - key
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Image uploaded to S3
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/sellers/{sellerId}/close:
     post:
       summary: Close seller account
+      description: ''
+      operationId: seller-close
       tags:
-        - Sellers
+        - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerId'
+        - $ref: '#/components/parameters/SellerID'
+      requestBody:
+        content: {}
+      responses:
+        '202':
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
+        - http-jwt: []
+    parameters: []
+  /api/sellers/{sellerId}/items:
+    get:
+      summary: Get seller's items
+      description: ''
+      operationId: seller-review-item
+      tags: &ref_1
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+      requestBody: {}
       responses:
         '200':
-          description: Account closed successfully
+          description: Returns seller's items
+          headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/CloseAccountResponse'
-  /api/sellers/{sellerId}/items:
-    post:
-      summary: Add an item for sale
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
+        - http-jwt: []
+    post:
+      summary: Add item for seller
+      description: ''
+      operationId: seller-add-item
+      tags: *ref_1
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AddItemRequest'
+              $ref: '#/components/schemas/ItemRequestPayload'
       responses:
         '201':
-          description: Item added successfully
-    get:
-      summary: Review seller's items
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
+        - http-jwt: []
+    parameters: []
+  /api/sellers/{sellerId}/items/{itemId}:
+    delete:
+      summary: Delete item of seller
+      description: ''
+      operationId: seller-delete-item
+      tags: &ref_2
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
+      requestBody: &ref_3 {}
       responses:
         '200':
-          description: List of seller's items
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
-  /api/sellers/{sellerId}/items/{itemId}:
-    put:
-      summary: Edit an inactive item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
+        - http-jwt: []
+    put:
+      summary: Update item of seller
+      description: ''
+      operationId: seller-update-item
+      tags: *ref_2
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
       requestBody:
-        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/EditItemRequest'
+              $ref: '#/components/schemas/ItemRequestPayload'
       responses:
         '200':
-          description: Item updated successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Item'
-    delete:
-      summary: Remove an inactive item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Item removed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActionResponse'
+        - http-jwt: []
+    parameters: []
   /api/sellers/{sellerId}/items/{itemId}/publish:
     post:
-      summary: Publish an item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
-      # requestBody:
-      #   content:
-      #     application/json:
-      #       schema:
-      #         $ref: '#/components/schemas/PublishItemRequest'
+      summary: Publish an item of seller
+      description: ''
+      operationId: seller-item-publish
+      tags: &ref_4
+        - Seller
+      parameters: &ref_5
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
+      requestBody: *ref_3
       responses:
         '200':
-          description: Item published successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ItemPublishResponse'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security: &ref_6
+        - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/unpublish:
     post:
-      summary: Unpublish an active item with no bids
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+      summary: Unpublish an item of seller
+      description: ''
+      operationId: seller-item-unpublish
+      tags: *ref_4
+      parameters: *ref_5
+      requestBody: *ref_3
       responses:
         '200':
-          description: Item unpublished successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ItemStateResponse'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/fulfill:
     post:
-      summary: Fulfill a completed auction item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+      summary: Fulfill an item of seller
+      description: ''
+      operationId: seller-item-fulfill
+      tags: *ref_4
+      parameters: *ref_5
+      requestBody: *ref_3
       responses:
         '200':
-          description: Item fulfilled successfully
+          headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FulfillItemResponse'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/ItemFulfillResponsePayload'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Item fulfilled
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/archive:
     post:
-      summary: Archive an inactive item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+      summary: Archive an item of seller
+      description: ''
+      operationId: seller-item-archive
+      tags: *ref_4
+      parameters: *ref_5
+      requestBody: *ref_3
       responses:
         '200':
-          description: Item archived successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ItemStateResponse'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400': &ref_7
+          $ref: '#/components/responses/ErrorResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security: *ref_6
   /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
     post:
-      summary: Request to unfreeze an item
-      tags:
-        - Sellers
-      parameters:
-        - $ref: '#/components/parameters/SellerId'
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+      summary: Request unfreeze an item of seller.
+      description: ''
+      operationId: seller-item-request-unfreeze
+      tags: *ref_4
+      parameters: *ref_5
+      requestBody: *ref_3
       responses:
         '200':
-          description: Unfreeze request for item submitted
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ActionResponse'
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '400': *ref_7
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security: *ref_6
   /api/buyers/{buyerId}/close:
     post:
-      summary: Close buyer account
+      summary: Close buyer account.
+      description: ''
+      operationId: buyer-close
       tags:
-        - Buyers
+        - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/BuyerID'
+      requestBody: {}
       responses:
-        '200':
-          description: Account closed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CloseAccountResponse'
+        '202':
+          $ref: '#/components/responses/PlainSuccessResponse'
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
   /api/buyers/{buyerId}/add-funds:
     post:
-      summary: Add funds to buyer account
+      summary: Add funds to buyer account.
+      description: ''
+      operationId: buyer-add-funds
       tags:
-        - Buyers
+        - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/BuyerID'
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/AddFundsRequest'
+        $ref: '#/components/requestBodies/AddFundRequest'
       responses:
         '200':
-          description: Funds added successfully
+          headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AddFundsResponse'
-  /api/buyers/{buyerId}/active-bids:
-    get:
-      summary: Review buyer's active bids
-      tags:
-        - Buyers
-      parameters:
-        - $ref: '#/components/parameters/BuyerId'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/AddFundsResponsePayload'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Funds added
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
+        - http-jwt: []
+  /api/buyers/{buyerId}/bids:
+    get:
+      summary: Get current bids of the buyer
+      description: ''
+      operationId: buyer-bids
+      tags:
+        - Buyer
+      parameters:
+        - $ref: '#/components/parameters/BuyerID'
+      requestBody:
+        $ref: ''
       responses:
         '200':
-          description: List of active bids
+          description: Get buyer's bids successfully
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ActiveBid'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bid'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
+    post:
+      summary: Put bid on an item
+      description: ''
+      operationId: buyer-bids-place
+      tags:
+        - Buyer
+      parameters:
+        - $ref: '#/components/parameters/BuyerID'
+      requestBody:
+        $ref: '#/components/requestBodies/ItemBidRequest'
+      responses:
+        '202':
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Bid'
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Bid placed
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
   /api/buyers/{buyerId}/purchases:
     get:
-      summary: Review buyer's purchases
+      summary: Get purchases of a buyer
+      description: ''
+      operationId: buyer-purchases
       tags:
-        - Buyers
+        - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/BuyerID'
+      requestBody: {}
       responses:
         '200':
-          description: List of purchases
+          description: Get list of purchases of the buyer
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Purchase'
-  /api/buyers/{buyerId}/bids:
-    post:
-      summary: Place a bid on an item
-      tags:
-        - Buyers
-      parameters:
-        - $ref: '#/components/parameters/BuyerId'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Purchase'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
       security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/PlaceBidRequest'
-      responses:
-        '200':
-          description: Bid placed successfully
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/BidResponse'
+        - http-jwt: []
   /api/items:
     get:
-      summary: Search and sort active items
+      summary: Search and sort items
+      description: ''
+      operationId: item-search
       tags:
-        - Items
+        - Item
       parameters:
-        - $ref: '#/components/parameters/Keywords'
-        - $ref: '#/components/parameters/MinPrice'
-        - $ref: '#/components/parameters/MaxPrice'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/SortOrder'
+        - in: query
+          name: keywords
+          description: Keywords for searching item
+          schema:
+            type: string
+        - in: query
+          name: minPrice
+          description: Minimum price for item price range
+          schema: &ref_8
+            type: number
+        - in: query
+          name: maxPrice
+          description: Maximum price for item price range
+          schema: *ref_8
+        - in: query
+          name: sortBy
+          description: Field to sort by
+          schema:
+            type: string
+            enum:
+              - price
+              - date
+        - in: query
+          name: sortOrder
+          description: Sort order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      requestBody: &ref_9 {}
       responses:
         '200':
           description: List of items
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ItemSummary'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Item'
+                required:
+                  - status
+                  - message
+                  - payload
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/active:
     get:
       summary: Get all active items
+      description: ''
+      operationId: item-get-active
       tags:
-        - Items
+        - Item
+      parameters: []
+      requestBody: *ref_9
       responses:
         '200':
-          description: Active items
+          description: List of items
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/{itemId}:
     get:
-      summary: View item details
+      summary: Get item details
+      description: ''
+      operationId: item-detail
       tags:
-        - Items
+        - Item
       parameters:
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/ItemID'
+      requestBody: *ref_9
       responses:
         '200':
-          description: Item details
+          description: Item
+          headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/Item'
+                required:
+                  - status
+                  - message
+                  - payload
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/{itemId}/bids:
     get:
-      summary: Get bids related to item
+      summary: Get bids of an item
+      description: ''
+      operationId: item-bids
       tags:
-        - Items
+        - Item
       parameters:
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/ItemID'
+      requestBody: *ref_9
       responses:
         '200':
-          description: Bids of this item
+          description: List of bids
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Item'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Bid'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/items/recently-sold:
     get:
-      summary: Search and sort recently sold items
+      summary: Get recently sold items
+      description: ''
+      operationId: item-recently-sold
       tags:
-        - Items
+        - Item
       parameters:
-        - $ref: '#/components/parameters/Keywords'
-        - $ref: '#/components/parameters/MinPrice'
-        - $ref: '#/components/parameters/MaxPrice'
-        - $ref: '#/components/parameters/SortBy'
-        - $ref: '#/components/parameters/SortOrder'
+        - in: query
+          name: keywords
+          description: Keywords for searching item
+          schema:
+            type: string
+        - in: query
+          name: minPrice
+          description: Minimum price for item price range
+          schema: &ref_10
+            type: number
+        - in: query
+          name: maxPrice
+          description: Maximum price for item price range
+          schema: *ref_10
+        - in: query
+          name: sortBy
+          description: Field to sort by
+          schema:
+            type: string
+            enum:
+              - price
+              - date
+        - in: query
+          name: sortOrder
+          description: Sort order
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+      requestBody: {}
       responses:
         '200':
-          description: List of recently sold items
+          description: List of items
+          headers: {}
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/RecentlySoldItem'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Item'
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
   /api/admin/items/{itemId}/freeze:
     post:
-      summary: Freeze or unfreeze an item
+      summary: Freeze or unfreeze item
+      description: ''
+      operationId: admin-freeze-item
       tags:
         - Admin
       parameters:
-        - $ref: '#/components/parameters/ItemId'
-      security:
-        - bearerAuth: []
+        - $ref: '#/components/parameters/ItemID'
       requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/FreezeActionRequest'
+        $ref: '#/components/requestBodies/ItemFreezeRequest'
       responses:
         '200':
-          description: Item freeze/unfreeze action completed
+          headers: {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FreezeActionResponse'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      itemId:
+                        type: string
+                        description: Target item ID
+                      isFrozen:
+                        type: string
+                        description: Freeze state after operation
+                    description: Response Payload
+                    required:
+                      - itemId
+                      - isFrozen
+                required:
+                  - status
+                  - message
+                  - payload
+          description: Freeze state changed
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
   /api/admin/reports/auction:
     get:
-      summary: Generate auction report
-      tags:
+      summary: Get auction report
+      description: ''
+      operationId: admin-auction-report
+      tags: &ref_11
         - Admin
-      security:
-        - bearerAuth: []
+      parameters: &ref_12 []
+      requestBody: &ref_13 {}
       responses:
         '200':
-          description: Auction report generated
+          description: Report generated
+          headers: &ref_14 {}
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuctionReport'
-  /api/admin/reports/forensics:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/AuctionReport'
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500': &ref_15
+          $ref: '#/components/responses/ErrorResponse'
+      security: &ref_16
+        - http-jwt: []
+  /api/admin/reports/forensic:
     get:
-      summary: Generate forensics report
-      tags:
-        - Admin
-      security:
-        - bearerAuth: []
+      summary: Get forensic report
+      description: ''
+      operationId: admin-forensic-report
+      tags: *ref_11
+      parameters: *ref_12
+      requestBody: *ref_13
       responses:
         '200':
-          description: Forensics report generated
+          description: Report generated
+          headers: *ref_14
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ForensicsReport'
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    $ref: '#/components/schemas/ForensicReport'
+                required:
+                  - status
+                  - message
+                  - payload
+        '401':
+          $ref: '#/components/responses/ErrorResponse'
+        '500': *ref_15
+      security: *ref_16
 components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-  parameters:
-    SellerId:
-      name: sellerId
-      in: path
-      required: true
-      schema:
-        type: string
-    BuyerId:
-      name: buyerId
-      in: path
-      required: true
-      schema:
-        type: string
-    ItemId:
-      name: itemId
-      in: path
-      required: true
-      schema:
-        type: string
-    Keywords:
-      name: keywords
-      in: query
-      schema:
-        type: string
-      description: Keywords for searching items
-    MinPrice:
-      name: minPrice
-      in: query
-      schema:
-        type: number
-        format: float
-      description: Minimum price for filtering items
-    MaxPrice:
-      name: maxPrice
-      in: query
-      schema:
-        type: number
-        format: float
-      description: Maximum price for filtering items
-    SortBy:
-      name: sortBy
-      in: query
-      schema:
-        type: string
-        enum: [price, date]
-      description: Field to sort by
-    SortOrder:
-      name: sortOrder
-      in: query
-      schema:
-        type: string
-        enum: [asc, desc]
-      description: Sort order
   schemas:
-    SellerCreationRequest:
+    UserInfo:
       type: object
-      required:
-        - username
-        - emailAddress
-        - password
       properties:
         username:
           type: string
+          description: Username
         emailAddress:
           type: string
           format: email
-        password:
+          description: User email
+        userId:
           type: string
-          format: password
-    OTP:
-      type: object
-      required:
-
-        - emailAddress
-        - OTP
-      properties:
-        OTP:
+          description: User ID
+        userType:
           type: string
-        emailAddress:
+          enum:
+            - seller
+            - buyer
+          description: User type, one of [seller, buyer]
+        role:
           type: string
-          format: email
-    Admin:
-      type: object
-      required:
-        - id
-        - username
-        - emailAddress
-        - itemUnfreezeRequests
-        - createAt
-      properties:
-        id:
-          type: string
-        username:
-          type: string
-        emailAddress:
-          type: string
-          format: email
-        itemUnfreezeRequests:
-          type: array
-          items:
-            type: string
-        OTP:
-          type: string
-        createAt:
-          type: number
-    Seller:
-      type: object
-      required:
-        - id
-        - username
-        - emailAddress
-        - fund
-        - isFrozen
-        - isClosed
-        - itemIds
-        - createAt
-      properties:
-        id:
-          type: string
-        username:
-          type: string
-        emailAddress:
-          type: string
-          format: email
-        fund:
-          type: number
-          format: float
-        isFrozen:
-          type: boolean
-        isClosed:
-          type: boolean
-        itemIds:
-          type: array
-          items:
-            type: string
-        OTP:
-          type: string
-        createAt:
-          type: number
-    LoginRequest:
-      type: object
-      required:
-        - username
-        - password
-      properties:
-        username:
-          type: string
-        password:
-          type: string
-          format: password
-    LoginResponse:
-      type: object
-      properties:
+          enum:
+            - admin
+            - user
+          description: User role, one of [admin, user]
         token:
           type: string
-        sellerId:
-          type: string
-        buyerId:
-          type: string
-    CloseAccountResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        sellerId:
-          type: string
-        buyerId:
-          type: string
-        isClosed:
-          type: boolean
-    AddItemRequest:
-      type: object
+          description: JWT token
       required:
-        - name
-        - description
-        - initPrice
-        - lengthOfAuction
-        - images
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        initPrice:
-          type: number
-          minimum: 1
-        lengthOfAuction:
-          type: integer
-        images:
-          type: array
-          items:
-            type: string
-            # format: binary
+        - username
+        - emailAddress
+        - userId
+        - role
+        - token
+        - userType
+      description: User info
     Item:
       type: object
-      required:
-        - id
-        - name
-        - description
-        - initPrice
-        - startDate
-        - endDate
-        - lengthOfAuction
-        - itemState
-        - isFrozen
-        - images
-        - sellerId
-        - createAt
       properties:
         id:
           type: string
+          format: uuid
+          description: Item ID, in UUID
         name:
           type: string
+          description: Item name
         description:
           type: string
+          description: Item description
         initPrice:
           type: number
+          description: Initial price, > $1
         startDate:
           type: string
           format: date-time
+          description: Auction start date time
         endDate:
           type: string
           format: date-time
+          description: Auction end date time
         lengthOfAuction:
-          type: number
+          type: integer
+          description: Auction length, in days
         itemState:
           type: string
-          enum: [inactive, active, failed, completed, archived]
+          enum:
+            - active
+            - archived
+            - completed
+            - failed
+            - inactive
+          description: Current state of item
         isFrozen:
           type: boolean
+          description: Freeze status
         images:
           type: array
           items:
             type: string
-            format: uri
-        # currentBid:
-        #   $ref: '#/components/schemas/Bid'
+            format: uuid
+          description: S3 image keys
         currentBidId:
           type: string
-        # pastBids:
-        #   type: array
-        #   items:
-        #     $ref: '#/components/schemas/Bid'
+          format: uuid
+          description: Current bid ID, in UUID
         pastBidIds:
           type: array
           items:
             type: string
-        soldTime:
-          type: string
-          format: date-time
-        # soldBid:
-        #   $ref: '#/components/schemas/Bid'
+            format: uuid
+            description: Bid ID, in UUID
+          description: Historic bids
         soldBidId:
           type: string
+          format: uuid
+          description: Item sold bid ID, in UUID
         sellerId:
           type: string
+          description: Seller ID who posted the item
         createAt:
-          type: number
-    ItemSummary:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        itemState:
-          type: string
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
-        currentBid:
-          type: number
-        soldTime:
-          type: string
-          format: date-time
-    EditItemRequest:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        initPrice:
-          type: number
-        lengthOfAuction:
           type: integer
-        images:
-          type: array
-          items:
-            type: string
-    ActionResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        itemId:
-          type: string
-        sellerId:
-          type: string
-        buyerId:
-          type: string
-    # PublishItemRequest:
-    #   type: object
-    #   properties:
-    #     startDate:
-    #       type: string
-    #       format: date-time
-    #     endDate:
-    #       type: string
-    #       format: date-time
-    ItemPublishResponse:
-      type: object
-      required:
-        - itemId
-        - itemState
-        # - startDate
-        # - endDate
-      properties:
-        itemId:
-          type: string
-        itemState:
-          type: string
-        # startDate:
-        #   type: string
-        #   format: date-time
-        # endDate:
-        #   type: string
-        #   format: date-time
-    ItemStateResponse:
-      type: object
-      required:
-        - message
-        - itemId
-        - itemState
-      properties:
-        message:
-          type: string
-        itemId:
-          type: string
-        itemState:
-          type: string
-    FulfillItemResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        itemId:
-          type: string
-        soldBid:
-          $ref: '#/components/schemas/Bid'
-        soldTime:
-          type: string
-          format: date-time
-    BuyerCreationRequest:
-      type: object
-      required:
-        - username
-        - emailAddress
-        - password
-      properties:
-        username:
-          type: string
-        emailAddress:
-          type: string
-          format: email
-        password:
-          type: string
-          format: password
-    Buyer:
-      type: object
+          format: int64
+          description: UNIX Timestamp
       required:
         - id
-        - username
-        - emailAddress
-        - fund
-        - isFrozen
-        - isClosed
-        - bidIds
-        - purchases
+        - name
+        - description
+        - initPrice
+        - lengthOfAuction
+        - itemState
+        - images
+        - sellerId
+        - startDate
+        - endDate
         - createAt
+        - isFrozen
+      description: Item in auction
+    Bid:
+      type: object
       properties:
         id:
           type: string
-        username:
+          format: uuid
+          description: Bid ID, in UUID
+        bidItemId:
           type: string
-        emailAddress:
+          format: uuid
+          description: Item ID of the bid, in UUID
+        bidUserId:
           type: string
-          format: email
-        fund:
+          description: Buyer ID who placed the bid
+        bidAmount:
           type: number
-          format: float
-        isFrozen:
-          type: boolean
-        isClosed:
-          type: boolean
-        # bids:
-        #   type: array
-        #   items:
-        #     $ref: '#/components/schemas/Bid'
-        bidIds:
-          type: array
-          items:
-            type: string
-        purchases:
-          type: array
-          items:
-            $ref: '#/components/schemas/Purchase'
-        OTP:
-          type: string
-        createAt:
-          type: number
-    AddFundsRequest:
-      type: object
-      required:
-        - amount
-      properties:
-        amount:
-          type: number
-          format: float
-          minimum: 0
-    AddFundsResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        buyerId:
-          type: string
-        fund:
-          type: number
-          format: float
-    ActiveBid:
-      type: object
-      properties:
-        itemId:
-          type: string
-        itemName:
-          type: string
-        currentBid:
-          type: number
-        yourBid:
-          type: number
+          minimum: 1
+          description: Bid amount
         bidTime:
           type: string
           format: date-time
-        endDate:
-          type: string
-          format: date-time
+          description: Bid time
+        createAt:
+          type: integer
+          format: int64
+          description: UNIX Timestamp
+      required:
+        - id
+        - bidItemId
+        - bidUserId
+        - bidAmount
+        - bidTime
+        - createAt
+      description: Bid to an item
     Purchase:
       type: object
       properties:
         itemId:
           type: string
+          description: Item ID, in UUID
+          format: uuid
         itemName:
           type: string
-        purchasePrice:
+          description: Item name
+        price:
           type: number
+          description: Purchased price
         soldTime:
           type: string
+          description: Item sold time
           format: date-time
-        fulfillmentDate:
+        fulfillTime:
           type: string
+          description: Purchase fulfilled time
           format: date-time
-    PlaceBidRequest:
-      type: object
+      description: Purchase Data
       required:
         - itemId
-        - bidAmount
-      properties:
-        itemId:
-          type: string
-        bidAmount:
-          type: number
-    BidResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        bid:
-          $ref: '#/components/schemas/Bid'
-    Bid:
-      type: object
-      required:
-        - id
-        - bidUserId
-        - bidItemId
-        - bidAmount
-        - bidTime
-        - createAt
-      properties:
-        id:
-          type: string
-        bidItemId:
-          type: string
-        bidUserId:
-          type: string
-        bidAmount:
-          type: number
-        bidTime:
-          type: string
-          format: date-time
-        createAt:
-          type: number
-    ItemDetails:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        description:
-          type: string
-        images:
-          type: array
-          items:
-            type: string
-            format: uri
-        price:
-          type: number
-        startDate:
-          type: string
-          format: date-time
-        endDate:
-          type: string
-          format: date-time
-        highestBid:
-          type: number
-        biddingHistory:
-          type: array
-          items:
-            $ref: '#/components/schemas/Bid'
-    RecentlySoldItem:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        price:
-          type: number
-        soldTime:
-          type: string
-          format: date-time
-        biddingHistory:
-          type: array
-          items:
-            $ref: '#/components/schemas/Bid'
-    FreezeActionRequest:
-      type: object
-      required:
-        - action
-      properties:
-        action:
-          type: string
-          enum: [freeze, unfreeze]
-    FreezeActionResponse:
-      type: object
-      properties:
-        message:
-          type: string
-        sellerId:
-          type: string
-        buyerId:
-          type: string
-        itemId:
-          type: string
-        isFrozen:
-          type: boolean
+        - itemName
+        - price
+        - soldTime
+        - fulfillTime
     AuctionReport:
       type: object
       properties:
@@ -1181,11 +1173,258 @@ components:
                 type: number
               commission:
                 type: number
-    ForensicsReport:
+    ForensicReport:
       type: object
       properties:
         reportId:
           type: string
+          format: uuid
         url:
           type: string
           format: uri
+      required:
+        - reportId
+        - url
+    ItemRequestPayload:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Item name
+        description:
+          type: string
+          description: Item description
+        initPrice:
+          type: number
+          minimum: 1
+          description: Initial price of item, > $1
+        lengthOfAuction:
+          type: integer
+          minimum: 1
+          description: Length of auction in days
+        images:
+          type: array
+          items:
+            type: string
+            format: uuid
+            description: S3 object key
+          description: S3 object keys for the images
+      required:
+        - name
+        - description
+        - initPrice
+        - lengthOfAuction
+        - images
+    ItemFulfillResponsePayload:
+      type: object
+      properties:
+        itemId:
+          type: string
+        soldBid:
+          $ref: '#/components/schemas/Bid'
+        soldTime:
+          type: string
+          format: date-time
+      required:
+        - itemId
+        - soldBid
+        - soldTime
+    AddFundsResponsePayload:
+      type: object
+      properties:
+        userId:
+          type: string
+          description: User ID of the target user
+        funds:
+          type: string
+          description: Funds after operation
+      required:
+        - userId
+        - funds
+    ErrorResponsePayload:
+      type: object
+      properties:
+        status:
+          type: integer
+        errorCode:
+          type: string
+        message:
+          type: string
+      required:
+        - status
+        - message
+    PlainSuccessResponsePayload:
+      type: object
+      properties:
+        status:
+          type: integer
+          description: Response HTTP status
+        message:
+          type: string
+          description: Response message
+      required:
+        - status
+        - message
+  securitySchemes:
+    http-jwt:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT Token Authentication
+  requestBodies:
+    UserLoginRequest:
+      required: false
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              emailAddress:
+                type: string
+                description: User email
+              password:
+                type: string
+                description: User password
+            required:
+              - emailAddress
+              - password
+            description: User login payload
+          examples:
+            example1:
+              value:
+                emailAddress: foo@bar
+                password: abc123
+    UserRegisterRequest:
+      required: false
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              username:
+                type: string
+                description: Username
+              emailAddress:
+                type: string
+                format: email
+                description: User email address
+              password:
+                type: string
+                description: User password
+              firstName:
+                type: string
+                description: User first name
+              lastName:
+                type: string
+                description: User last name
+              userType:
+                type: string
+                enum:
+                  - seller
+                  - buyer
+                description: User type, one of [seller, buyer]
+              role:
+                type: string
+                enum:
+                  - admin
+                  - user
+                description: User role, one of [admin, user]
+            required:
+              - username
+              - emailAddress
+              - password
+              - firstName
+              - lastName
+              - userType
+              - role
+            description: User register payload
+    AddFundRequest:
+      required: false
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              amount:
+                type: number
+                description: Amount of funds to add
+            required:
+              - amount
+    ItemBidRequest:
+      required: false
+      description: Bid an item
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              itemId:
+                type: string
+                description: Item ID to bid, in UUID
+                format: uuid
+              bidAmount:
+                type: number
+                description: Bid amount
+            required:
+              - itemId
+              - bidAmount
+            description: Bid info
+    ItemFreezeRequest:
+      required: false
+      description: ''
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              action:
+                type: string
+                description: Freeze or unfreeze
+                enum:
+                  - freeze
+                  - unfreeze
+            required:
+              - action
+  responses:
+    ErrorResponse:
+      description: Error with code and message
+      headers: {}
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponsePayload'
+    PlainSuccessResponse:
+      description: Success Response without payload
+      headers: {}
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/PlainSuccessResponsePayload'
+  parameters:
+    SellerID:
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+      name: sellerId
+    ItemID:
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+        format: uuid
+      name: itemId
+    BuyerID:
+      in: path
+      required: true
+      description: ''
+      schema:
+        type: string
+      name: buyerId
+security:
+  - http-jwt: []
