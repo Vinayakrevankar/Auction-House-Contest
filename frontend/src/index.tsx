@@ -8,6 +8,7 @@ import { client } from './api';
 
 client.setConfig({
   baseUrl: "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com",
+  // baseUrl: process.env.REACT_APP_API_BASE_URL,
 });
 
 const root = ReactDOM.createRoot(

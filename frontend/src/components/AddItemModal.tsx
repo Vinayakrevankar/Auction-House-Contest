@@ -44,7 +44,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       return result;
     }));
     const images = await Promise.all(imageData.filter(v => v !== undefined).map(async data => {
-      const resp = await uploadImage({ body: { image: new Blob([data]) } });
+      const resp = await uploadImage({ body: { image: new Blob([data], { type: "application/octet-stream" }) } });
       if (resp.data === undefined) {
         console.error(resp.error);
       } else {
