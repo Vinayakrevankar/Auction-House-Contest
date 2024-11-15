@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Item, sellerAddItem, sellerDeleteItem, sellerItemPublish, sellerItemUnpublish, sellerReviewItem, sellerUpdateItem } from './api';
 import { useAuth } from './AuthContext';
 import { ItemSimple, itemToSimple } from './models/ItemSimple';
+import { notifySuccess, notifyError } from './components/Notification';
 
 //R
 import AddItemModal from './components/AddItemModal';
@@ -25,16 +26,14 @@ const SellerDashboard = () => {
 
   useEffect(() => {
     if (!userInfo) {
-      // If userInfo is missing, redirect to the login page
       navigate('/', { state: { openLoginModal: true } });
     } else {
-      setLoading(false); // UserInfo is loaded, disable loading
+      setLoading(false);
     }
   }, [userInfo, navigate]);
 
   useEffect(() => {
     if (userInfo && init) {
-      // Fetch items only if userInfo is available
       sellerReviewItem({
         headers: {
           "Authorization": userInfo.token,
@@ -42,6 +41,7 @@ const SellerDashboard = () => {
         path: { sellerId: userInfo.userId },
       }).then(resp => {
         if (resp.data === undefined) {
+          notifyError('Failed to fetch items');
           console.error(resp.error);
         } else {
           setItems(resp.data.payload);
@@ -68,11 +68,13 @@ const SellerDashboard = () => {
       }
     });
     if (addResp.error) {
-      // TODO: Error notificcation.
       console.error(addResp.error);
+      notifyError('Failed to add item');
       return;
+    }else{
+      notifySuccess('Item added successfully');
     }
-    setInit(true)
+    setInit(true);
   };
 
   const openEditModal = (item: Item) => {
@@ -103,10 +105,11 @@ const SellerDashboard = () => {
     });
     if (updateResp.error) {
       console.error(updateResp.error);
+      notifyError('Failed to update item');
       return;
     }
-    setInit(true)
-
+    notifySuccess('Item updated successfully');
+    setInit(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -117,8 +120,10 @@ const SellerDashboard = () => {
     });
     if (resp.error) {
       console.error(resp.error);
+      notifyError('Failed to delete item');
       return;
     }
+    notifySuccess('Item deleted successfully');
     setItems(items.filter(item => item.id !== id));
   };
 
@@ -130,8 +135,10 @@ const SellerDashboard = () => {
     });
     if (resp.error) {
       console.error(resp.error);
+      notifyError('Failed to publish item');
       return;
     }
+    notifySuccess('Item published successfully');
     setItems(items.map(item => (item.id === id ? { ...item, itemState: 'active' } : item)));
   };
 
@@ -143,19 +150,21 @@ const SellerDashboard = () => {
     });
     if (resp.error) {
       console.error(resp.error);
+      notifyError('Failed to unpublish item');
       return;
     }
+    notifySuccess('Item unpublished successfully');
     setItems(items.map(item => (item.id === id ? { ...item, itemState: 'inactive' } : item)));
   };
 
-  if (loading) return <div>Loading...</div>; // Display loading state if userInfo is not ready
+  if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="p-8 bg-gray-100 min-h-screen">
-      <h1 className="text-2xl font-bold mb-6 text-gray-800">Welcome to the Seller Dashboard</h1>
+    <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white animate-fadeIn">
+      <h1 className="text-2xl font-bold mb-6">Welcome to the Seller Dashboard</h1>
       <button
         onClick={openAddModal}
-        className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
+        className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600 transform hover:scale-105 transition-transform duration-200 shadow-lg hover:shadow-xl"
       >
         Add New Item
       </button>
@@ -166,22 +175,26 @@ const SellerDashboard = () => {
       )}
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-200 border-b-2 border-gray-300">
+          <thead className="bg-gray-200 border-b-2 border-gray-300 text-gray-800">
             <tr>
-              <th className="p-4 text-left text-gray-600 font-semibold">ID</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Name</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Description</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Initial Price</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Length of Auction</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Images</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Status</th>
-              <th className="p-4 text-left text-gray-600 font-semibold">Actions</th>
+              <th className="p-4 text-left font-semibold">ID</th>
+              <th className="p-4 text-left font-semibold">Name</th>
+              <th className="p-4 text-left font-semibold">Description</th>
+              <th className="p-4 text-left font-semibold">Initial Price</th>
+              <th className="p-4 text-left font-semibold">Length of Auction</th>
+              <th className="p-4 text-left font-semibold">Images</th>
+              <th className="p-4 text-left font-semibold">Status</th>
+              <th className="p-4 text-left font-semibold">Actions</th>
             </tr>
           </thead>
           <tbody>
             {items && items.length > 0 ? (
-              items.map(item => (
-                <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
+              items.map((item, index) => (
+                <tr
+                  key={item.id}
+                  className="border-b border-gray-200 hover:bg-gray-100 text-gray-800 animate-slideIn"
+                  style={{ animationDelay: `${index * 100}ms` }}
+                >
                   <td className="p-4">{item.id}</td>
                   <td className="p-4">{item.name}</td>
                   <td className="p-4">{item.description}</td>
@@ -189,11 +202,21 @@ const SellerDashboard = () => {
                   <td className="p-4">{item.lengthOfAuction}</td>
                   <td className="p-4">
                     {item.images.map((image, idx) => (
-                      <img key={idx} src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/` + image} alt="item" className="w-8 h-8 object-cover inline-block" />
-                    ))}</td>
+                      <img
+                        key={idx}
+                        src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/` + image}
+                        alt="item"
+                        className="w-8 h-8 object-cover inline-block"
+                      />
+                    ))}
+                  </td>
                   <td className="p-4">
-                    <span className={`px-2 py-1 rounded-full text-sm ${item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
-                      {item.itemState}
+                    <span
+                      className={`px-2 py-1 rounded-full text-sm ${
+                        item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                      }`}
+                    >
+                      <b>{item.itemState.toUpperCase()}</b>
                     </span>
                   </td>
                   <td className="p-4 space-x-2">
