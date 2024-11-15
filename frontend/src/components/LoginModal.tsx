@@ -19,8 +19,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
       const response = await userLogin({
         body: { emailAddress: email, password },
       });
-
-      if (response.data?.payload?.token) {
+      if (response.data?.status === 200) {
         const info = response.data.payload;
 
         // Store user info in context and session storage

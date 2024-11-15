@@ -179,7 +179,7 @@ const SellerDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {items.length > 0 ? (
+            {items && items.length > 0 ? (
               items.map(item => (
                 <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-4">{item.id}</td>
@@ -228,7 +228,7 @@ const SellerDashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="p-4 text-center text-gray-500">
+                <td colSpan={8} className="p-4 text-center text-gray-500">
                   No items found
                 </td>
               </tr>
