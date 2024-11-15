@@ -17,6 +17,7 @@ import path from 'path';
 const s3Client = new S3Client({ region: 'us-east-1' });
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import { ErrorResponsePayload, PlainSuccessResponsePayload } from "./api";
 
 // Initialize multer for file uploads
 const upload = multer({
@@ -130,7 +131,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     // });
     // const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL valid for 1 hour
 
-    res.status(200).json({
+    res.status(200).json(<PlainSuccessResponsePayload>{
       status: 200,
       message: 'File uploaded successfully',
       payload: {
@@ -140,7 +141,11 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     });
   } catch (error) {
     console.error('Error uploading file:', error);
-    res.status(500).json({ message: 'Error uploading file to S3', error: error.message });
+    res.status(500).json(<ErrorResponsePayload>{
+      status: 500,
+      message: `Error in uploading image: ${error.message}`,
+    });
+    
   }
 });
 app.all('*', (req, res) => {
