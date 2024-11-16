@@ -92,7 +92,8 @@ const SellerDashboard = () => {
   const closeAddModal = () => setShowAddModal(false);
 
   const openEditModal = (item: Item) => {
-    setItemToEdit(itemToSimple(item)); // Convert `Item` to `ItemSimple`
+    const latestItem = items.find((i) => i.id === item.id) || item; // Use the updated item
+    setItemToEdit(itemToSimple(latestItem));
     setShowEditModal(true);
   };
 
@@ -246,6 +247,7 @@ const SellerDashboard = () => {
           onPublish={handlePublish}
           onUnpublish={handleUnpublish}
           onDelete={handleDelete}
+          refreshItems={fetchItems}
         />
       )}
       <div

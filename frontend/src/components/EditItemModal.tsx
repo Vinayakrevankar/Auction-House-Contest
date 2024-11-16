@@ -7,10 +7,11 @@ interface EditItemModalProps {
   show: boolean;
   onClose: () => void;
   onUpdateItem: (item: ItemSimple) => void;
-  itemToEdit: ItemSimple;
-  onPublish: (id: string) => void;
-  onUnpublish: (id: string) => void;
+  itemToEdit: ItemSimple | null; // Allow null for no item selected
+  onPublish: (id: string) => Promise<void>;
+  onUnpublish: (id: string) => Promise<void>;
   onDelete: (id: string) => void;
+  refreshItems: () => void;
 }
 
 const EditItemModal: React.FC<EditItemModalProps> = ({
@@ -21,12 +22,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onPublish,
   onUnpublish,
   onDelete,
+  refreshItems,
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
   const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState("");
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
+  const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
 
   useEffect(() => {
     if (itemToEdit) {
@@ -35,11 +38,30 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       setEditItemInitPrice(itemToEdit.initPrice.toString());
       setEditItemLengthOfAuction(itemToEdit.lengthOfAuction.toString());
       setEditItemImages(null);
+      setCurrentItemState(itemToEdit.itemState); // Update current item state
     }
   }, [itemToEdit]);
 
+  const handlePublishClick = async () => {
+    if (itemToEdit) {
+      await onPublish(itemToEdit.id);
+      await refreshItems();
+      setCurrentItemState("active"); // Update button state immediately
+    }
+  };
+
+  const handleUnpublishClick = async () => {
+    if (itemToEdit) {
+      await onUnpublish(itemToEdit.id);
+      await refreshItems();
+      setCurrentItemState("inactive"); // Update button state immediately
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!itemToEdit) return;
 
     // Validation
     if (
@@ -48,13 +70,11 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       !editItemInitPrice.trim() ||
       !editItemLengthOfAuction.trim()
     ) {
-      // Add validation messages here if required
       return;
     }
 
     let images = itemToEdit.images || [];
 
-    // Upload new images if any
     if (editItemImages && editItemImages.length > 0) {
       const imageData = await Promise.all(
         Array.from(editItemImages).map(async (file) => {
@@ -78,7 +98,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
           .filter((data): data is ArrayBuffer => !!data)
           .map(async (data) => {
             try {
-              const resp = await uploadImage({ body: { image: new Blob([data]) } });
+              const resp = await uploadImage({
+                body: { image: new Blob([data]) },
+              });
               return resp.data?.payload.key;
             } catch (error) {
               console.error("Image upload failed:", error);
@@ -90,13 +112,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       images = uploadedImages.filter((key): key is string => !!key);
     }
 
-    // Update item
     const updatedItem: ItemSimple = {
       ...itemToEdit,
       name: editItemName,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
-      lengthOfAuction: parseInt(editItemLengthOfAuction),
+      lengthOfAuction: parseInt(editItemLengthOfAuction, 10),
       images,
     };
 
@@ -111,126 +132,158 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     onClose();
   };
 
-  const handlePublish = () => itemToEdit && onPublish(itemToEdit.id);
-  const handleUnpublish = () => itemToEdit && onUnpublish(itemToEdit.id);
-  const handleDelete = () => itemToEdit && onDelete(itemToEdit.id);
+  if (!itemToEdit) return null;
 
   return (
-    <Modal show={show} size="lg" popup onClose={onClose}>
-      <Modal.Header>Edit Item</Modal.Header>
+    <Modal show={show} size="7xl" popup onClose={onClose}>
+      <Modal.Header>
+        <div className="text-2xl ml-2 font-bold text-center text-gray-800">
+          Edit Item
+        </div>
+      </Modal.Header>
       <Modal.Body>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Item Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Item Name
-            </label>
-            <input
-              type="text"
-              value={editItemName}
-              onChange={(e) => setEditItemName(e.target.value)}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              required
-            />
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Item Name
+              </label>
+              <input
+                type="text"
+                disabled={currentItemState === "active"}
+                value={editItemName}
+                onChange={(e) => setEditItemName(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Initial Price ($)
+              </label>
+              <input
+                type="number"
+                value={editItemInitPrice}
+                disabled={currentItemState === "active"}
+                onChange={(e) => setEditItemInitPrice(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
+                required
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700">
+                Description
+              </label>
+              <textarea
+                value={editItemDescription}
+                disabled={currentItemState === "active"}
+                onChange={(e) => setEditItemDescription(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
+                rows={3}
+                required
+              ></textarea>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Auction Length (days)
+              </label>
+              <input
+                type="number"
+                disabled={currentItemState === "active"}
+                value={editItemLengthOfAuction}
+                onChange={(e) => setEditItemLengthOfAuction(e.target.value)}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
+                required
+              />
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold">Images</h3>
+              <div className="flex flex-wrap gap-4 mt-4">
+                {itemToEdit.images?.map((image, index) => (
+                  <div
+                    key={index}
+                    className="w-32 h-32 overflow-hidden border border-gray-200 rounded-md"
+                  >
+                    <img
+                      src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${image}`}
+                      alt={`Item Image ${index + 1}`}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Upload Image
+              </label>
+              <input
+                type="file"
+                disabled={currentItemState === "active"}
+                onChange={(e) => {
+                  if (e.target.files && e.target.files.length > 0) {
+                    setEditItemImages(e.target.files); // Store the single selected file
+                  }
+                }}
+                className="mt-1 block w-full"
+                accept="image/*" // Optional: Restrict to image files only
+              />
+            </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Description
-            </label>
-            <textarea
-              value={editItemDescription}
-              onChange={(e) => setEditItemDescription(e.target.value)}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              required
-            />
-          </div>
-
-          {/* Initial Price */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Initial Price
-            </label>
-            <input
-              type="number"
-              min="1"
-              step="0.01"
-              value={editItemInitPrice}
-              onChange={(e) => setEditItemInitPrice(e.target.value)}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              required
-            />
-          </div>
-
-          {/* Length of Auction */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Length of Auction (days)
-            </label>
-            <input
-              type="number"
-              min="1"
-              value={editItemLengthOfAuction}
-              onChange={(e) => setEditItemLengthOfAuction(e.target.value)}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-              required
-            />
-          </div>
-
-          {/* Images */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Images (Upload to replace existing)
-            </label>
-            <input
-              type="file"
-              multiple
-              onChange={(e) => setEditItemImages(e.target.files)}
-              className="mt-1 block w-full"
-            />
-          </div>
-
-          {/* Actions */}
-          <div className="flex justify-between items-center mt-4">
-            <div className="space-x-2">
-              <button
-                type="button"
-                onClick={handlePublish}
-                disabled={itemToEdit.itemState === "active"}
-                className={`px-4 py-2 text-sm font-semibold rounded ${
-                  itemToEdit.itemState === "active"
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-blue-500 text-white hover:bg-blue-600"
-                }`}
+            <div className="grid grid-cols-3 items-center gap-4">
+              <Button
+                onClick={handlePublishClick}
+                disabled={currentItemState === "active"}
+                color={currentItemState === "active" ? "gray" : "success"}
+                size="sm" // Smaller size
+                className={`${
+                  currentItemState === "active"
+                    ? "bg-gray-400"
+                    : "bg-green-500 hover:bg-green-600"
+                } text-xs px-3 py-1 m-2`}
               >
                 Publish
-              </button>
-              <button
-                type="button"
-                onClick={handleUnpublish}
-                disabled={itemToEdit.itemState === "inactive"}
-                className={`px-4 py-2 text-sm font-semibold rounded ${
-                  itemToEdit.itemState === "inactive"
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-red-500 text-white hover:bg-red-600"
-                }`}
+              </Button>
+              <Button
+                onClick={handleUnpublishClick}
+                disabled={currentItemState === "inactive"}
+                color={currentItemState === "inactive" ? "gray" : "warning"}
+                size="sm" // Smaller size
+                className={`${
+                  currentItemState === "inactive"
+                    ? "bg-gray-400"
+                    : "bg-yellow-500 hover:bg-yellow-600"
+                } text-xs px-3 py-1 m-2`}
               >
                 Unpublish
-              </button>
+              </Button>
+              <Button
+                onClick={() => onDelete(itemToEdit.id)}
+                color="failure"
+                size="sm" // Smaller size
+                className="bg-red-500 hover:bg-red-600 text-xs px-3 py-1 m-2"
+              >
+                Delete
+              </Button>
             </div>
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="px-4 py-2 text-sm font-semibold rounded bg-gray-500 text-white hover:bg-gray-600"
-            >
-              Delete
-            </button>
           </div>
-
-          {/* Update/Cancel Buttons */}
-          <div className="flex justify-end space-x-2 mt-6">
-            <Button type="submit">Update Item</Button>
+          <div className="flex justify-end space-x-4">
+            <div className="relative group">
+              <Button
+                type="submit"
+                disabled={currentItemState === "active"} // Disable submit button if item is active
+                className={`${
+                  currentItemState === "active" ? "cursor-not-allowed" : ""
+                }`}
+              >
+                Save Changes
+              </Button>
+              {currentItemState === "active" && (
+                <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
+                  Cannot save changes while the item is active
+                </div>
+              )}
+            </div>
             <Button color="gray" onClick={onClose}>
               Cancel
             </Button>
