@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { deleteApiSellersBySellerIdItemsByItemId,  getApiSellersBySellerIdItems, Item, postApiSellersBySellerIdItems, postApiSellersBySellerIdItemsByItemIdPublish, postApiSellersBySellerIdItemsByItemIdUnpublish, putApiSellersBySellerIdItemsByItemId } from './api';
+import { Item, sellerAddItem, sellerDeleteItem, sellerItemPublish, sellerItemUnpublish, sellerReviewItem, sellerUpdateItem } from './api';
 import { useAuth } from './AuthContext';
 import { ItemSimple, itemToSimple } from './models/ItemSimple';
 
@@ -35,16 +35,16 @@ const SellerDashboard = () => {
   useEffect(() => {
     if (userInfo && init) {
       // Fetch items only if userInfo is available
-      getApiSellersBySellerIdItems({
+      sellerReviewItem({
         headers: {
           "Authorization": userInfo.token,
         },
         path: { sellerId: userInfo.userId },
       }).then(resp => {
-        if (resp.error) {
+        if (resp.data === undefined) {
           console.error(resp.error);
         } else {
-          setItems(resp.data!);
+          setItems(resp.data.payload);
         }
       });
       setInit(false);
@@ -56,7 +56,7 @@ const SellerDashboard = () => {
 
   const handleAddItem = async (newItem: ItemSimple) => {
     if (!userInfo) return;
-    const addResp = await postApiSellersBySellerIdItems({
+    const addResp = await sellerAddItem({
       headers: { "Authorization": userInfo.token },
       path: { sellerId: userInfo.userId },
       body: {
@@ -87,7 +87,7 @@ const SellerDashboard = () => {
 
   const handleUpdateItem = async (updatedItem: ItemSimple) => {
     if (!userInfo) return;
-    const updateResp = await putApiSellersBySellerIdItemsByItemId({
+    const updateResp = await sellerUpdateItem({
       headers: { "Authorization": userInfo.token },
       path: {
         sellerId: userInfo.userId,
@@ -111,7 +111,7 @@ const SellerDashboard = () => {
 
   const handleDelete = async (id: string) => {
     if (!userInfo) return;
-    const resp = await deleteApiSellersBySellerIdItemsByItemId({
+    const resp = await sellerDeleteItem({
       headers: { "Authorization": userInfo.token },
       path: { sellerId: userInfo.userId, itemId: id },
     });
@@ -124,7 +124,7 @@ const SellerDashboard = () => {
 
   const handlePublish = async (id: string) => {
     if (!userInfo) return;
-    const resp = await postApiSellersBySellerIdItemsByItemIdPublish({
+    const resp = await sellerItemPublish({
       headers: { "Authorization": userInfo.token },
       path: { sellerId: userInfo.userId, itemId: id },
     });
@@ -137,7 +137,7 @@ const SellerDashboard = () => {
 
   const handleUnpublish = async (id: string) => {
     if (!userInfo) return;
-    const resp = await postApiSellersBySellerIdItemsByItemIdUnpublish({
+    const resp = await sellerItemUnpublish({
       headers: { "Authorization": userInfo.token },
       path: { sellerId: userInfo.userId, itemId: id },
     });
@@ -167,7 +167,7 @@ const SellerDashboard = () => {
       <div className="overflow-x-auto">
         <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
           <thead className="bg-gray-200 border-b-2 border-gray-300">
-          <tr>
+            <tr>
               <th className="p-4 text-left text-gray-600 font-semibold">ID</th>
               <th className="p-4 text-left text-gray-600 font-semibold">Name</th>
               <th className="p-4 text-left text-gray-600 font-semibold">Description</th>
@@ -179,7 +179,7 @@ const SellerDashboard = () => {
             </tr>
           </thead>
           <tbody>
-            {items.length > 0 ? (
+            {items && items.length > 0 ? (
               items.map(item => (
                 <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50">
                   <td className="p-4">{item.id}</td>
@@ -189,7 +189,7 @@ const SellerDashboard = () => {
                   <td className="p-4">{item.lengthOfAuction}</td>
                   <td className="p-4">
                     {item.images.map((image, idx) => (
-                      <img key={idx} src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/`+image} alt="item" className="w-8 h-8 object-cover inline-block" />
+                      <img key={idx} src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/` + image} alt="item" className="w-8 h-8 object-cover inline-block" />
                     ))}</td>
                   <td className="p-4">
                     <span className={`px-2 py-1 rounded-full text-sm ${item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'}`}>
@@ -228,7 +228,7 @@ const SellerDashboard = () => {
               ))
             ) : (
               <tr>
-                <td colSpan={4} className="p-4 text-center text-gray-500">
+                <td colSpan={8} className="p-4 text-center text-gray-500">
                   No items found
                 </td>
               </tr>

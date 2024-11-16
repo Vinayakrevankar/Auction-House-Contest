@@ -1,12 +1,12 @@
 import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
-import { Admin, Bid, FulfillItemResponse, Item, Purchase } from "../api";
+import { Bid, Item, Purchase, PlainSuccessResponsePayload, ErrorResponsePayload, ItemFulfillResponsePayload } from "../api";
 import { ADMIN_ID } from "../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
-export function archiveItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
-  let cmd = new UpdateCommand({
+export function archiveItem(sellerId: string, itemId: string, res: Response) {
+  const cmd = new UpdateCommand({
     TableName: "dev-items3",
     Key: {
       "id": itemId,
@@ -21,19 +21,21 @@ export function archiveItem(sellerId: string, itemId: string, res: Response<any,
   });
   dclient.send(cmd, (err, _) => {
     if (err) {
-      res.status(500).send({ error: err });
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: `${err}`,
+      });
     } else {
-      res.send({
-        message: "Success",
-        itemId: itemId,
-        itemState: "archived",
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
+        message: "Item archive success.",
       });
     }
   });
 }
 
-export async function fulfillItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
-  let queryItemCmd = new QueryCommand({
+export async function fulfillItem(sellerId: string, itemId: string, res: Response) {
+  const queryItemCmd = new QueryCommand({
     TableName: "dev-items3",
     KeyConditionExpression: "id = :id",
     FilterExpression: "sellerId = :sid",
@@ -42,42 +44,52 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
       ":sid": sellerId,
     },
   });
-  let queryItemResp = await dclient.send(queryItemCmd).catch(err => {
-    res.status(500).send({
-      error: err,
+  const queryItemResp = await dclient.send(queryItemCmd).catch(err => {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: `${err}`,
     });
   });
   if (!queryItemResp) {
     return;
   } else if (queryItemResp.Items?.at(0) === undefined) {
-    res.status(404).send({ error: "Item not found." });
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found."
+    });
     return;
   }
 
-  let item = queryItemResp.Items[0] as Item;
+  const item = queryItemResp.Items[0] as Item;
   if (item.itemState !== "completed" || item.currentBidId === undefined) {
-    res.status(400).send({ error: "This item cannot be fulfilled yet." });
+    res.status(400).send(<ErrorResponsePayload>{
+      status: 400,
+      message: "This item cannot be fulfilled yet."
+    });
     return;
   }
 
-  let getBidCmd = new GetCommand({
+  const getBidCmd = new GetCommand({
     TableName: "dev-bids3",
     Key: {
       "id": item.currentBidId,
     },
   });
-  let getBidResp = await dclient.send(getBidCmd).catch(err => {
+  const getBidResp = await dclient.send(getBidCmd).catch(err => {
     res.status(500).send({ error: err });
   });
   if (!getBidResp) {
     return;
   } else if (getBidResp.Item === undefined) {
-    res.status(404).send({ error: "Bid not found." });
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Bid not found."
+    });
     return;
   }
-  let bid = getBidResp.Item as Bid;
+  const bid = getBidResp.Item as Bid;
 
-  let batchUpdateTransactionCmd = new TransactWriteCommand({
+  const batchUpdateTransactionCmd = new TransactWriteCommand({
     TransactItems: [
       {
         Update: {
@@ -92,9 +104,9 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
             ":new_purchase": <Purchase[]>[{
               itemId: item.id,
               itemName: item.name,
-              purchasePrice: bid.bidAmount,
+              price: bid.bidAmount,
               soldTime: bid.bidTime,
-              fulfillmentDate: new Date().toISOString(),
+              fulfillTime: new Date().toISOString(),
             }],
           },
         }
@@ -126,22 +138,25 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
       },
     ],
   });
-  let batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
+  const batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
     res.status(500).send({ error: err });
   });
   if (!batchUpdateTransactionResp) {
     return;
   }
-  res.send(<FulfillItemResponse>{
-    message: "Finished fulfill item.",
-    itemId: itemId,
-    soldBid: bid,
-    soldTime: bid.bidTime,
+  res.status(200).send({
+    status: 200,
+    message: "Item fulfill success.",
+    payload: <ItemFulfillResponsePayload>{
+      itemId: item.id,
+      soldBid: bid,
+      soldTime: bid.bidTime,
+    },
   });
 }
 
-export async function requestUnfreezeItem(sellerId: string, itemId: string, res: Response<any, Record<string, any>>) {
-  let queryItemCmd = new QueryCommand({
+export async function requestUnfreezeItem(sellerId: string, itemId: string, res: Response) {
+  const queryItemCmd = new QueryCommand({
     TableName: "dev-items3",
     KeyConditionExpression: "id = :id",
     FilterExpression: "sellerId = :sid",
@@ -150,7 +165,7 @@ export async function requestUnfreezeItem(sellerId: string, itemId: string, res:
       ":sid": sellerId,
     },
   });
-  let queryItemResp = await dclient.send(queryItemCmd).catch(err => {
+  const queryItemResp = await dclient.send(queryItemCmd).catch(err => {
     res.status(500).send({ error: err });
   });
   if (!queryItemResp) {
@@ -160,13 +175,13 @@ export async function requestUnfreezeItem(sellerId: string, itemId: string, res:
     return;
   }
 
-  let item = queryItemResp.Items[0] as Item;
+  const item = queryItemResp.Items[0] as Item;
   if (!item.isFrozen) {
     res.status(400).send({ error: "Item is not frozen." });
     return;
   }
 
-  let updateAdminCmd = new UpdateCommand({
+  const updateAdminCmd = new UpdateCommand({
     TableName: "dev-users3",
     Key: {
       "id": ADMIN_ID,
@@ -181,9 +196,9 @@ export async function requestUnfreezeItem(sellerId: string, itemId: string, res:
     if (err) {
       res.status(500).send({ error: err });
     } else {
-      res.send({
+      res.status(200).send(<PlainSuccessResponsePayload>{
+        status: 200,
         message: "Success",
-        itemId: itemId,
       });
     }
   });

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Modal, Button } from 'flowbite-react';
 import { ItemSimple } from '../models/ItemSimple';
-import { postApiUploadImage } from '../api';
+import { uploadImage } from '../api';
 
 interface EditItemModalProps {
   show: boolean;
@@ -66,12 +66,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         imageData
           .filter((data): data is ArrayBuffer => data !== undefined)
           .map(async (data) => {
-            const resp = await postApiUploadImage({ body: { image: new Blob([data]) } });
-            if (resp.error) {
+            const resp = await uploadImage({ body: { image: new Blob([data]) } });
+            if (resp.data === undefined) {
               console.error(resp.error);
               return undefined;
             } else {
-              return resp.data?.key!;
+              return resp.data.payload.key;
             }
           })
       );

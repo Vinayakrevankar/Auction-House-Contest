@@ -1,13 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
-
-export type UserInfo = {
-  username: string;
-  emailAddress: string;
-  userType: "seller" | "buyer";
-  userId: string;
-  role: "admin" | "user";
-  token: string;
-};
+import { UserInfo } from "./api";
 
 interface AuthContextProps {
   userInfo: UserInfo | null;

@@ -5,10 +5,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import { client } from './api';
-// import { AuthProvider } from './AuthContext';
 
 client.setConfig({
   baseUrl: "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com",
+  // baseUrl: process.env.REACT_APP_API_BASE_URL,
 });
 
 const root = ReactDOM.createRoot(

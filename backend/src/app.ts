@@ -17,6 +17,7 @@ import path from 'path';
 const s3Client = new S3Client({ region: 'us-east-1' });
 import multer from 'multer';
 import { v4 as uuidv4 } from 'uuid';
+import { ErrorResponsePayload, PlainSuccessResponsePayload } from "./api";
 
 // Initialize multer for file uploads
 const upload = multer({
@@ -24,6 +25,7 @@ const upload = multer({
   limits: { fileSize: 10 * 1024 * 1024 }, // Limit file size to 10MB
 });
 const bucketName = 'serverless-auction-house-dev-images';
+// const bucketName = process.env.BUCKET_NAME;
 const app = express();
 app.use(json());
 app.use(helmet());
@@ -129,14 +131,21 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
     // });
     // const signedUrl = await getSignedUrl(s3Client, command, { expiresIn: 3600 }); // URL valid for 1 hour
 
-    res.status(200).json({
+    res.status(200).json(<PlainSuccessResponsePayload>{
+      status: 200,
       message: 'File uploaded successfully',
-      key: uniqueKey,
+      payload: {
+        key: uniqueKey,
+      },
       // url: signedUrl,
     });
   } catch (error) {
     console.error('Error uploading file:', error);
-    res.status(500).json({ message: 'Error uploading file to S3', error: error.message });
+    res.status(500).json(<ErrorResponsePayload>{
+      status: 500,
+      message: `Error in uploading image: ${error.message}`,
+    });
+
   }
 });
 app.all('*', (req, res) => {

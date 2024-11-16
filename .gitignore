@@ -137,3 +137,8 @@ dist
 .pnp.*
 
 .DS_Store
+.esbuild/
+
+.env
+.env.*
+serverless.local.yml
