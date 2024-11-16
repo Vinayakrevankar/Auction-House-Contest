@@ -23,6 +23,11 @@ import LogoutButton from "./components/LogoutButton";
 const CustomButtonComponent = (props: any) => {
   return <span>Edit</span>;
 };
+const stateTextColors = {
+  active: "text-green-500",
+  inactive: "text-yellow-500",
+  archived: "text-gray-500",
+};
 
 const SellerDashboard = () => {
   const { userInfo, setUserInfo } = useAuth();
@@ -32,6 +37,15 @@ const SellerDashboard = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ItemSimple | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
+      const colorClass = stateTextColors[value] || "bg-red-500 text-white"; // Default style for undefined states
+      return (
+        <div className={`px-2 py-1 font-bold rounded ${colorClass}`}>
+          {value.toUpperCase()}
+        </div>
+      );
+    };
 
   const columnDefs: any[] = [
     { field: "id", headerName: "ID", sortable: true, filter: true },
@@ -58,6 +72,7 @@ const SellerDashboard = () => {
       field: "itemState",
       headerName: "Status",
       valueFormatter: (p: { value: string }) => p.value.toUpperCase(),
+      cellRenderer: CustomColor,
       sortable: true,
       filter: true,
     },
@@ -74,7 +89,7 @@ const SellerDashboard = () => {
       if (resp.data) {
         setItems(resp.data.payload);
       } else if (resp.error.status === 401) {
-        notifyError("Token expired");
+        notifyError("Unauthorized Access");
         setUserInfo(null);
       } else {
         notifyError("Failed to fetch items");
@@ -114,7 +129,7 @@ const SellerDashboard = () => {
   const handleAddItem = async (newItem: ItemSimple) => {
     if (!userInfo) return;
     try {
-      const addResp = await sellerAddItem({
+      const resp = await sellerAddItem({
         headers: { Authorization: userInfo?.token },
         path: { sellerId: userInfo?.userId },
         body: {
@@ -125,7 +140,11 @@ const SellerDashboard = () => {
           images: newItem.images,
         },
       });
-      if (addResp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      } else
+      if (resp.error) {
         notifyError("Failed to add item");
       } else {
         notifySuccess("Item added successfully");
@@ -142,7 +161,7 @@ const SellerDashboard = () => {
   const handleUpdateItem = async (updatedItem: ItemSimple) => {
     if (!userInfo) return;
     try {
-      const updateResp = await sellerUpdateItem({
+      const resp = await sellerUpdateItem({
         headers: { Authorization: userInfo.token },
         path: {
           sellerId: userInfo.userId,
@@ -156,7 +175,10 @@ const SellerDashboard = () => {
           images: updatedItem.images,
         },
       });
-      if (updateResp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      }else if (resp.error) {
         notifyError("Failed to update item");
       } else {
         notifySuccess("Item updated successfully");
@@ -177,7 +199,10 @@ const SellerDashboard = () => {
         headers: { Authorization: userInfo.token },
         path: { sellerId: userInfo.userId, itemId: id },
       });
-      if (resp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      }else if (resp.error) {
         notifyError("Failed to delete item");
       } else {
         notifySuccess("Item deleted successfully");
@@ -197,7 +222,10 @@ const SellerDashboard = () => {
         headers: { Authorization: userInfo.token },
         path: { sellerId: userInfo.userId, itemId: id },
       });
-      if (resp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      }else if (resp.error) {
         notifyError("Failed to publish item");
       } else {
         notifySuccess("Item published successfully");
@@ -216,7 +244,10 @@ const SellerDashboard = () => {
         headers: { Authorization: userInfo.token },
         path: { sellerId: userInfo.userId, itemId: id },
       });
-      if (resp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      }else if (resp.error) {
         notifyError("Failed to archived item");
       } else {
         notifySuccess("Item archived successfully");
@@ -235,7 +266,10 @@ const SellerDashboard = () => {
         headers: { Authorization: userInfo.token },
         path: { sellerId: userInfo.userId, itemId: id },
       });
-      if (resp.error) {
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      }else if (resp.error) {
         notifyError("Failed to unpublish item");
       } else {
         notifySuccess("Item unpublished successfully");
