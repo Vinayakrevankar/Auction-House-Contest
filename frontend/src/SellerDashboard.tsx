@@ -98,7 +98,7 @@ const SellerDashboard = () => {
       console.error("Error fetching items:", err);
       notifyError("Error fetching items");
     }
-  }, [userInfo]);
+  }, [userInfo, setUserInfo]);
 
   // Load data on mount
   useEffect(() => {
