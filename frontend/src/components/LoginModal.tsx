@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 import { userLogin } from "../api/services.gen";
 import { useNavigate } from "react-router-dom";
+import { notifySuccess, notifyError } from './Notification';
 interface LoginModalProps {
   onClose: () => void;
 }
@@ -34,17 +35,18 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
 
         setUserInfo(userInfo);
         onClose(); // Close the modal on successful login
+        notifySuccess("Login successfully!");
         if (info.userType === "buyer") {
           navigate("/buyer-dashboard");
         } else {
           navigate("/seller-dashboard");
         }
       } else {
-        alert("Login failed: Invalid credentials");
+        notifyError("Login failed: Invalid credentials");
       }
     } catch (error) {
       console.error("Login error:", error);
-      alert("Login failed: Unable to connect");
+      notifyError("Login failed: Unable to connect");
     }
   };
 
