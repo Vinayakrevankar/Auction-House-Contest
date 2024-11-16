@@ -59,8 +59,7 @@ const SellerDashboard = () => {
     },
   ];
 
-  // Fetch items
-  const fetchItems = async () => {
+  const fetchItems = useCallback(async () => {
     if (!userInfo) return;
     try {
       const resp = await sellerReviewItem({
@@ -76,7 +75,7 @@ const SellerDashboard = () => {
       console.error("Error fetching items:", err);
       notifyError("Error fetching items");
     }
-  };
+  }, [userInfo]);
 
   // Load data on mount
   useEffect(() => {
@@ -220,9 +219,6 @@ const SellerDashboard = () => {
       notifyError("Error archiving item");
     }
   };
-
-
-  
   // Unpublish item
   const handleUnpublish = async (id: string) => {
     if (!userInfo) return;
@@ -246,15 +242,25 @@ const SellerDashboard = () => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white">
+    <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>
+      <div className="flex items-center justify-between mb-4">
       <button
         onClick={openAddModal}
-        className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
+        className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
       >
         Add New Item
       </button>
-      <LogoutButton />
+      <div className="flex space-x-4 ml-auto">
+        <button
+          // onClick={openProfileEditModal} // Function to handle profile editing
+          className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
+        >
+          Edit Profile
+        </button>
+        <LogoutButton />
+      </div>
+    </div>
       <AddItemModal
         show={showAddModal}
         onClose={closeAddModal}
