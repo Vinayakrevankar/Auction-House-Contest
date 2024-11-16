@@ -20,6 +20,10 @@ import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
 import LogoutButton from "./components/LogoutButton";
 
+const CustomButtonComponent = (props: any) => {
+  return <span>Edit</span>;
+};
+
 const SellerDashboard = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +61,7 @@ const SellerDashboard = () => {
       sortable: true,
       filter: true,
     },
+    { headerName: "Action", cellRenderer: CustomButtonComponent, flex: 1 },
   ];
 
   const fetchItems = useCallback(async () => {
@@ -246,15 +251,9 @@ const SellerDashboard = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
-      <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>
       <div className="flex items-center justify-between mb-4">
-        <button
-          onClick={openAddModal}
-          className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
-        >
-          Add New Item
-        </button>
-        <div className="flex space-x-4 ml-auto">
+        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
+        <div className="flex space-x-4">
           <button
             // onClick={openProfileEditModal} // Function to handle profile editing
             className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
@@ -264,6 +263,19 @@ const SellerDashboard = () => {
           <LogoutButton />
         </div>
       </div>
+
+      <div className="m2-4 flex items-center justify-between">
+        <button
+          onClick={openAddModal}
+          className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
+        >
+          Add New Item
+        </button>
+        <span className="text-sm font-light text-white text-right">
+          <b>Note*: Click on any item in the table to edit it</b>
+        </span>
+      </div>
+
       <AddItemModal
         show={showAddModal}
         onClose={closeAddModal}
@@ -286,12 +298,6 @@ const SellerDashboard = () => {
         className="ag-theme-alpine"
         style={{ height: "80vh", width: "100%" }}
       >
-        <div className="flex justify-between items-center mb-2">
-          <div></div>
-          <span className="text-sm font-light text-white text-right">
-            <b>Note*: Click on any item in the table to edit it</b>
-          </span>
-        </div>
         <AgGridReact
           rowData={items}
           columnDefs={columnDefs}
@@ -300,6 +306,7 @@ const SellerDashboard = () => {
             flex: 1, // Automatically distribute column width equally
             minWidth: 100, // Optional: Set a minimum width for each column
             resizable: true, // Allow column resizing
+            floatingFilter: true, // Enable floating filters for quick filtering
           }}
           onRowClicked={(params) => params.data && openEditModal(params.data)}
         />

@@ -1,9 +1,22 @@
-import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { AuthProvider } from './AuthContext';
-import LandingPage from './LandingPage';
-import SellerDashboard from './SellerDashboard';
-import BuyerDashboard from './BuyerDashboard';
-import Notification from './components/Notification';
+import {
+  HashRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider, useAuth } from "./AuthContext";
+import LandingPage from "./LandingPage";
+import SellerDashboard from "./SellerDashboard";
+import BuyerDashboard from "./BuyerDashboard";
+import Notification from "./components/Notification";
+
+// ProtectedRoute Component
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const { userInfo } = useAuth();
+
+  // Redirect to LandingPage if user is not authenticated
+  return userInfo ? children : <Navigate to="/" replace />;
+};
 
 const App = () => {
   return (
@@ -11,9 +24,26 @@ const App = () => {
       <Notification />
       <Router>
         <Routes>
+        
           <Route path="/" element={<LandingPage />} />
-          <Route path="/seller-dashboard" element={<SellerDashboard />} />
-          <Route path="/buyer-dashboard" element={<BuyerDashboard />} />
+
+          {/* Protected Routes */}
+          <Route
+            path="/seller-dashboard"
+            element={
+              <ProtectedRoute>
+                <SellerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/buyer-dashboard"
+            element={
+              <ProtectedRoute>
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </Router>
     </AuthProvider>
