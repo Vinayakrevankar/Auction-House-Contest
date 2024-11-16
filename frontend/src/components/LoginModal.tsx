@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
-import { postApiLogin } from "../api/services.gen";
+import { userLogin } from "../api/services.gen";
 import { useNavigate } from "react-router-dom";
 interface LoginModalProps {
   onClose: () => void;
@@ -16,7 +16,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
     e.preventDefault();
 
     try {
-      const response = await postApiLogin({
+      const response = await userLogin({
         body: { emailAddress: email, password },
       });
       if (response.data?.status === 200) {

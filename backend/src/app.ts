@@ -145,7 +145,7 @@ app.post('/api/upload-image', upload.single('image'), async (req, res) => {
       status: 500,
       message: `Error in uploading image: ${error.message}`,
     });
-    
+
   }
 });
 app.all('*', (req, res) => {

@@ -10,10 +10,10 @@ export type ItemSimple = {
 };
 
 export function itemFromSimple(v: ItemSimple, userId: string): Item {
-  let sdate = new Date();
-  let edate = new Date(sdate.getTime());
+  const sdate = new Date();
+  const edate = new Date(sdate.getTime());
   edate.setDate(edate.getDate() + v.lengthOfAuction);
-  let item: Item = {
+  const item: Item = {
     id: v.id,
     name: v.name,
     description: v.description,
