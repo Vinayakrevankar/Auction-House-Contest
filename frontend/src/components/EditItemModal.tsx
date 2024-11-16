@@ -12,6 +12,7 @@ interface EditItemModalProps {
   onUnpublish: (id: string) => Promise<void>;
   onDelete: (id: string) => void;
   refreshItems: () => void;
+  onArchive: (id: string) => Promise<void>;
 }
 
 const EditItemModal: React.FC<EditItemModalProps> = ({
@@ -23,11 +24,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onUnpublish,
   onDelete,
   refreshItems,
+  onArchive,
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
   const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState("");
+
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
 
@@ -53,6 +56,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const handleUnpublishClick = async () => {
     if (itemToEdit) {
       await onUnpublish(itemToEdit.id);
+      await refreshItems();
+      setCurrentItemState("inactive"); // Update button state immediately
+    }
+  };
+
+  const handleArchiveClick = async () => {
+    if (itemToEdit) {
+      await onArchive(itemToEdit.id);
       await refreshItems();
       setCurrentItemState("inactive"); // Update button state immediately
     }
@@ -137,7 +148,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   return (
     <Modal show={show} size="7xl" popup onClose={onClose}>
       <Modal.Header>
-        <div className="text-2xl ml-2 font-bold text-center text-gray-800">
+        <div className="ml-2 font-bold text-center text-gray-800">
           Edit Item
         </div>
       </Modal.Header>
@@ -170,7 +181,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 required
               />
             </div>
-            <div className="sm:col-span-2">
+            <div className="sm:col-span-1">
               <label className="block text-sm font-medium text-gray-700">
                 Description
               </label>
@@ -179,9 +190,21 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 disabled={currentItemState === "active"}
                 onChange={(e) => setEditItemDescription(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
-                rows={3}
+                rows={4}
                 required
               ></textarea>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700">
+                Status
+              </label>
+              <input
+                type="text"
+                disabled={true}
+                value={currentItemState?.toUpperCase() ?? ""}
+                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
+                required
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">
@@ -206,7 +229,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   >
                     <img
                       src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${image}`}
-                      alt={`Item Image ${index + 1}`}
+                      alt={`Item ${index + 1}`}
                       className="object-cover w-full h-full"
                     />
                   </div>
@@ -233,35 +256,44 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
-                disabled={currentItemState === "active"}
-                color={currentItemState === "active" ? "gray" : "success"}
-                size="sm" // Smaller size
-                className={`${
+                disabled={currentItemState === "active" || currentItemState === "archived"}
+                size="sm"
+                className={`text-xs px-3 py-1 m-2 ${
                   currentItemState === "active"
-                    ? "bg-gray-400"
-                    : "bg-green-500 hover:bg-green-600"
-                } text-xs px-3 py-1 m-2`}
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-green-500 hover:bg-green-600 text-white"
+                }`}
               >
                 Publish
               </Button>
               <Button
+                onClick={handleArchiveClick}
+                disabled={currentItemState === "archived" || currentItemState === "archived"}
+                size="sm"
+                className={`text-xs px-3 py-1 m-2 ${
+                  currentItemState === "archived"
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-orange-500 hover:bg-orange-600 text-white"
+                }`}
+              >
+                Archive
+              </Button>
+              <Button
                 onClick={handleUnpublishClick}
-                disabled={currentItemState === "inactive"}
-                color={currentItemState === "inactive" ? "gray" : "warning"}
-                size="sm" // Smaller size
-                className={`${
+                disabled={currentItemState === "inactive" || currentItemState === "archived"}
+                size="sm"
+                className={`text-xs px-3 py-1 m-2 ${
                   currentItemState === "inactive"
-                    ? "bg-gray-400"
-                    : "bg-yellow-500 hover:bg-yellow-600"
-                } text-xs px-3 py-1 m-2`}
+                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                }`}
               >
                 Unpublish
               </Button>
               <Button
                 onClick={() => onDelete(itemToEdit.id)}
-                color="failure"
-                size="sm" // Smaller size
-                className="bg-red-500 hover:bg-red-600 text-xs px-3 py-1 m-2"
+                size="sm"
+                className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 m-2"
               >
                 Delete
               </Button>

@@ -74,7 +74,9 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
   return (
     <Modal show={show} size="lg" popup onClose={onClose}>
       <Modal.Header>
+        <div className="ml-2 font-bold text-center text-gray-800">
         Add New Item
+        </div>
       </Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit}>

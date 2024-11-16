@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -7,6 +7,7 @@ import {
   Item,
   sellerAddItem,
   sellerDeleteItem,
+  sellerItemArchive,
   sellerItemPublish,
   sellerItemUnpublish,
   sellerReviewItem,
@@ -85,7 +86,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo, navigate]);
+  }, [userInfo, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
@@ -200,7 +201,28 @@ const SellerDashboard = () => {
       notifyError("Error publishing item");
     }
   };
+  // Archive item
+  const handleArchive = async (id: string) => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerItemArchive({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error) {
+        notifyError("Failed to archived item");
+      } else {
+        notifySuccess("Item archived successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error Archived item:", err);
+      notifyError("Error archiving item");
+    }
+  };
 
+
+  
   // Unpublish item
   const handleUnpublish = async (id: string) => {
     if (!userInfo) return;
@@ -248,6 +270,7 @@ const SellerDashboard = () => {
           onUnpublish={handleUnpublish}
           onDelete={handleDelete}
           refreshItems={fetchItems}
+          onArchive={handleArchive}
         />
       )}
       <div
