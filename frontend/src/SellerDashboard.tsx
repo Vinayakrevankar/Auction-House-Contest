@@ -248,24 +248,31 @@ const SellerDashboard = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
-      <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>
       <div className="flex items-center justify-between mb-4">
-      <button
-        onClick={openAddModal}
-        className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
-      >
-        Add New Item
-      </button>
-      <div className="flex space-x-4 ml-auto">
-        <button
-          // onClick={openProfileEditModal} // Function to handle profile editing
-          className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
-        >
-          Edit Profile
-        </button>
-        <LogoutButton />
+        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
+        <div className="flex space-x-4">
+          <button
+            // onClick={openProfileEditModal} // Function to handle profile editing
+            className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
+          >
+            Edit Profile
+          </button>
+          <LogoutButton />
+        </div>
       </div>
-    </div>
+
+      <div className="m2-4 flex items-center justify-between">
+        <button
+          onClick={openAddModal}
+          className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
+        >
+          Add New Item
+        </button>
+        <span className="text-sm font-light text-white text-right">
+          <b>Note*: Click on any item in the table to edit it</b>
+        </span>
+      </div>
+
       <AddItemModal
         show={showAddModal}
         onClose={closeAddModal}
@@ -288,12 +295,6 @@ const SellerDashboard = () => {
         className="ag-theme-alpine"
         style={{ height: "80vh", width: "100%" }}
       >
-        <div className="flex justify-between items-center mb-2">
-          <div></div>
-          <span className="text-sm font-light text-white text-right">
-            <b>Note*: Click on any item in the table to edit it</b>
-          </span>
-        </div>
         <AgGridReact
           rowData={items}
           columnDefs={columnDefs}
