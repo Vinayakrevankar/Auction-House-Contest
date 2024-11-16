@@ -12,6 +12,8 @@
     "@testing-library/user-event": "^13.5.0",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.119",
+    "ag-grid-community": "^32.3.3",
+    "ag-grid-react": "^32.3.3",
     "flowbite": "^2.5.2",
     "flowbite-react": "^0.10.2",
     "jwt-decode": "^4.0.0",

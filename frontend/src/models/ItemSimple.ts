@@ -5,6 +5,7 @@ export type ItemSimple = {
   name: string;
   description: string;
   initPrice: number;
+  itemState: string;
   lengthOfAuction: number;
   images: string[]; // For simplicity
 };
@@ -36,6 +37,7 @@ export function itemToSimple(v: Item): ItemSimple {
     name: v.name,
     description: v.description,
     initPrice: v.initPrice,
+    itemState: v.itemState,
     lengthOfAuction: v.lengthOfAuction,
     images: v.images || [], 
   };

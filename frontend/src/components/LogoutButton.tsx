@@ -12,11 +12,11 @@ const LogoutButton = () => {
 
   return (
     <button
-      onClick={logout}
-      className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-red-500 text-white hover:bg-red-600"
-    >
-      Logout
-    </button>
+    onClick={logout}
+    className="px-4 py-2 text-sm font-semibold rounded bg-red-500 text-white hover:bg-red-600"
+  >
+    Logout
+  </button>
   );
 };
 
