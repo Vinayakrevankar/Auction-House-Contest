@@ -20,6 +20,10 @@ import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
 import LogoutButton from "./components/LogoutButton";
 
+const CustomButtonComponent = (props: any) => {
+  return <span>Edit</span>;
+};
+
 const SellerDashboard = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
@@ -57,6 +61,7 @@ const SellerDashboard = () => {
       sortable: true,
       filter: true,
     },
+    { headerName: "Action", cellRenderer: CustomButtonComponent, flex: 1 },
   ];
 
   const fetchItems = useCallback(async () => {
@@ -297,6 +302,7 @@ const SellerDashboard = () => {
             flex: 1, // Automatically distribute column width equally
             minWidth: 100, // Optional: Set a minimum width for each column
             resizable: true, // Allow column resizing
+            floatingFilter: true, // Enable floating filters for quick filtering
           }}
           onRowClicked={(params) => params.data && openEditModal(params.data)}
         />
