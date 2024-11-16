@@ -54,6 +54,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
     const newItem: ItemSimple = {
       id: `${Date.now()}`, // Use a better unique ID in production
       name: newItemName,
+      itemState: 'inactive',
       description: newItemDescription,
       initPrice: parseFloat(newItemInitPrice),
       lengthOfAuction: parseInt(newItemLengthOfAuction),

@@ -1,84 +1,98 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Item, sellerAddItem, sellerDeleteItem, sellerItemPublish, sellerItemUnpublish, sellerReviewItem, sellerUpdateItem } from './api';
-import { useAuth } from './AuthContext';
-import { ItemSimple, itemToSimple } from './models/ItemSimple';
-import { notifySuccess, notifyError } from './components/Notification';
-
-//R
-import AddItemModal from './components/AddItemModal';
-import EditItemModal from './components/EditItemModal';
-import LogoutButton from './components/LogoutButton';
-
-//R
+import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { AgGridReact } from "ag-grid-react";
+import "ag-grid-community/styles/ag-grid.css";
+import "ag-grid-community/styles/ag-theme-alpine.css";
+import {
+  Item,
+  sellerAddItem,
+  sellerDeleteItem,
+  sellerItemPublish,
+  sellerItemUnpublish,
+  sellerReviewItem,
+  sellerUpdateItem,
+} from "./api";
+import { useAuth } from "./AuthContext";
+import { ItemSimple, itemToSimple } from "./models/ItemSimple";
+import { notifySuccess, notifyError } from "./components/Notification";
+import AddItemModal from "./components/AddItemModal";
+import EditItemModal from "./components/EditItemModal";
+import LogoutButton from "./components/LogoutButton";
 
 const SellerDashboard = () => {
   const { userInfo } = useAuth();
   const navigate = useNavigate();
-  const [init, setInit] = useState(true);
   const [items, setItems] = useState<Item[]>([]);
-
-  //R
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ItemSimple | null>(null);
   const [loading, setLoading] = useState(true);
 
+  const columnDefs: any[] = [
+    { field: "id", headerName: "ID", sortable: true, filter: true },
+    { field: "name", headerName: "Name", sortable: true, filter: true },
+    {
+      field: "description",
+      headerName: "Description",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "initPrice",
+      headerName: "Initial Price",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "lengthOfAuction",
+      headerName: "Length of Auction",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "itemState",
+      headerName: "Status",
+      valueFormatter: (p: { value: string }) => p.value.toUpperCase(),
+      sortable: true,
+      filter: true,
+    },
+  ];
+
+  // Fetch items
+  const fetchItems = async () => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerReviewItem({
+        headers: { Authorization: userInfo?.token },
+        path: { sellerId: userInfo?.userId },
+      });
+      if (resp.data) {
+        setItems(resp.data.payload);
+      } else {
+        notifyError("Failed to fetch items");
+      }
+    } catch (err) {
+      console.error("Error fetching items:", err);
+      notifyError("Error fetching items");
+    }
+  };
+
+  // Load data on mount
   useEffect(() => {
     if (!userInfo) {
-      navigate('/', { state: { openLoginModal: true } });
+      navigate("/", { state: { openLoginModal: true } });
     } else {
       setLoading(false);
+      fetchItems();
     }
   }, [userInfo, navigate]);
 
-  useEffect(() => {
-    if (userInfo && init) {
-      sellerReviewItem({
-        headers: {
-          "Authorization": userInfo.token,
-        },
-        path: { sellerId: userInfo.userId },
-      }).then(resp => {
-        if (resp.data === undefined) {
-          notifyError('Failed to fetch items');
-          console.error(resp.error);
-        } else {
-          setItems(resp.data.payload);
-        }
-      });
-      setInit(false);
-    }
-  }, [init, userInfo]);
-
+  // Open modals
   const openAddModal = () => setShowAddModal(true);
   const closeAddModal = () => setShowAddModal(false);
 
-  const handleAddItem = async (newItem: ItemSimple) => {
-    if (!userInfo) return;
-    const addResp = await sellerAddItem({
-      headers: { "Authorization": userInfo.token },
-      path: { sellerId: userInfo.userId },
-      body: {
-        name: newItem.name,
-        description: newItem.description,
-        initPrice: newItem.initPrice,
-        lengthOfAuction: newItem.lengthOfAuction,
-        images: newItem.images,
-      }
-    });
-    if (addResp.error) {
-      console.error(addResp.error);
-      notifyError('Failed to add item');
-      return;
-    }else{
-      notifySuccess('Item added successfully');
-    }
-    setInit(true);
-  };
-
   const openEditModal = (item: Item) => {
-    setItemToEdit(itemToSimple(item));
+    setItemToEdit(itemToSimple(item)); // Convert `Item` to `ItemSimple`
     setShowEditModal(true);
   };
 
@@ -87,177 +101,174 @@ const SellerDashboard = () => {
     setShowEditModal(false);
   };
 
+  // Add item
+  const handleAddItem = async (newItem: ItemSimple) => {
+    if (!userInfo) return;
+    try {
+      const addResp = await sellerAddItem({
+        headers: { Authorization: userInfo?.token },
+        path: { sellerId: userInfo?.userId },
+        body: {
+          name: newItem.name,
+          description: newItem.description,
+          initPrice: newItem.initPrice,
+          lengthOfAuction: newItem.lengthOfAuction,
+          images: newItem.images,
+        },
+      });
+      if (addResp.error) {
+        notifyError("Failed to add item");
+      } else {
+        notifySuccess("Item added successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error adding item:", err);
+      notifyError("Error adding item");
+    }
+    closeAddModal();
+  };
+
+  // Update item
   const handleUpdateItem = async (updatedItem: ItemSimple) => {
     if (!userInfo) return;
-    const updateResp = await sellerUpdateItem({
-      headers: { "Authorization": userInfo.token },
-      path: {
-        sellerId: userInfo.userId,
-        itemId: updatedItem.id,
-      },
-      body: {
-        name: updatedItem.name,
-        description: updatedItem.description,
-        initPrice: updatedItem.initPrice,
-        lengthOfAuction: updatedItem.lengthOfAuction,
-        images: updatedItem.images,
-      },
-    });
-    if (updateResp.error) {
-      console.error(updateResp.error);
-      notifyError('Failed to update item');
-      return;
+    try {
+      const updateResp = await sellerUpdateItem({
+        headers: { Authorization: userInfo.token },
+        path: {
+          sellerId: userInfo.userId,
+          itemId: updatedItem.id,
+        },
+        body: {
+          name: updatedItem.name,
+          description: updatedItem.description,
+          initPrice: updatedItem.initPrice,
+          lengthOfAuction: updatedItem.lengthOfAuction,
+          images: updatedItem.images,
+        },
+      });
+      if (updateResp.error) {
+        notifyError("Failed to update item");
+      } else {
+        notifySuccess("Item updated successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error updating item:", err);
+      notifyError("Error updating item");
     }
-    notifySuccess('Item updated successfully');
-    setInit(true);
+    closeEditModal();
   };
 
+  // Delete item
   const handleDelete = async (id: string) => {
     if (!userInfo) return;
-    const resp = await sellerDeleteItem({
-      headers: { "Authorization": userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error) {
-      console.error(resp.error);
-      notifyError('Failed to delete item');
-      return;
+    try {
+      const resp = await sellerDeleteItem({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error) {
+        notifyError("Failed to delete item");
+      } else {
+        notifySuccess("Item deleted successfully");
+        setItems(items.filter((item) => item.id !== id));
+      }
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      notifyError("Error deleting item");
     }
-    notifySuccess('Item deleted successfully');
-    setItems(items.filter(item => item.id !== id));
   };
 
+  // Publish item
   const handlePublish = async (id: string) => {
     if (!userInfo) return;
-    const resp = await sellerItemPublish({
-      headers: { "Authorization": userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error) {
-      console.error(resp.error);
-      notifyError('Failed to publish item');
-      return;
+    try {
+      const resp = await sellerItemPublish({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error) {
+        notifyError("Failed to publish item");
+      } else {
+        notifySuccess("Item published successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error publishing item:", err);
+      notifyError("Error publishing item");
     }
-    notifySuccess('Item published successfully');
-    setItems(items.map(item => (item.id === id ? { ...item, itemState: 'active' } : item)));
   };
 
+  // Unpublish item
   const handleUnpublish = async (id: string) => {
     if (!userInfo) return;
-    const resp = await sellerItemUnpublish({
-      headers: { "Authorization": userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error) {
-      console.error(resp.error);
-      notifyError('Failed to unpublish item');
-      return;
+    try {
+      const resp = await sellerItemUnpublish({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error) {
+        notifyError("Failed to unpublish item");
+      } else {
+        notifySuccess("Item unpublished successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error unpublishing item:", err);
+      notifyError("Error unpublishing item");
     }
-    notifySuccess('Item unpublished successfully');
-    setItems(items.map(item => (item.id === id ? { ...item, itemState: 'inactive' } : item)));
   };
 
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white animate-fadeIn">
-      <h1 className="text-2xl font-bold mb-6">Welcome to the Seller Dashboard</h1>
+    <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white">
+      <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>
       <button
         onClick={openAddModal}
-        className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600 transform hover:scale-105 transition-transform duration-200 shadow-lg hover:shadow-xl"
+        className="mb-4 px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
       >
         Add New Item
       </button>
       <LogoutButton />
-      <AddItemModal show={showAddModal} onClose={closeAddModal} onAddItem={handleAddItem} />
+      <AddItemModal
+        show={showAddModal}
+        onClose={closeAddModal}
+        onAddItem={handleAddItem}
+      />
       {itemToEdit && (
-        <EditItemModal show={showEditModal} onClose={closeEditModal} onUpdateItem={handleUpdateItem} itemToEdit={itemToEdit} />
+        <EditItemModal
+          show={showEditModal}
+          onClose={closeEditModal}
+          onUpdateItem={handleUpdateItem}
+          itemToEdit={itemToEdit}
+          onPublish={handlePublish}
+          onUnpublish={handleUnpublish}
+          onDelete={handleDelete}
+        />
       )}
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white shadow-md rounded-lg overflow-hidden">
-          <thead className="bg-gray-200 border-b-2 border-gray-300 text-gray-800">
-            <tr>
-              <th className="p-4 text-left font-semibold">ID</th>
-              <th className="p-4 text-left font-semibold">Name</th>
-              <th className="p-4 text-left font-semibold">Description</th>
-              <th className="p-4 text-left font-semibold">Initial Price</th>
-              <th className="p-4 text-left font-semibold">Length of Auction</th>
-              <th className="p-4 text-left font-semibold">Images</th>
-              <th className="p-4 text-left font-semibold">Status</th>
-              <th className="p-4 text-left font-semibold">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {items && items.length > 0 ? (
-              items.map((item, index) => (
-                <tr
-                  key={item.id}
-                  className="border-b border-gray-200 hover:bg-gray-100 text-gray-800 animate-slideIn"
-                  style={{ animationDelay: `${index * 100}ms` }}
-                >
-                  <td className="p-4">{item.id}</td>
-                  <td className="p-4">{item.name}</td>
-                  <td className="p-4">{item.description}</td>
-                  <td className="p-4">{item.initPrice}</td>
-                  <td className="p-4">{item.lengthOfAuction}</td>
-                  <td className="p-4">
-                    {item.images.map((image, idx) => (
-                      <img
-                        key={idx}
-                        src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/` + image}
-                        alt="item"
-                        className="w-8 h-8 object-cover inline-block"
-                      />
-                    ))}
-                  </td>
-                  <td className="p-4">
-                    <span
-                      className={`px-2 py-1 rounded-full text-sm ${
-                        item.itemState === 'active' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}
-                    >
-                      <b>{item.itemState.toUpperCase()}</b>
-                    </span>
-                  </td>
-                  <td className="p-4 space-x-2">
-                    <button
-                      onClick={() => handlePublish(item.id)}
-                      disabled={item.itemState === 'active'}
-                      className={`px-4 py-2 text-sm font-semibold rounded ${item.itemState === 'active' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
-                    >
-                      Publish
-                    </button>
-                    <button
-                      onClick={() => handleUnpublish(item.id)}
-                      disabled={item.itemState === 'inactive'}
-                      className={`px-4 py-2 text-sm font-semibold rounded ${item.itemState === 'inactive' ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-red-500 text-white hover:bg-red-600'}`}
-                    >
-                      Unpublish
-                    </button>
-                    <button
-                      onClick={() => openEditModal(item)}
-                      className="px-4 py-2 text-sm font-semibold rounded bg-yellow-500 text-white hover:bg-yellow-600"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => handleDelete(item.id)}
-                      className="px-4 py-2 text-sm font-semibold rounded bg-gray-500 text-white hover:bg-gray-600"
-                    >
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={8} className="p-4 text-center text-gray-500">
-                  No items found
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+      <div
+        className="ag-theme-alpine"
+        style={{ height: "80vh", width: "100%" }}
+      >
+        <div className="flex justify-between items-center mb-2">
+          <div></div>
+          <span className="text-sm font-light text-white text-right">
+            <b>Note*: Click on any item in the table to edit it</b>
+          </span>
+        </div>
+        <AgGridReact
+          rowData={items}
+          columnDefs={columnDefs}
+          domLayout="normal"
+          defaultColDef={{
+            flex: 1, // Automatically distribute column width equally
+            minWidth: 100, // Optional: Set a minimum width for each column
+            resizable: true, // Allow column resizing
+          }}
+          onRowClicked={(params) => params.data && openEditModal(params.data)}
+        />
       </div>
     </div>
   );
