@@ -9,7 +9,7 @@ import { registerHandler, loginHander, editProfileHandler } from './manage-user/
 import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
-// import { asyncMiddleware as _async } from './security/asyncMiddleware';
+import { asyncMiddleware as _async } from './security/asyncMiddleware';
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3';
 // import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 import path from 'path';
