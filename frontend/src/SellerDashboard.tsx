@@ -21,7 +21,7 @@ import EditItemModal from "./components/EditItemModal";
 import LogoutButton from "./components/LogoutButton";
 
 const SellerDashboard = () => {
-  const { userInfo } = useAuth();
+  const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const [items, setItems] = useState<Item[]>([]);
   const [showAddModal, setShowAddModal] = useState(false);
@@ -68,6 +68,9 @@ const SellerDashboard = () => {
       });
       if (resp.data) {
         setItems(resp.data.payload);
+      } else if (resp.error.status === 401) {
+        notifyError("Token expired");
+        setUserInfo(null);
       } else {
         notifyError("Failed to fetch items");
       }
@@ -245,22 +248,22 @@ const SellerDashboard = () => {
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       <h1 className="text-2xl font-bold mb-6">Seller Dashboard</h1>
       <div className="flex items-center justify-between mb-4">
-      <button
-        onClick={openAddModal}
-        className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
-      >
-        Add New Item
-      </button>
-      <div className="flex space-x-4 ml-auto">
         <button
-          // onClick={openProfileEditModal} // Function to handle profile editing
-          className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
+          onClick={openAddModal}
+          className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
         >
-          Edit Profile
+          Add New Item
         </button>
-        <LogoutButton />
+        <div className="flex space-x-4 ml-auto">
+          <button
+            // onClick={openProfileEditModal} // Function to handle profile editing
+            className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
+          >
+            Edit Profile
+          </button>
+          <LogoutButton />
+        </div>
       </div>
-    </div>
       <AddItemModal
         show={showAddModal}
         onClose={closeAddModal}
