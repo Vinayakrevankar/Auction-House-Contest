@@ -19,10 +19,8 @@ import { notifySuccess, notifyError } from "./components/Notification";
 import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
 import LogoutButton from "./components/LogoutButton";
+import { FaEye, FaUser, FaPlus } from "react-icons/fa"; // Import FontAwesome eye icon
 
-const CustomButtonComponent = (props: any) => {
-  return <span>Edit</span>;
-};
 const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
@@ -39,13 +37,30 @@ const SellerDashboard = () => {
   const [loading, setLoading] = useState(true);
 
   const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
-      const colorClass = stateTextColors[value] || "bg-red-500 text-white"; // Default style for undefined states
-      return (
-        <div className={`px-2 py-1 font-bold rounded ${colorClass}`}>
-          {value.toUpperCase()}
-        </div>
-      );
-    };
+    const colorClass = stateTextColors[value] || "bg-red-500 text-white"; // Default style for undefined states
+    return (
+      <div className={`px-2 py-1 font-bold rounded ${colorClass}`}>
+        {value.toUpperCase()}
+      </div>
+    );
+  };
+  const EditButtonComponent = ({ data }: { data: Item }) => (
+    <button
+      onClick={() => openEditModal(data)}
+      className="w-32 px-4 rounded bg-blue-500 border border-white text-white hover:bg-blue-600"
+    >
+      Edit
+    </button>
+  );
+
+  const EyeButtonComponent = ({ data }: { data: Item }) => (
+    <button
+      onClick={() => openEditModal(data)}
+      className="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
+    >
+      <FaEye />
+    </button>
+  );
 
   const columnDefs: any[] = [
     { field: "id", headerName: "ID", sortable: true, filter: true },
@@ -76,7 +91,13 @@ const SellerDashboard = () => {
       sortable: true,
       filter: true,
     },
-    { headerName: "Action", cellRenderer: CustomButtonComponent, flex: 1 },
+    { headerName: "Action", cellRenderer: EditButtonComponent, flex: 1 },
+    {
+      headerName: "View Bids",
+      cellRenderer: EyeButtonComponent,
+      flex: 1,
+      field: "view",
+    },
   ];
 
   const fetchItems = useCallback(async () => {
@@ -143,8 +164,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      } else
-      if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to add item");
       } else {
         notifySuccess("Item added successfully");
@@ -178,7 +198,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      }else if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to update item");
       } else {
         notifySuccess("Item updated successfully");
@@ -202,7 +222,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      }else if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to delete item");
       } else {
         notifySuccess("Item deleted successfully");
@@ -225,7 +245,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      }else if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to publish item");
       } else {
         notifySuccess("Item published successfully");
@@ -247,7 +267,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      }else if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to archived item");
       } else {
         notifySuccess("Item archived successfully");
@@ -269,7 +289,7 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      }else if (resp.error) {
+      } else if (resp.error) {
         notifyError("Failed to unpublish item");
       } else {
         notifySuccess("Item unpublished successfully");
@@ -285,36 +305,41 @@ const SellerDashboard = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
-      <div className="flex items-center justify-between mb-4">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Seller Dashboard</h1>
         <div className="flex space-x-4">
-          <button
-            // onClick={openProfileEditModal} // Function to handle profile editing
-            className="px-4 py-2 text-sm font-semibold rounded bg-blue-500 text-white hover:bg-blue-600"
+          {/* Profile Edit Button */}
+          {/* <button
+            title="Edit Profile"
+            className="px-4 py-2 flex items-center justify-center text-sm font-semibold rounded border border-white bg-blue-500 text-white hover:bg-blue-600"
           >
-            Edit Profile
-          </button>
+            <FaUser />
+          </button> */}
+          {/* Logout Button */}
           <LogoutButton />
         </div>
       </div>
 
-      <div className="m2-4 flex items-center justify-between">
+      {/* Add Item Button */}
+      <div className="flex items-center justify-end mb-6">
         <button
           onClick={openAddModal}
-          className="px-4 py-2 text-sm font-semibold rounded bg-green-500 text-white hover:bg-green-600"
+          className="w-40 px-4 py-2 flex items-center justify-center gap-2 text-sm font-semibold rounded bg-green-500 border border-white text-white hover:bg-green-600"
         >
-          Add New Item
+          <FaPlus className="text-white" />
+          Add Item
         </button>
-        <span className="text-sm font-light text-white text-right">
-          <b>Note*: Click on any item in the table to edit it</b>
-        </span>
       </div>
 
+      {/* Add Item Modal */}
       <AddItemModal
         show={showAddModal}
         onClose={closeAddModal}
         onAddItem={handleAddItem}
       />
+
+      {/* Edit Item Modal */}
       {itemToEdit && (
         <EditItemModal
           show={showEditModal}
@@ -328,21 +353,22 @@ const SellerDashboard = () => {
           onArchive={handleArchive}
         />
       )}
+
+      {/* AG Grid Table */}
       <div
-        className="ag-theme-alpine"
+        className="ag-theme-alpine rounded-lg shadow-lg"
         style={{ height: "80vh", width: "100%" }}
       >
         <AgGridReact
           rowData={items}
           columnDefs={columnDefs}
-          domLayout="normal"
+          domLayout="autoHeight"
           defaultColDef={{
             flex: 1, // Automatically distribute column width equally
-            minWidth: 100, // Optional: Set a minimum width for each column
+            minWidth: 100, // Minimum width for each column
             resizable: true, // Allow column resizing
-            floatingFilter: true, // Enable floating filters for quick filtering
+            floatingFilter: true, // Enable floating filters
           }}
-          onRowClicked={(params) => params.data && openEditModal(params.data)}
         />
       </div>
     </div>

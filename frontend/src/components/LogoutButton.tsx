@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from './../AuthContext';
+import { FaSignOutAlt } from "react-icons/fa";
 
 const LogoutButton = () => {
   const navigate = useNavigate();
@@ -12,11 +13,11 @@ const LogoutButton = () => {
 
   return (
     <button
-    onClick={logout}
-    className="px-4 py-2 text-sm font-semibold rounded bg-red-500 text-white hover:bg-red-600"
-  >
-    Logout
-  </button>
+      onClick={logout}
+      className="px-4 py-2 text-sm font-semibold border border-white rounded bg-red-500 text-white hover:bg-red-600 flex items-center justify-center"
+    >
+      <FaSignOutAlt /> {/* Logout Icon */}
+    </button>
   );
 };
 
