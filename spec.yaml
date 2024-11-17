@@ -54,7 +54,7 @@ paths:
       operationId: user-login
       tags:
         - User
-      parameters: &ref_0 []
+      parameters: []
       requestBody:
         $ref: '#/components/requestBodies/UserLoginRequest'
       responses:
@@ -89,7 +89,7 @@ paths:
       operationId: user-register
       tags:
         - User
-      parameters: *ref_0
+      parameters: []
       requestBody:
         $ref: '#/components/requestBodies/UserRegisterRequest'
       responses:
@@ -202,11 +202,10 @@ paths:
       summary: Get seller's items
       description: ''
       operationId: seller-review-item
-      tags: &ref_1
+      tags:
         - Seller
       parameters:
         - $ref: '#/components/parameters/SellerID'
-      requestBody: {}
       responses:
         '200':
           description: Returns seller's items
@@ -243,7 +242,8 @@ paths:
       summary: Add item for seller
       description: ''
       operationId: seller-add-item
-      tags: *ref_1
+      tags:
+        - Seller
       parameters:
         - $ref: '#/components/parameters/SellerID'
       requestBody:
@@ -270,12 +270,11 @@ paths:
       summary: Delete item of seller
       description: ''
       operationId: seller-delete-item
-      tags: &ref_2
+      tags:
         - Seller
       parameters:
         - $ref: '#/components/parameters/SellerID'
         - $ref: '#/components/parameters/ItemID'
-      requestBody: &ref_3 {}
       responses:
         '200':
           $ref: '#/components/responses/PlainSuccessResponse'
@@ -291,7 +290,8 @@ paths:
       summary: Update item of seller
       description: ''
       operationId: seller-update-item
-      tags: *ref_2
+      tags:
+        - Seller
       parameters:
         - $ref: '#/components/parameters/SellerID'
         - $ref: '#/components/parameters/ItemID'
@@ -317,12 +317,11 @@ paths:
       summary: Publish an item of seller
       description: ''
       operationId: seller-item-publish
-      tags: &ref_4
+      tags:
         - Seller
-      parameters: &ref_5
+      parameters:
         - $ref: '#/components/parameters/SellerID'
         - $ref: '#/components/parameters/ItemID'
-      requestBody: *ref_3
       responses:
         '200':
           $ref: '#/components/responses/PlainSuccessResponse'
@@ -332,16 +331,18 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: &ref_6
+      security:
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/unpublish:
     post:
       summary: Unpublish an item of seller
       description: ''
       operationId: seller-item-unpublish
-      tags: *ref_4
-      parameters: *ref_5
-      requestBody: *ref_3
+      tags:
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
       responses:
         '200':
           $ref: '#/components/responses/PlainSuccessResponse'
@@ -351,15 +352,18 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_6
+      security:
+        - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/fulfill:
     post:
       summary: Fulfill an item of seller
       description: ''
       operationId: seller-item-fulfill
-      tags: *ref_4
-      parameters: *ref_5
-      requestBody: *ref_3
+      tags:
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
       responses:
         '200':
           headers: {}
@@ -389,19 +393,22 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_6
+      security:
+        - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/archive:
     post:
       summary: Archive an item of seller
       description: ''
       operationId: seller-item-archive
-      tags: *ref_4
-      parameters: *ref_5
-      requestBody: *ref_3
+      tags:
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
       responses:
         '200':
           $ref: '#/components/responses/PlainSuccessResponse'
-        '400': &ref_7
+        '400':
           $ref: '#/components/responses/ErrorResponse'
         '401':
           $ref: '#/components/responses/ErrorResponse'
@@ -409,26 +416,31 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_6
+      security:
+        - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
     post:
       summary: Request unfreeze an item of seller.
       description: ''
       operationId: seller-item-request-unfreeze
-      tags: *ref_4
-      parameters: *ref_5
-      requestBody: *ref_3
+      tags:
+        - Seller
+      parameters:
+        - $ref: '#/components/parameters/SellerID'
+        - $ref: '#/components/parameters/ItemID'
       responses:
         '200':
           $ref: '#/components/responses/PlainSuccessResponse'
-        '400': *ref_7
+        '400':
+          $ref: '#/components/responses/ErrorResponse'
         '401':
           $ref: '#/components/responses/ErrorResponse'
         '404':
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: *ref_6
+      security:
+        - http-jwt: []
   /api/buyers/{buyerId}/close:
     post:
       summary: Close buyer account.
@@ -438,7 +450,6 @@ paths:
         - Buyer
       parameters:
         - $ref: '#/components/parameters/BuyerID'
-      requestBody: {}
       responses:
         '202':
           $ref: '#/components/responses/PlainSuccessResponse'
@@ -499,8 +510,6 @@ paths:
         - Buyer
       parameters:
         - $ref: '#/components/parameters/BuyerID'
-      requestBody:
-        $ref: ''
       responses:
         '200':
           description: Get buyer's bids successfully
@@ -581,7 +590,6 @@ paths:
         - Buyer
       parameters:
         - $ref: '#/components/parameters/BuyerID'
-      requestBody: {}
       responses:
         '200':
           description: Get list of purchases of the buyer
@@ -630,12 +638,13 @@ paths:
         - in: query
           name: minPrice
           description: Minimum price for item price range
-          schema: &ref_8
+          schema:
             type: number
         - in: query
           name: maxPrice
           description: Maximum price for item price range
-          schema: *ref_8
+          schema:
+            type: number
         - in: query
           name: sortBy
           description: Field to sort by
@@ -652,7 +661,6 @@ paths:
             enum:
               - asc
               - desc
-      requestBody: &ref_9 {}
       responses:
         '200':
           description: List of items
@@ -684,7 +692,6 @@ paths:
       tags:
         - Item
       parameters: []
-      requestBody: *ref_9
       responses:
         '200':
           description: List of items
@@ -720,7 +727,6 @@ paths:
         - Item
       parameters:
         - $ref: '#/components/parameters/ItemID'
-      requestBody: *ref_9
       responses:
         '200':
           description: Item
@@ -755,7 +761,6 @@ paths:
         - Item
       parameters:
         - $ref: '#/components/parameters/ItemID'
-      requestBody: *ref_9
       responses:
         '200':
           description: List of bids
@@ -800,12 +805,13 @@ paths:
         - in: query
           name: minPrice
           description: Minimum price for item price range
-          schema: &ref_10
+          schema:
             type: number
         - in: query
           name: maxPrice
           description: Maximum price for item price range
-          schema: *ref_10
+          schema:
+            type: number
         - in: query
           name: sortBy
           description: Field to sort by
@@ -822,7 +828,6 @@ paths:
             enum:
               - asc
               - desc
-      requestBody: {}
       responses:
         '200':
           description: List of items
@@ -905,14 +910,13 @@ paths:
       summary: Get auction report
       description: ''
       operationId: admin-auction-report
-      tags: &ref_11
+      tags:
         - Admin
-      parameters: &ref_12 []
-      requestBody: &ref_13 {}
+      parameters: []
       responses:
         '200':
           description: Report generated
-          headers: &ref_14 {}
+          headers: {}
           content:
             application/json:
               schema:
@@ -932,22 +936,22 @@ paths:
                   - payload
         '401':
           $ref: '#/components/responses/ErrorResponse'
-        '500': &ref_15
+        '500':
           $ref: '#/components/responses/ErrorResponse'
-      security: &ref_16
+      security:
         - http-jwt: []
   /api/admin/reports/forensic:
     get:
       summary: Get forensic report
       description: ''
       operationId: admin-forensic-report
-      tags: *ref_11
-      parameters: *ref_12
-      requestBody: *ref_13
+      tags:
+        - Admin
+      parameters: []
       responses:
         '200':
           description: Report generated
-          headers: *ref_14
+          headers: {}
           content:
             application/json:
               schema:
@@ -967,8 +971,10 @@ paths:
                   - payload
         '401':
           $ref: '#/components/responses/ErrorResponse'
-        '500': *ref_15
-      security: *ref_16
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
 components:
   schemas:
     UserInfo:

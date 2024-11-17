@@ -68,6 +68,6 @@ export const authFilterMiddleware = async (req: Request, res: Response, next: Ne
     }
   } catch (error) {
     console.error(error);
-    res.json(httpUtil.getUnauthorized());
+    res.status(401).json(httpUtil.getUnauthorized());
   }
 };
