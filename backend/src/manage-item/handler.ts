@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand, GetCommandOutput } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
@@ -296,12 +296,19 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
       "id": itemId,
     },
     UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid AND (attribute_not_exists(currentBidId) OR currentBidId = :null)",
+    // ConditionExpression: "itemState = :old AND sellerId = :sid AND (attribute_not_exists(currentBidId) OR currentBidId = :null)",
+    ConditionExpression: [
+      "itemState = :old",
+      "sellerId = :sid",
+      "(attribute_not_exists(currentBidId) OR currentBidId = :null)",
+      "(attribute_not_exists(pastBidIds) OR size(pastBidIds) = :zero)"
+    ].join(" AND "),
     ExpressionAttributeValues: {
       ":new": "inactive",
       ":old": "active",
       ":sid": sellerId,
       ":null": null,
+      ":zero": 0,
     },
   });
   dclient.send(cmd, (err) => {
@@ -432,4 +439,57 @@ export function getItemBids(itemId: string, res: Response) {
       });
     }
   });
+}
+
+type RespExpr<T> = {
+  error: string,
+  data: undefined,
+} | {
+  error: undefined,
+  data: T,
+};
+
+async function checkExpirationStatus(itemId: string): Promise<RespExpr<boolean>> {
+  const getCmd = new GetCommand({
+    TableName: "dev-items3",
+    Key: {
+      "id": itemId,
+    },
+  });
+  const resp: RespExpr<GetCommandOutput> = await dclient.send(getCmd)
+    .then(data => ({ error: undefined, data: data })).catch(err => ({ error: `${err}`, data: undefined }));
+  if (!resp.data) {
+    return {
+      error: `Failed to get item: ${resp.error}`,
+      data: undefined,
+    };
+  } else if (resp.data.Item) {
+    const item = resp.data.Item as Item;
+    const currTime = new Date();
+    const endDate = new Date(item.endDate);
+    if (currTime.getTime() > endDate.getTime()) {
+      // NOTE: Update item state
+      let new_state = "completed";
+      if (!item.currentBidId || !item.pastBidIds || item.pastBidIds.length === 0) {
+        new_state = "failed";
+      }
+      const updateCmd = new UpdateCommand({
+        TableName: "dev-items3",
+        Key: {
+          "id": itemId,
+        },
+        UpdateExpression: "SET itemState = :new",
+        ExpressionAttributeValues: {
+          ":new": new_state,
+        },
+      });
+      return dclient.send(updateCmd)
+        .then(() => ({ error: undefined, data: true }))
+        .catch(err => ({ error: `Failed to update item: ${err}`, data: undefined }));
+    }
+  }
+  return {
+    error: undefined,
+    data: false,
+  };
 }
