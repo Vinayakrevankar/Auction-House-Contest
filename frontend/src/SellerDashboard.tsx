@@ -19,7 +19,7 @@ import { notifySuccess, notifyError } from "./components/Notification";
 import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
 import LogoutButton from "./components/LogoutButton";
-import { FaEye, FaUser, FaPlus } from "react-icons/fa"; // Import FontAwesome eye icon
+import { FaEye, FaPlus } from "react-icons/fa"; // FaUser Import FontAwesome eye icon
 
 const stateTextColors = {
   active: "text-green-500",
