@@ -32,7 +32,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
           role: (info.role === "admin" || info.role === "user") ? info.role : "user",
           token: info.token || "",
         };
-
+        console.log(info.token)
         setUserInfo(userInfo);
         onClose(); // Close the modal on successful login
         notifySuccess("Login successfully!");
