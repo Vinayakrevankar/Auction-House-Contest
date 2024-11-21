@@ -637,8 +637,6 @@ export type ItemSearchResponse = ({
 
 export type ItemSearchError = (ErrorResponsePayload);
 
-export type ItemGetActiveData = unknown;
-
 export type ItemGetActiveResponse = ({
     /**
      * Response HTTP status
@@ -779,8 +777,6 @@ export type AdminFreezeItemResponse = ({
 
 export type AdminFreezeItemError = (ErrorResponsePayload);
 
-export type AdminAuctionReportData = unknown;
-
 export type AdminAuctionReportResponse = ({
     /**
      * Response HTTP status
@@ -795,8 +791,6 @@ export type AdminAuctionReportResponse = ({
 
 export type AdminAuctionReportError = (ErrorResponsePayload);
 
-export type AdminForensicReportData = unknown;
-
 export type AdminForensicReportResponse = ({
     /**
      * Response HTTP status
@@ -810,3 +804,31 @@ export type AdminForensicReportResponse = ({
 });
 
 export type AdminForensicReportError = (ErrorResponsePayload);
+
+export type ItemCheckExpiredData = {
+    path: {
+        itemId: string;
+    };
+};
+
+export type ItemCheckExpiredResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: {
+        /**
+         * Expire status
+         */
+        isExpired: boolean;
+    };
+});
+
+export type ItemCheckExpiredError = (ErrorResponsePayload);

@@ -1,5 +1,5 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand, GetCommandOutput } from "@aws-sdk/lib-dynamodb";
+import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
 import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
@@ -441,33 +441,39 @@ export function getItemBids(itemId: string, res: Response) {
   });
 }
 
-type RespExpr<T> = {
-  error: string,
-  data: undefined,
-} | {
-  error: undefined,
-  data: T,
-};
-
-async function checkExpirationStatus(itemId: string): Promise<RespExpr<boolean>> {
+export async function checkExpirationStatus(itemId: string, res: Response) {
   const getCmd = new GetCommand({
     TableName: "dev-items3",
     Key: {
       "id": itemId,
     },
   });
-  const resp: RespExpr<GetCommandOutput> = await dclient.send(getCmd)
-    .then(data => ({ error: undefined, data: data })).catch(err => ({ error: `${err}`, data: undefined }));
-  if (!resp.data) {
-    return {
-      error: `Failed to get item: ${resp.error}`,
-      data: undefined,
-    };
-  } else if (resp.data.Item) {
-    const item = resp.data.Item as Item;
+  const resp = await dclient.send(getCmd).catch(err => {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: `Failed to get item ${itemId}: ${err}`,
+    });
+  });
+  if (!resp) {
+    return;
+  } else if (!resp.Item) {
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found",
+    });
+  } else {
+    const item = resp.Item as Item;
     const currTime = new Date();
     const endDate = new Date(item.endDate);
-    if (currTime.getTime() > endDate.getTime()) {
+    if (currTime.getTime() <= endDate.getTime()) {
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: {
+          isExpired: false,
+        },
+      });
+    } else {
       // NOTE: Update item state
       let new_state = "completed";
       if (!item.currentBidId || !item.pastBidIds || item.pastBidIds.length === 0) {
@@ -483,13 +489,22 @@ async function checkExpirationStatus(itemId: string): Promise<RespExpr<boolean>>
           ":new": new_state,
         },
       });
-      return dclient.send(updateCmd)
-        .then(() => ({ error: undefined, data: true }))
-        .catch(err => ({ error: `Failed to update item: ${err}`, data: undefined }));
+      const resp = await dclient.send(updateCmd).catch(err => {
+        res.status(500).send({
+          status: 500,
+          message: `Failed to update item ${itemId}: ${err}`,
+        });
+      });
+      if (!resp) {
+        return;
+      }
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: {
+          isExpired: true,
+        },
+      });
     }
   }
-  return {
-    error: undefined,
-    data: false,
-  };
 }
