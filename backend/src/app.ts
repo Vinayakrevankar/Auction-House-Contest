@@ -7,6 +7,7 @@ import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/h
 import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
 import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
+import { getActiveBids, getPurchases } from './manage-buyer/handler';
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
@@ -104,6 +105,20 @@ app.post('/api/register', registerHandler);
 app.post('/api/login', loginHander);
 app.put('/api/profile/update', editProfileHandler);
 // Upload endpoint to handle file upload to S3
+
+// Buyer use cases
+// Review Active Bids
+app.get(
+  '/api/buyers/:buyerId/bids/active',
+  authFilterMiddleware,
+  (req, res) => getActiveBids(req.params['buyerId'], res),
+);
+// Review Purchases
+app.get(
+  '/api/buyers/:buyerId/purchases',
+  authFilterMiddleware,
+  (req, res) => getPurchases(req.params['buyerId'], res),
+);
 
 app.post('/api/upload-image', upload.single('image'), async (req, res) => {
   if (!req.file) {
