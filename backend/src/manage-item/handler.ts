@@ -260,21 +260,47 @@ export async function removeInactiveItem(
 
 
 //Publish item
-export function publishItem(sellerId: string, itemId: string, res: Response) {
-  const cmd = new UpdateCommand({
+export async function publishItem(sellerId: string, itemId: string, res: Response) {
+  const getCmd = new GetCommand({
+    TableName: "dev-items3",
+    Key: {
+      "id": itemId,
+    },
+  });
+  const resp = await dclient.send(getCmd).catch(err => {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: err,
+    });
+  });
+  if (!resp) {
+    return;
+  } else if (!resp.Item) {
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found",
+    });
+    return;
+  }
+  const item = resp.Item as Item;
+  const sdate = new Date();
+  const edate = new Date(sdate.getTime() + item.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const updateCmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
       "id": itemId,
     },
-    UpdateExpression: "SET itemState = :new",
+    UpdateExpression: "SET itemState = :new, startDate = :sdate, endDate = :edate",
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
+      ":sdate": sdate.toString(),
+      ":edate": edate.toString(),
       ":old": "inactive",
       ":sid": sellerId,
     },
   });
-  dclient.send(cmd, (err) => {
+  dclient.send(updateCmd, (err) => {
     if (err) {
       res.status(500).send(<ErrorResponsePayload>{
         status: 500,
@@ -380,7 +406,7 @@ export function getActiveItems(res: Response) {
         message: err,
       });
     } else {
-      res.send({
+      res.status(200).send({
         status: 200,
         message: "Success",
         payload: updateURLs((data?.Items ?? []) as Item[]),

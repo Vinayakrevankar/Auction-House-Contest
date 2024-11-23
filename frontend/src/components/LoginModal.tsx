@@ -37,7 +37,7 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         onClose(); // Close the modal on successful login
         notifySuccess("Login successfully!");
         if (info.userType === "buyer") {
-          navigate("/buyer-dashboard");
+          navigate("/");
         } else {
           navigate("/seller-dashboard");
         }
