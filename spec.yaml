@@ -975,6 +975,46 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
       security:
         - http-jwt: []
+  /api/items/{itemId}/check-expired:
+    post:
+      summary: Check and update if item is expired or not.
+      description: ''
+      operationId: item-check-expired
+      tags:
+        - Item
+      parameters:
+        - $ref: '#/components/parameters/ItemID'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      isExpired:
+                        type: boolean
+                        description: Expire status
+                    description: Response Payload
+                    required:
+                      - isExpired
+                required:
+                  - status
+                  - message
+                  - payload
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
 components:
   schemas:
     UserInfo:

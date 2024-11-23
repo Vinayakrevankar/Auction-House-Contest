@@ -4,7 +4,7 @@ import express, { json } from 'express';
 import helmet from 'helmet';
 // import * as OpenAPIValidator from 'express-openapi-validator';
 import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/handler';
-import { addItem, editItem, removeInactiveItem } from './manage-item/handler';
+import { addItem, checkExpirationStatus, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
 import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
 import {placeBid } from './manage-buyer/handler';
@@ -99,6 +99,7 @@ app.post(
 app.get('/api/items/active', (_, res) => getActiveItems(res));
 app.get('/api/items/:itemId', (req, res) => getItemDetails(req.params["itemId"], res));
 app.get('/api/items/:itemId/bids', (req, res) => getItemBids(req.params["itemId"], res));
+app.post('/api/items/:itemId/check-expired', (req, res) => checkExpirationStatus(req.params["itemId"], res));
 
 // login and register
 app.post('/api/register', registerHandler);
