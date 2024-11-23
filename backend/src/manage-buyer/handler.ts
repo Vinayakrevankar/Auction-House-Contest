@@ -1,8 +1,7 @@
-import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand} from "@aws-sdk/lib-dynamodb";
+import { GetCommand, QueryCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { Response } from 'express';
 import { Bid, Item, Purchase, PlainSuccessResponsePayload, ErrorResponsePayload, AddFundsResponsePayload } from "../api";
-import { v4 as uuidv4 } from 'uuid';
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -115,7 +114,7 @@ export async function placeBid(buyerId: string, itemId: string, bidAmount: numbe
   const buyer = getBuyerResp.Item;
   const buyerFunds = buyer.fund ?? 0;
 
-
+  // Step 6: Ensure buyer has sufficient funds
   if (buyerFunds < bidAmount) {
     res.status(400).send(<ErrorResponsePayload>{
       status: 400,
@@ -125,7 +124,7 @@ export async function placeBid(buyerId: string, itemId: string, bidAmount: numbe
   }
 
   // Step 7: Create new bid and update item
-  const bidId = uuidv4();
+  const bidId = `${buyerId}#${Date.now()}`; // Updated bid ID format
   const bidTime = new Date().toISOString();
 
   const newBid: Bid = {
