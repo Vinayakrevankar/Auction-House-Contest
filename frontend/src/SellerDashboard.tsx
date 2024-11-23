@@ -9,6 +9,7 @@ import {
   sellerDeleteItem,
   sellerItemArchive,
   sellerItemPublish,
+  sellerItemRequestUnfreeze,
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
@@ -300,6 +301,30 @@ const SellerDashboard = () => {
       notifyError("Error unpublishing item");
     }
   };
+// Unpublish item
+const handleRequestUnfreeze = async (id: string) => {
+  if (!userInfo) return;
+  try {
+    const resp = await sellerItemRequestUnfreeze({
+      headers: { Authorization: userInfo.token },
+      path: { sellerId: userInfo.userId, itemId: id },
+    });
+    if (resp.error && resp.error.status === 401) {
+      notifyError("Unauthorized Access");
+      setUserInfo(null);
+    } else if (resp.error) {
+      notifyError("Failed to unpublish item");
+    } else {
+      notifySuccess("Request unfreeze item successfully");
+      fetchItems();
+    }
+  } catch (err) {
+    console.error("Error unpublishing item:", err);
+    notifyError("Error unpublishing item");
+  }
+}
+
+  
 
   if (loading) return <div>Loading...</div>;
 
@@ -349,6 +374,7 @@ const SellerDashboard = () => {
           onPublish={handlePublish}
           onUnpublish={handleUnpublish}
           onDelete={handleDelete}
+          onRequestUnfreeze={handleRequestUnfreeze}
           refreshItems={fetchItems}
           onArchive={handleArchive}
         />

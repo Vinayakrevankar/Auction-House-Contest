@@ -58,7 +58,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       description: newItemDescription,
       initPrice: parseFloat(newItemInitPrice),
       lengthOfAuction: parseInt(newItemLengthOfAuction),
-      images: images.filter((v) => v !== undefined), // For simplicity
+      images: images.filter((v) => v !== undefined), // For simplicity,
+      isFrozen: false,
     };
 
     onAddItem(newItem);

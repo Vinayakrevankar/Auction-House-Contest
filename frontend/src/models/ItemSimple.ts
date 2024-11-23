@@ -6,6 +6,7 @@ export type ItemSimple = {
   description: string;
   initPrice: number;
   itemState: string;
+  isFrozen: boolean,
   lengthOfAuction: number;
   images: string[]; // For simplicity
 };
@@ -38,6 +39,7 @@ export function itemToSimple(v: Item): ItemSimple {
     description: v.description,
     initPrice: v.initPrice,
     itemState: v.itemState,
+    isFrozen: v.isFrozen,
     lengthOfAuction: v.lengthOfAuction,
     images: v.images || [], 
   };
