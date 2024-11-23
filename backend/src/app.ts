@@ -110,30 +110,22 @@ app.put('/api/profile/update', editProfileHandler);
 // Buyer use cases
 // Place a new bid
 app.post('/api/buyers/:buyerId/bids', authFilterMiddleware, (req, res) => {
-  const buyerId = req.params['buyerId'];
-  const itemId = req.body.itemId;
-  const bidAmount = req.body.bidAmount;
-
-  placeBid(buyerId, itemId, bidAmount, res);
+  placeBid(req, res);
 });
 
 // Review active bids
 app.get('/api/buyers/:buyerId/bids', authFilterMiddleware, (req, res) => {
-  const buyerId = req.params['buyerId'];
-  reviewActiveBids(buyerId, res);
+  reviewActiveBids(req, res);
 });
 
 // Review purchases
 app.get('/api/buyers/:buyerId/purchases', authFilterMiddleware, (req, res) => {
-  const buyerId = req.params['buyerId'];
-  reviewPurchases(buyerId, res);
+  reviewPurchases(req, res);
 });
 
 // Add funds
 app.post('/api/buyers/:buyerId/add-funds', authFilterMiddleware, (req, res) => {
-  const buyerId = req.params['buyerId'];
-  const amount = req.body.amount;
-  addFunds(buyerId, amount, res);
+  addFunds(req, res);
 });
 
 
