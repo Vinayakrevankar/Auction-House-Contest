@@ -12,6 +12,7 @@ interface EditItemModalProps {
   onUnpublish: (id: string) => Promise<void>;
   onDelete: (id: string) => void;
   refreshItems: () => void;
+  onRequestUnfreeze: (id: string) => void;
   onArchive: (id: string) => Promise<void>;
 }
 
@@ -25,6 +26,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onDelete,
   refreshItems,
   onArchive,
+  onRequestUnfreeze
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
@@ -289,6 +291,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 }`}
               >
                 Unpublish
+              </Button>
+              <Button
+                onClick={() => onRequestUnfreeze(itemToEdit.id)}
+                disabled = {!itemToEdit.isFrozen}
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
+              >
+                Request Unfreeze
               </Button>
               <Button
                 onClick={() => onDelete(itemToEdit.id)}
