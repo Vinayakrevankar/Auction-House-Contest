@@ -115,8 +115,6 @@ export async function placeBid(buyerId: string, itemId: string, bidAmount: numbe
   const buyer = getBuyerResp.Item;
   const buyerFunds = buyer.fund ?? 0;
 
-  // Note: In a real implementation, you should calculate the sum of active bids.
-  // For this iteration, we will check if buyer has enough funds for this bid.
 
   if (buyerFunds < bidAmount) {
     res.status(400).send(<ErrorResponsePayload>{

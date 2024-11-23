@@ -7,7 +7,7 @@ import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/h
 import { addItem, checkExpirationStatus, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
 import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
-import {placeBid } from './manage-buyer/handler';
+import {placeBid,addFunds } from './manage-buyer/handler';
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
@@ -115,6 +115,13 @@ app.post('/api/buyers/:buyerId/bids', authFilterMiddleware, (req, res) => {
   const bidAmount = req.body.bidAmount;
   placeBid(buyerId, itemId, bidAmount, res);
 });
+// Add funds
+app.post('/api/buyers/:buyerId/add-funds', authFilterMiddleware, (req, res) => {
+  const buyerId = req.params['buyerId'];
+  const amount = req.body.amount;
+  addFunds(buyerId, amount, res);
+});
+
 
 
 
