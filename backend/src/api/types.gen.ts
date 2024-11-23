@@ -139,6 +139,10 @@ export type Bid = {
      * UNIX Timestamp
      */
     createAt: number;
+    /**
+     * Is this bid the active bid of the item
+     */
+    isActive: boolean;
 };
 
 /**

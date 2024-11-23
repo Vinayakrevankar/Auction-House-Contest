@@ -1160,6 +1160,9 @@ components:
           type: integer
           format: int64
           description: UNIX Timestamp
+        isActive:
+          type: boolean
+          description: Is this bid the active bid of the item
       required:
         - id
         - bidItemId
@@ -1167,6 +1170,7 @@ components:
         - bidAmount
         - bidTime
         - createAt
+        - isActive
       description: Bid to an item
     Purchase:
       type: object
