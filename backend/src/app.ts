@@ -7,7 +7,7 @@ import { archiveItem, fulfillItem, requestUnfreezeItem } from './manage-seller/h
 import { addItem, checkExpirationStatus, editItem, removeInactiveItem } from './manage-item/handler';
 import { registerHandler, loginHander, editProfileHandler } from './manage-user/handler';
 import { getActiveItems, getItemBids, getItemDetails, publishItem, reviewItems, unpublishItem } from './manage-item/handler'
-import {placeBid,addFunds } from './manage-buyer/handler';
+import {placeBid,addFunds,reviewPurchases, reviewActiveBids} from './manage-buyer/handler';
 import * as httpUtil from './util/httpUtil';
 import { authFilterMiddleware } from './security/authFilterMiddleware';
 import { asyncMiddleware as _async } from './security/asyncMiddleware';
@@ -121,6 +121,17 @@ app.post('/api/buyers/:buyerId/add-funds', authFilterMiddleware, (req, res) => {
   const amount = req.body.amount;
   addFunds(buyerId, amount, res);
 });
+// review Purchases
+app.get('/api/buyers/:buyerId/purchases', authFilterMiddleware, (req, res) => {
+  const buyerId = req.params['buyerId'];
+  reviewPurchases(buyerId, res);
+});
+// review ActiveBids
+app.get('/api/buyers/:buyerId/bids', authFilterMiddleware, (req, res) => {
+  const buyerId = req.params['buyerId'];
+  reviewActiveBids(buyerId, res);
+});
+
 
 
 
