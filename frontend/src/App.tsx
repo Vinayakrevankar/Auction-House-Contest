@@ -5,10 +5,11 @@ import {
   Navigate,
 } from "react-router-dom";
 import { AuthProvider, useAuth } from "./AuthContext";
-import LandingPage from "./LandingPage";
+// import LandingPage from "./LandingPage";
 import SellerDashboard from "./SellerDashboard";
 import BuyerDashboard from "./BuyerDashboard";
 import Notification from "./components/Notification";
+import { MainPage } from "./MainPage";
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -24,8 +25,8 @@ const App = () => {
       <Notification />
       <Router>
         <Routes>
-        
-          <Route path="/" element={<LandingPage />} />
+
+          <Route path="/" element={<MainPage />} />
 
           {/* Protected Routes */}
           <Route
@@ -42,6 +43,12 @@ const App = () => {
               <ProtectedRoute>
                 <BuyerDashboard />
               </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/main-page"
+            element={
+              <MainPage />
             }
           />
         </Routes>
