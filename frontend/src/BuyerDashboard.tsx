@@ -22,11 +22,10 @@ const BuyerDashboard: React.FC = () => {
   const fetchActiveBids = useCallback(async () => {
     if (!userInfo) return;
     try {
-      console.log("Fetching active bids for user:", userInfo.emailAddress);
-      const decodedBuyerId = decodeURIComponent(userInfo.userId)
+      console.log("Fetching active bids for user:", decodeURIComponent(userInfo.emailAddress));
       const resp = await buyerBids({
         headers: { Authorization: userInfo.token },
-        path: { buyerId: userInfo.userId },
+        path: { buyerId: encodeURIComponent(decodeURIComponent(userInfo.emailAddress)) },
       });
       console.log("Active bids response:", resp);
       if (resp.data) {
@@ -52,7 +51,7 @@ const BuyerDashboard: React.FC = () => {
     try {
       const resp = await buyerPurchases({
         headers: { Authorization: userInfo.token },
-        path: { buyerId: userInfo.userId },
+        path: { buyerId: encodeURIComponent(decodeURIComponent(userInfo.emailAddress)) },
       });
       if (resp.data) {
         setPurchases(resp.data.payload);

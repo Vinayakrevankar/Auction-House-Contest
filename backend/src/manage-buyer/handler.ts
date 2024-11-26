@@ -7,7 +7,7 @@ const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export async function placeBid(req: Request, res: Response) {
   const buyerId = res.locals.userId;  // User's unique ID (e.g., 'RIWA81973509')
-  const buyerEmail = res.locals.userId;   // User's email address, which is the 'id' in DynamoDB
+  const buyerEmail = res.locals.id;   // User's email address, which is the 'id' in DynamoDB
   const { itemId, bidAmount } = req.body;
 
   const getItemCmd = new GetCommand({
@@ -174,7 +174,7 @@ export async function reviewActiveBids(req: Request, res: Response) {
 }
 
 export async function reviewPurchases(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId;
+  const buyerEmail = res.locals.id;
 
   const getBuyerCmd = new GetCommand({
     TableName: "dev-users3",
@@ -200,7 +200,7 @@ export async function reviewPurchases(req: Request, res: Response) {
 }
 
 export async function addFunds(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId;  // Use email address as the key
+  const buyerEmail = res.locals.id;  // Use email address as the key
   const { amount } = req.body;
 
   const updateCmd = new UpdateCommand({
