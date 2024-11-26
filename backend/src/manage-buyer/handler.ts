@@ -1,13 +1,24 @@
-import { GetCommand, ScanCommand, TransactWriteCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import {
+  GetCommand,
+  ScanCommand,
+  TransactWriteCommand,
+  UpdateCommand,
+} from "@aws-sdk/lib-dynamodb";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
-import { Request, Response } from 'express';
-import { Bid, Item, AddFundsResponsePayload, ErrorResponsePayload } from "../api";
+import { Request, Response } from "express";
+import {
+  Bid,
+  Item,
+  AddFundsResponsePayload,
+  ErrorResponsePayload,
+} from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
-
+const ADMIN_ROLE = "admin";
+const USER_DB = "dev-users3";
 export async function placeBid(req: Request, res: Response) {
-  const buyerId = res.locals.userId;  // User's unique ID (e.g., 'RIWA81973509')
-  const buyerEmail = res.locals.userId;   // User's email address, which is the 'id' in DynamoDB
+  const buyerId = res.locals.userId; // User's unique ID (e.g., 'RIWA81973509')
+  const buyerEmail = res.locals.userId; // User's email address, which is the 'id' in DynamoDB
   const { itemId, bidAmount } = req.body;
 
   const getItemCmd = new GetCommand({
@@ -32,7 +43,9 @@ export async function placeBid(req: Request, res: Response) {
   const currentDate = new Date();
   const endDate = new Date(item.endDate);
   if (currentDate >= endDate) {
-    res.status(400).send({ status: 400, message: "Item bidding time has expired." });
+    res
+      .status(400)
+      .send({ status: 400, message: "Item bidding time has expired." });
     return;
   }
 
@@ -68,7 +81,10 @@ export async function placeBid(req: Request, res: Response) {
 
   const minimumBidAmount = currentBidAmount + 1;
   if (bidAmount < minimumBidAmount) {
-    res.status(400).send({ status: 400, message: `Bid amount must be at least $${minimumBidAmount}` });
+    res.status(400).send({
+      status: 400,
+      message: `Bid amount must be at least $${minimumBidAmount}`,
+    });
     return;
   }
 
@@ -89,7 +105,9 @@ export async function placeBid(req: Request, res: Response) {
   const buyerFunds = buyer.fund ?? 0;
 
   if (buyerFunds < bidAmount) {
-    res.status(400).send({ status: 400, message: "Insufficient funds to place the bid." });
+    res
+      .status(400)
+      .send({ status: 400, message: "Insufficient funds to place the bid." });
     return;
   }
 
@@ -127,12 +145,18 @@ export async function placeBid(req: Request, res: Response) {
     },
   });
 
-  const transactCmd = new TransactWriteCommand({ TransactItems: transactItems });
+  const transactCmd = new TransactWriteCommand({
+    TransactItems: transactItems,
+  });
 
   await dclient
     .send(transactCmd)
     .then(() => {
-      res.status(202).send({ status: 202, message: "Bid placed successfully.", payload: newBid });
+      res.status(202).send({
+        status: 202,
+        message: "Bid placed successfully.",
+        payload: newBid,
+      });
     })
     .catch((err) => {
       if (err.name === "TransactionCanceledException") {
@@ -200,7 +224,7 @@ export async function reviewPurchases(req: Request, res: Response) {
 }
 
 export async function addFunds(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId;  // Use email address as the key
+  const buyerEmail = res.locals.userId; // Use email address as the key
   const { amount } = req.body;
 
   const updateCmd = new UpdateCommand({
@@ -230,4 +254,48 @@ export async function addFunds(req: Request, res: Response) {
     .catch((err) => {
       res.status(500).send({ status: 500, message: `${err}` });
     });
+}
+export async function closeAccountHandler(req: Request, res: Response) {
+  const buyerEmail = res.locals.userId; // User's email address from authentication middleware
+
+  try {
+    // Fetch the user's data from the database
+    const getUserCommand = new GetCommand({
+      TableName: USER_DB,
+      Key: { id: buyerEmail },
+    });
+    const userResult = await dclient.send(getUserCommand);
+
+    if (!userResult.Item) {
+      return res.status(404).send({ status: 404, message: "User not found." });
+    }
+
+    if (userResult.Item.id !== buyerEmail) {
+      return res.status(403).send({
+        status: 403,
+        message: "You are not authorized to close this account.",
+      });
+    }
+
+    // Update the user's isActive status to false
+    const updateUserCommand = new UpdateCommand({
+      TableName: USER_DB,
+      Key: { id: buyerEmail },
+      UpdateExpression: "SET isActive = :inactive",
+      ExpressionAttributeValues: {
+        ":inactive": false,
+      },
+    });
+
+    await dclient.send(updateUserCommand);
+
+    return res
+      .status(200)
+      .send({ status: 200, message: "Account closed successfully." });
+  } catch (error) {
+    console.error("Error closing account:", error);
+    return res
+      .status(500)
+      .send({ status: 500, message: "Could not close account." });
+  }
 }

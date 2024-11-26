@@ -2,7 +2,8 @@ import React, { useState } from "react";
 import { useAuth } from "../AuthContext";
 import { userLogin } from "../api/services.gen";
 import { useNavigate } from "react-router-dom";
-import { notifySuccess, notifyError } from './Notification';
+import { notifySuccess, notifyError } from "./Notification";
+
 interface LoginModalProps {
   onClose: () => void;
 }
@@ -20,29 +21,36 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
       const response = await userLogin({
         body: { emailAddress: email, password },
       });
+
       if (response.data?.status === 200) {
         const info = response.data.payload;
-
         // Store user info in context and session storage
         const userInfo = {
           username: info.username || "",
           emailAddress: info.emailAddress || "",
-          userType: info.userType as "seller" | "buyer" || "buyer",
+          userType: (info.userType as "seller" | "buyer") || "buyer",
           userId: info.userId || "",
-          role: (info.role === "admin" || info.role === "user") ? info.role : "user",
+          role:
+            info.role === "admin" || info.role === "user" ? info.role : "user",
           token: info.token || "",
         };
-        console.log(info.token)
+        console.log(info.token);
         setUserInfo(userInfo);
-        onClose(); // Close the modal on successful login
+        onClose();
         notifySuccess("Login successfully!");
         if (info.userType === "buyer") {
           navigate("/");
         } else {
           navigate("/seller-dashboard");
         }
+      } else if (response.error?.status === 403) {
+        notifyError(
+          response.error.message || "Your account has been deactivated."
+        );
       } else {
-        notifyError("Login failed: Invalid credentials");
+        notifyError(
+          response.error?.message || "Login failed: Invalid credentials"
+        );
       }
     } catch (error) {
       console.error("Login error:", error);
