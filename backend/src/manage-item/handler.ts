@@ -260,21 +260,47 @@ export async function removeInactiveItem(
 
 
 //Publish item
-export function publishItem(sellerId: string, itemId: string, res: Response) {
-  const cmd = new UpdateCommand({
+export async function publishItem(sellerId: string, itemId: string, res: Response) {
+  const getCmd = new GetCommand({
+    TableName: "dev-items3",
+    Key: {
+      "id": itemId,
+    },
+  });
+  const resp = await dclient.send(getCmd).catch(err => {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: err,
+    });
+  });
+  if (!resp) {
+    return;
+  } else if (!resp.Item) {
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found",
+    });
+    return;
+  }
+  const item = resp.Item as Item;
+  const sdate = new Date();
+  const edate = new Date(sdate.getTime() + item.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const updateCmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
       "id": itemId,
     },
-    UpdateExpression: "SET itemState = :new",
+    UpdateExpression: "SET itemState = :new, startDate = :sdate, endDate = :edate",
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
+      ":sdate": sdate.toString(),
+      ":edate": edate.toString(),
       ":old": "inactive",
       ":sid": sellerId,
     },
   });
-  dclient.send(cmd, (err) => {
+  dclient.send(updateCmd, (err) => {
     if (err) {
       res.status(500).send(<ErrorResponsePayload>{
         status: 500,
@@ -296,12 +322,19 @@ export function unpublishItem(sellerId: string, itemId: string, res: Response) {
       "id": itemId,
     },
     UpdateExpression: "SET itemState = :new",
-    ConditionExpression: "itemState = :old AND sellerId = :sid AND (attribute_not_exists(currentBidId) OR currentBidId = :null)",
+    // ConditionExpression: "itemState = :old AND sellerId = :sid AND (attribute_not_exists(currentBidId) OR currentBidId = :null)",
+    ConditionExpression: [
+      "itemState = :old",
+      "sellerId = :sid",
+      "(attribute_not_exists(currentBidId) OR currentBidId = :null)",
+      "(attribute_not_exists(pastBidIds) OR size(pastBidIds) = :zero)"
+    ].join(" AND "),
     ExpressionAttributeValues: {
       ":new": "inactive",
       ":old": "active",
       ":sid": sellerId,
       ":null": null,
+      ":zero": 0,
     },
   });
   dclient.send(cmd, (err) => {
@@ -373,7 +406,7 @@ export function getActiveItems(res: Response) {
         message: err,
       });
     } else {
-      res.send({
+      res.status(200).send({
         status: 200,
         message: "Success",
         payload: updateURLs((data?.Items ?? []) as Item[]),
@@ -432,4 +465,72 @@ export function getItemBids(itemId: string, res: Response) {
       });
     }
   });
+}
+
+export async function checkExpirationStatus(itemId: string, res: Response) {
+  const getCmd = new GetCommand({
+    TableName: "dev-items3",
+    Key: {
+      "id": itemId,
+    },
+  });
+  const resp = await dclient.send(getCmd).catch(err => {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: `Failed to get item ${itemId}: ${err}`,
+    });
+  });
+  if (!resp) {
+    return;
+  } else if (!resp.Item) {
+    res.status(404).send(<ErrorResponsePayload>{
+      status: 404,
+      message: "Item not found",
+    });
+  } else {
+    const item = resp.Item as Item;
+    const currTime = new Date();
+    const endDate = new Date(item.endDate);
+    if (currTime.getTime() <= endDate.getTime()) {
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: {
+          isExpired: false,
+        },
+      });
+    } else {
+      // NOTE: Update item state
+      let new_state = "completed";
+      if (!item.currentBidId || !item.pastBidIds || item.pastBidIds.length === 0) {
+        new_state = "failed";
+      }
+      const updateCmd = new UpdateCommand({
+        TableName: "dev-items3",
+        Key: {
+          "id": itemId,
+        },
+        UpdateExpression: "SET itemState = :new",
+        ExpressionAttributeValues: {
+          ":new": new_state,
+        },
+      });
+      const resp = await dclient.send(updateCmd).catch(err => {
+        res.status(500).send({
+          status: 500,
+          message: `Failed to update item ${itemId}: ${err}`,
+        });
+      });
+      if (!resp) {
+        return;
+      }
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: {
+          isExpired: true,
+        },
+      });
+    }
+  }
 }

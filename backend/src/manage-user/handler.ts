@@ -9,6 +9,8 @@ import {
   getBadRequest,
   getUnauthorized,
   getException,
+  getAccessDenied,
+  getNotFound,
 } from "../util/httpUtil"; // Import response utilities
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
@@ -16,10 +18,20 @@ const JWT_SECRET = "JqaXPsfAMN4omyJWj9c8o9nbEQStbsiJ";
 const USER_DB = "dev-users3";
 
 export async function registerHandler(req: Request, res: Response) {
-  const { username, password, emailAddress, firstName, lastName, userType, role } = req.body;
+  const {
+    username,
+    password,
+    emailAddress,
+    firstName,
+    lastName,
+    userType,
+    role,
+  } = req.body;
 
   if (!username || !password || !emailAddress || !firstName || !lastName) {
-    return res.status(400).json(getBadRequest([null, "All fields are required."]));
+    return res
+      .status(400)
+      .json(getBadRequest([null, "All fields are required."]));
   }
 
   try {
@@ -30,12 +42,16 @@ export async function registerHandler(req: Request, res: Response) {
     const existingUser = await dclient.send(getUserCommand);
 
     if (existingUser.Item) {
-      return res.status(400).json(getBadRequest([null, "User already exists."]));
+      return res
+        .status(400)
+        .json(getBadRequest([null, "User already exists."]));
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
     const timestamp = Date.now();
-    const randomSuffix = Math.floor(Math.random() * 1000).toString().padStart(3, '0');
+    const randomSuffix = Math.floor(Math.random() * 1000)
+      .toString()
+      .padStart(3, "0");
     const uniqueId = `${firstName.slice(0, 2).toUpperCase()}${lastName.slice(0, 2).toUpperCase()}${timestamp.toString().slice(-5)}${randomSuffix}`;
 
     const putUserCommand = new PutCommand({
@@ -58,7 +74,17 @@ export async function registerHandler(req: Request, res: Response) {
     await dclient.send(putUserCommand);
 
     const token = jwt.sign(
-      { username, id: emailAddress, emailAddress, role, userType, firstName, lastName, isActive: true, userId: uniqueId },
+      {
+        username,
+        id: emailAddress,
+        emailAddress,
+        role,
+        userType,
+        firstName,
+        lastName,
+        isActive: true,
+        userId: uniqueId,
+      },
       JWT_SECRET,
       { expiresIn: "15m" }
     );
@@ -87,11 +113,13 @@ export async function registerHandler(req: Request, res: Response) {
   }
 }
 
-export async function loginHander(req: Request, res: Response) {
+export async function loginHandler(req: Request, res: Response) {
   const { emailAddress, password } = req.body;
 
   if (!emailAddress || !password) {
-    return res.status(400).json(getBadRequest([null, "Email and password are required."]));
+    return res
+      .status(400)
+      .json(getBadRequest([null, "Email and password are required."]));
   }
 
   try {
@@ -102,23 +130,56 @@ export async function loginHander(req: Request, res: Response) {
     const userResult = await dclient.send(getUserCommand);
 
     if (!userResult.Item) {
-      return res.status(401).json(getUnauthorized([null, "Invalid credentials."]));
+      return res
+        .status(401)
+        .json(getUnauthorized([null, "Invalid credentials."]));
     }
 
     const user = userResult.Item;
+
+    if (user.isActive === false) {
+      return res
+        .status(403)
+        .json(getAccessDenied([null, "Your account has been deactivated."]));
+    }
+
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
-      return res.status(401).json(getUnauthorized([null, "Invalid credentials."]));
+      return res
+        .status(401)
+        .json(getUnauthorized([null, "Invalid credentials."]));
     }
 
     const token = jwt.sign(
-      { username: user.username, id: emailAddress, firstName: user.firstName, lastName: user.lastName,isActive: user.isActive, emailAddress: user.id, role: user.role, userType: user.userType, userId: user.userId },
+      {
+        username: user.username,
+        id: emailAddress,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        isActive: user.isActive,
+        emailAddress: user.id,
+        role: user.role,
+        userType: user.userType,
+        userId: user.userId,
+      },
       JWT_SECRET,
       { expiresIn: "15m" }
     );
 
-    return res.status(200).json(getSuccess({ username: user.username, emailAddress, userType: user.userType, role: user.role, userId: user.userId, token }, "Login successful"));
+    return res.status(200).json(
+      getSuccess(
+        {
+          username: user.username,
+          emailAddress,
+          userType: user.userType,
+          role: user.role,
+          userId: user.userId,
+          token,
+        },
+        "Login successful"
+      )
+    );
   } catch (error) {
     console.error("Error logging in:", error);
     return res.status(500).json(getException([null, "Could not log in."]));
@@ -126,10 +187,20 @@ export async function loginHander(req: Request, res: Response) {
 }
 
 export async function editProfileHandler(req: Request, res: Response) {
-  const { emailAddress, firstName, lastName, username, password, userType, role } = req.body;
+  const {
+    emailAddress,
+    firstName,
+    lastName,
+    username,
+    password,
+    userType,
+    role,
+  } = req.body;
 
   if (!emailAddress) {
-    return res.status(400).json(getBadRequest([null, "Email is required to update profile."]));
+    return res
+      .status(400)
+      .json(getBadRequest([null, "Email is required to update profile."]));
   }
 
   const updateExpressions: string[] = [];
@@ -189,10 +260,64 @@ export async function editProfileHandler(req: Request, res: Response) {
 
     const updatedUser = await dclient.send(updateCommand);
 
-    return res.status(200).json(getSuccess(updatedUser.Attributes, "Profile updated successfully."));
+    return res
+      .status(200)
+      .json(
+        getSuccess(updatedUser.Attributes, "Profile updated successfully.")
+      );
   } catch (error) {
     console.error("Error updating profile:", error);
-    return res.status(500).json(getException([null, "Could not update profile."]));
+    return res
+      .status(500)
+      .json(getException([null, "Could not update profile."]));
   }
 }
 
+export async function closeAccountHandler(req: Request, res: Response) {
+  const buyerEmail = res.locals.userId; // User's email address from authentication middleware
+
+  try {
+    // Fetch the user's data from the database
+    const getUserCommand = new GetCommand({
+      TableName: USER_DB,
+      Key: { id: buyerEmail },
+    });
+    const userResult = await dclient.send(getUserCommand);
+
+    if (!userResult.Item) {
+      return res.status(404).json(getNotFound([null, "User not found."]));
+    }
+
+    if (userResult.Item.id !== buyerEmail) {
+      return res
+        .status(403)
+        .json(
+          getAccessDenied([
+            null,
+            "You are not authorized to close this account.",
+          ])
+        );
+    }
+
+    // Update the user's isActive status to false
+    const updateUserCommand = new UpdateCommand({
+      TableName: USER_DB,
+      Key: { id: buyerEmail },
+      UpdateExpression: "SET isActive = :inactive",
+      ExpressionAttributeValues: {
+        ":inactive": false,
+      },
+    });
+
+    await dclient.send(updateUserCommand);
+
+    return res
+      .status(200)
+      .json(getSuccess(null, "Account closed successfully."));
+  } catch (error) {
+    console.error("Error closing account:", error);
+    return res
+      .status(500)
+      .json(getException([null, "Could not close account."]));
+  }
+}

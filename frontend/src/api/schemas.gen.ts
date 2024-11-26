@@ -150,9 +150,13 @@ export const BidSchema = {
             type: 'integer',
             format: 'int64',
             description: 'UNIX Timestamp'
+        },
+        isActive: {
+            type: 'boolean',
+            description: 'Is this bid the active bid of the item'
         }
     },
-    required: ['id', 'bidItemId', 'bidUserId', 'bidAmount', 'bidTime', 'createAt'],
+    required: ['id', 'bidItemId', 'bidUserId', 'bidAmount', 'bidTime', 'createAt', 'isActive'],
     description: 'Bid to an item'
 } as const;
 
