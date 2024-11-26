@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import {  buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemGetActive } from "./api"; //Bid,
+import { buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemGetActive } from "./api"; //Bid,
 import { Button, Card, FlowbiteTextInputColors, Modal, TextInput } from "flowbite-react";
 import { notifyError, notifySuccess } from "./components/Notification";
 import { useAuth } from "./AuthContext";
@@ -95,7 +95,7 @@ function ItemCard(
       });
       setRefresh(false);
     }
-  }, [refresh]);
+  }, [refresh, item.currentBidId, item.id]);
 
   useEffect(() => {
     const interval = setInterval(() => setEnd(end - 1000), 1000);
