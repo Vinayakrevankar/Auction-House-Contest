@@ -137,7 +137,6 @@ export async function loginHandler(req: Request, res: Response) {
 
     const user = userResult.Item;
 
-    // Check if the account is active
     if (user.isActive === false) {
       return res
         .status(403)
