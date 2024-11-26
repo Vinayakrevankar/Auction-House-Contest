@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { Bid, buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemGetActive } from "./api";
+import {  buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemGetActive } from "./api"; //Bid,
 import { Button, Card, FlowbiteTextInputColors, Modal, TextInput } from "flowbite-react";
 import { notifyError, notifySuccess } from "./components/Notification";
 import { useAuth } from "./AuthContext";
