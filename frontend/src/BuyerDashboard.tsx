@@ -22,24 +22,29 @@ const BuyerDashboard: React.FC = () => {
   const fetchActiveBids = useCallback(async () => {
     if (!userInfo) return;
     try {
+      console.log("Fetching active bids for user:", userInfo.emailAddress);
+      const decodedBuyerId = decodeURIComponent(userInfo.userId)
       const resp = await buyerBids({
         headers: { Authorization: userInfo.token },
         path: { buyerId: userInfo.userId },
       });
+      console.log("Active bids response:", resp);
       if (resp.data) {
+        console.log("Setting active bids:", resp.data.payload);
         setActiveBids(resp.data.payload);
       } else if (resp.error && resp.error.status === 401) {
-        notifyError('Unauthorized Access');
+        notifyError("Unauthorized Access");
         setUserInfo(null);
-        navigate('/');
+        navigate("/");
       } else {
-        notifyError('Failed to fetch active bids');
+        notifyError("Failed to fetch active bids");
       }
     } catch (err) {
-      console.error('Error fetching active bids:', err);
-      notifyError('Error fetching active bids');
+      console.error("Error fetching active bids:", err);
+      notifyError("Error fetching active bids");
     }
   }, [userInfo, setUserInfo, navigate]);
+  
 
   // Fetch purchases
   const fetchPurchases = useCallback(async () => {
