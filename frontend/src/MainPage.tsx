@@ -65,7 +65,7 @@ function ItemCard(
   { item }: { item: Item }
 ) {
   const [show, setShow] = useState(false);
-  const [_bids, setBids] = useState<Bid[]>([]);
+  // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
   const [refresh, setRefresh] = useState(false);
   const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
@@ -82,7 +82,7 @@ function ItemCard(
     if (refresh) {
       itemBids({ path: { itemId: item.id } }).then(resp => {
         if (resp.data) {
-          setBids(resp.data.payload);
+          // setBids(resp.data.payload);
           if (item.currentBidId) {
             const bid = resp.data.payload.find(b => b.id === item.currentBidId);
             if (bid) {
