@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import { buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemGetActive } from "./api"; //Bid,
+import { buyerBidsPlace, ErrorResponsePayload, Item, itemBids, itemCheckExpired, itemGetActive } from "./api"; //Bid,
 import { Button, Card, FlowbiteTextInputColors, Modal, TextInput } from "flowbite-react";
 import { notifyError, notifySuccess } from "./components/Notification";
 import { useAuth } from "./AuthContext";
@@ -67,7 +67,7 @@ function ItemCard(
   const [show, setShow] = useState(false);
   // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
-  const [refresh, setRefresh] = useState(false);
+  const [refresh, setRefresh] = useState(true);
   const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
@@ -80,19 +80,20 @@ function ItemCard(
 
   useEffect(() => {
     if (refresh) {
-      itemBids({ path: { itemId: item.id } }).then(resp => {
-        if (resp.data) {
-          // setBids(resp.data.payload);
-          if (item.currentBidId) {
-            const bid = resp.data.payload.find(b => b.id === item.currentBidId);
-            if (bid) {
-              setCurrentPrice(bid.bidAmount);
-            }
-          }
-        } else {
+      const fetchData = async () => {
+        const resp = await itemBids({ path: { itemId: item.id } });
+        if (!resp.data) {
           notifyError(`Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`);
+          return;
         }
-      });
+        if (item.currentBidId) {
+          const bid = resp.data.payload.find(b => b.id === item.currentBidId);
+          if (bid) {
+            setCurrentPrice(bid.bidAmount);
+          }
+        }
+      };
+      fetchData();
       setRefresh(false);
     }
   }, [refresh, item.currentBidId, item.id]);
@@ -176,13 +177,30 @@ export function MainPage() {
 
   useEffect(() => {
     if (refresh) {
-      itemGetActive().then(resp => {
-        if (resp.data) {
-          setItems(resp.data.payload);
-        } else {
+      const fetchData = async () => {
+        const resp = await itemGetActive();
+        if (!resp.data) {
           notifyError(`Get active items failed with status ${resp.error.status}: ${resp.error.message}`);
+          return;
         }
-      });
+        const ps = resp.data.payload.map(async item => {
+          const resp = await itemCheckExpired({ path: { itemId: item.id } });
+          return { item: item, resp: resp };
+        });
+        const result = await Promise.all(ps);
+        const new_items = result.filter(({ item, resp }) => {
+          if (resp.error) {
+            notifyError(`Failed to check expired status for ${item.id}: ${resp.error.message}`);
+            return false;
+          } else if (resp.data.payload.isExpired) {
+            return false;
+          } else {
+            return true;
+          }
+        }).map(({ item }) => item);
+        setItems(new_items);
+      };
+      fetchData();
       setRefresh(false);
     }
   }, [refresh]);

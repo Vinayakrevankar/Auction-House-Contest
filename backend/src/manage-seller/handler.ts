@@ -97,7 +97,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": bid.bidUserId,
           },
-          UpdateExpression: "set fund = fund - :amount, purchases = list_append(purchases, :new_purchase)",
+          UpdateExpression: "set fund = fund - :amount, purchases = list_append(purchases, :new_purchase), itemState = :new",
           ConditionExpression: "fund >= :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
@@ -108,6 +108,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
               soldTime: bid.bidTime,
               fulfillTime: new Date().toISOString(),
             }],
+            ":new": "archived",
           },
         }
       },
