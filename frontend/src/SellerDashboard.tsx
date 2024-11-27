@@ -38,6 +38,7 @@ const SellerDashboard = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [itemToEdit, setItemToEdit] = useState<ItemSimple | null>(null);
   const [loading, setLoading] = useState(true);
+  const [funds, setFunds] = useState<number>(0);
 
   const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
     const colorClass = stateTextColors[value] || "bg-red-500 text-white"; // Default style for undefined states
@@ -47,6 +48,24 @@ const SellerDashboard = () => {
       </div>
     );
   };
+
+  const fetchFunds = async () => {
+    if (!userInfo) return;
+    try {
+      const response = await fetch("https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund", {
+        method: "GET",
+        headers: {
+          Authorization: `${userInfo?.token}`, // Assuming userInfo contains a token for authentication
+        }
+      });
+      const data = await response.json();
+      setFunds(data.payload?.fund || 0);
+      // Handle the response if needed
+    } catch (error) {
+      console.error("Error fetching funds:", error);
+    }
+  };
+
   const EditButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openEditModal(data)}
@@ -155,6 +174,7 @@ const SellerDashboard = () => {
 
   // Load data on mount
   useEffect(() => {
+    fetchFunds();
     if (!userInfo) {
       navigate("/", { state: { openLoginModal: true } });
     } else {
@@ -384,10 +404,15 @@ const handlefulfill = async (id: string) => {
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
       <div className="flex justify-between items-center mb-5">
-        <h1 className="text-2xl font-bold">Buyer Dashboard</h1>
+        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
         {userInfo && (
           <div className="flex items-center gap-4">
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
+            <Button
+              className="p-2 bg-green-500 text-white rounded"
+            >
+              Available Funds: ${funds}
+            </Button>
             <Button
               color="blue"
               onClick={() => {

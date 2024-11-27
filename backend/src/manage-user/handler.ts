@@ -318,7 +318,6 @@ export async function closeAccountHandler(req: Request, res: Response) {
     const updatedUser = await dclient.send(updateUserCommand);
     console.log("Updated User Response:", updatedUser);
 
-    console.log(`Account for user ${userId} has been closed successfully.`);
     return res.status(200).json({
       status: 200,
       message: "Account closed successfully.",
@@ -329,5 +328,43 @@ export async function closeAccountHandler(req: Request, res: Response) {
       status: 500,
       message: "Could not close account due to an internal error.",
     });
+  }
+}
+
+
+export async function getProfileFund(req: Request, res: Response) {    
+  const emailId = res.locals.id; // User's email address from authentication middleware
+
+  try {
+    const getUserCommand = new GetCommand({
+      TableName: USER_DB,
+      Key: { id: emailId },
+    });
+    const userResult = await dclient.send(getUserCommand);
+
+    if (!userResult.Item) {
+      return res.status(404).json({ status: 404, message: "User not found." });
+    }
+
+    if (userResult.Item.id !== emailId) {
+      return res.status(403).json({
+        status: 403,
+        message: "You are not authorized to view this account's funds.",
+      });
+    }
+
+    const fund = userResult.Item.fund;
+
+    return res.status(200).json({
+      status: 200,
+      message: "Funds retrieved successfully.",
+      payload: {
+        userId: emailId,
+        fund: fund,
+      },
+    });
+  } catch (error) {
+    console.error("Error retrieving funds:", error);
+    return res.status(500).json({ status: 500, message: `${error}` });
   }
 }

@@ -274,6 +274,8 @@ const BuyerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [activeBids, setActiveBids] = useState<Bid[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [funds, setFunds] = useState<number>(0);
+
   const [loading, setLoading] = useState(true);
 
   const [showActiveBidsModal, setShowActiveBidsModal] = useState(false);
@@ -340,7 +342,26 @@ const BuyerDashboard: React.FC = () => {
     }
   }, [userInfo, setUserInfo, navigate]);
 
+  const fetchFunds = async () => {
+    if (!userInfo) return;
+    try {
+      const response = await fetch("https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund", {
+        method: "GET",
+        headers: {
+          Authorization: `${userInfo?.token}`, // Assuming userInfo contains a token for authentication
+        }
+      });
+      const data = await response.json();
+      setFunds(data.payload?.fund || 0);
+      // Handle the response if needed
+    } catch (error) {
+      console.error("Error fetching funds:", error);
+    }
+  };
+
   useEffect(() => {
+    
+    fetchFunds();
     if (!userInfo) {
       navigate("/", { state: { openLoginModal: true } });
     } else {
@@ -396,6 +417,7 @@ const BuyerDashboard: React.FC = () => {
       if (response.data) {
         notifySuccess("Funds added successfully.");
         setShowAddFundsModal(false);
+        fetchFunds(); // Fetch updated funds after adding
         // Optionally, update userInfo with new balance if available
         // For example:
         // setUserInfo({ ...userInfo, balance: response.data.newBalance });
@@ -503,15 +525,17 @@ const BuyerDashboard: React.FC = () => {
 
   // AddFundsModal Component
   const AddFundsModal: React.FC<{ onClose: () => void; onAddFunds: (amount: number) => void }> = ({ onClose, onAddFunds }) => {
-    const [amount, setAmount] = useState<number>(0);
+    const [amount, setAmount] = useState<number | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
-      if (amount <= 0) {
+      if (amount === null || amount <= 0) {
         notifyError("Please enter a valid amount.");
         return;
       }
-      onAddFunds(amount);
+      onAddFunds(Number(amount)); // Ensure `amount` is a number before passing
+      setAmount(null); // Clear the input field after successful submission
+
     };
 
     return (
@@ -521,11 +545,10 @@ const BuyerDashboard: React.FC = () => {
           <label className="mb-2">Amount to Add:</label>
           <input
             type="number"
-            value={amount}
-            onChange={(e) => setAmount(parseFloat(e.target.value))}
-            className="p-2 mb-4 border rounded"
-            min="0"
-            step="0.01"
+            value={amount !== null ? amount : ''}
+            onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : null)}
+            className="p-2 mb-4 border rounded text-black bg-white"
+            pattern="[0-9]+([\.][0-9]+)?"
             required
           />
           <div className="flex space-x-4">
@@ -558,6 +581,11 @@ const BuyerDashboard: React.FC = () => {
         {userInfo && (
           <div className="flex items-center gap-4">
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
+            <Button
+              className="p-2 bg-green-500 text-white rounded"
+            >
+              Available Funds: ${funds}
+            </Button>
             <Button
               color="blue"
               onClick={() => {
