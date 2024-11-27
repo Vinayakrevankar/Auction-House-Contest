@@ -294,7 +294,7 @@ export async function closeAccountHandler(req: Request, res: Response) {
   try {
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { userId: buyerId }, // 使用 userId 作为键
+      Key: { userId: buyerId },
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,
