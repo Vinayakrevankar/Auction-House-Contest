@@ -130,10 +130,11 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": item.id,
           },
-          UpdateExpression: "set soldBidId = :id, soldTime = :time",
+          UpdateExpression: "set soldBidId = :id, soldTime = :time, itemState = :newState",
           ExpressionAttributeValues: {
             ":id": bid.id,
             ":time": bid.bidTime,
+            ":newState": "archived"
           },
         },
       },

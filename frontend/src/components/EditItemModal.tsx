@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Modal, Button } from "flowbite-react";
 import { ItemSimple } from "../models/ItemSimple";
-import { uploadImage } from "../api";
+import { itemCheckExpired, uploadImage } from "../api";
 
 interface EditItemModalProps {
   show: boolean;
@@ -13,6 +13,7 @@ interface EditItemModalProps {
   onDelete: (id: string) => void;
   refreshItems: () => void;
   onRequestUnfreeze: (id: string) => void;
+  onFulfill: (id: string) => void;
   onArchive: (id: string) => Promise<void>;
 }
 
@@ -24,6 +25,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onPublish,
   onUnpublish,
   onDelete,
+  onFulfill,
   refreshItems,
   onArchive,
   onRequestUnfreeze
@@ -32,19 +34,28 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
   const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState("");
-
+  const [buttonFulfill, setButtonFulfill] = useState(false);
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
 
   useEffect(() => {
-    if (itemToEdit) {
-      setEditItemName(itemToEdit.name);
-      setEditItemDescription(itemToEdit.description);
-      setEditItemInitPrice(itemToEdit.initPrice.toString());
-      setEditItemLengthOfAuction(itemToEdit.lengthOfAuction.toString());
-      setEditItemImages(null);
-      setCurrentItemState(itemToEdit.itemState); // Update current item state
-    }
+    const fetchData = async () => {
+      if (itemToEdit) {
+        setEditItemName(itemToEdit.name);
+        setEditItemDescription(itemToEdit.description);
+        setEditItemInitPrice(itemToEdit.initPrice.toString());
+        setEditItemLengthOfAuction(itemToEdit.lengthOfAuction.toString());
+        setEditItemImages(null);
+        setCurrentItemState(itemToEdit.itemState); // Update current item state
+        const response = await itemCheckExpired({ path: { itemId: itemToEdit.id } });
+        if (response.data) {
+          setButtonFulfill(response.data.payload.isExpired);
+        }else{
+          setButtonFulfill(false);
+        }
+      }
+    };
+    fetchData();
   }, [itemToEdit]);
 
   const handlePublishClick = async () => {
@@ -68,6 +79,15 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       await onArchive(itemToEdit.id);
       await refreshItems();
       setCurrentItemState("inactive"); // Update button state immediately
+    }
+  };
+
+  const handleFulfillClick = async (id: string) => {
+    if (itemToEdit) {
+    
+      await onFulfill(id);
+      await refreshItems();
+      // setCurrentItemState("inactive"); // Update button state immediately
     }
   };
 
@@ -291,6 +311,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 }`}
               >
                 Unpublish
+              </Button>
+              <Button
+                onClick={() => handleFulfillClick(itemToEdit.id)}
+                disabled = {!buttonFulfill}
+                size="sm"
+                className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
+              >
+                Fulfill
               </Button>
               <Button
                 onClick={() => onRequestUnfreeze(itemToEdit.id)}
