@@ -267,7 +267,7 @@ export function MainPage() {
     <>
       <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl text-white font-bold">Auction House - {userInfo?.userType.toUpperCase()}</h1>
+          <h1 className="text-2xl text-white font-bold">Auction House { userInfo && `- ${userInfo?.userType.toUpperCase()}`}</h1>
           <div className="flex gap-5">
             {userInfo !== null ? (
               <>
