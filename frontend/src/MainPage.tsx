@@ -94,7 +94,7 @@ function ItemCard({ item }: { item: Item }) {
   const [show, setShow] = useState(false);
   // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
-  const [refresh, setRefresh] = useState(false);
+  const [refresh, setRefresh] = useState(true);
   const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
   const [days, setDays] = useState(0);
   const [hours, setHours] = useState(0);
