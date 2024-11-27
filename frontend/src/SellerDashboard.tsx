@@ -77,36 +77,36 @@ const SellerDashboard = () => {
       Edit
     </button>
   );
-    // Handler for closing the account
-    const handleCloseAccount = async () => {
-      if (!userInfo) return;
-  
-      // Confirm with the user
-      const confirmClose = window.confirm(
-        "Are you sure you want to close your account? This action cannot be undone."
-      );
-      if (!confirmClose) return;
-  
-      try {
-        // Call the buyerClose API function
-        const response = await sellerClose({
-          headers: { Authorization: userInfo.token },
-          path: { sellerId: userInfo.userId },
-        });
-  
-        if (response.error) {
-          notifyError(response.error.message || "Failed to close account.");
-        } else {
-          notifySuccess("Account closed successfully.");
-          setUserInfo(null);
-          navigate("/", { replace: true });
-        }
-      } catch (error) {
-        console.error("Error closing account:", error);
-        notifyError("An error occurred while closing your account.");
+  // Handler for closing the account
+  const handleCloseAccount = async () => {
+    if (!userInfo) return;
+
+    // Confirm with the user
+    const confirmClose = window.confirm(
+      "Are you sure you want to close your account? This action cannot be undone."
+    );
+    if (!confirmClose) return;
+
+    try {
+      // Call the buyerClose API function
+      const response = await sellerClose({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId },
+      });
+
+      if (response.error) {
+        notifyError(response.error.message || "Failed to close account.");
+      } else {
+        notifySuccess("Account closed successfully.");
+        setUserInfo(null);
+        navigate("/", { replace: true });
       }
-    };
-  
+    } catch (error) {
+      console.error("Error closing account:", error);
+      notifyError("An error occurred while closing your account.");
+    }
+  };
+
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openEditModal(data)}
@@ -166,8 +166,8 @@ const SellerDashboard = () => {
       } else if (resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      } else {
-        notifyError("Failed to fetch items");
+      } else if (resp.error) {
+        notifyError(`Failed to fetch items: ${resp.error.message}`);
       }
     } catch (err) {
       console.error("Error fetching items:", err);
@@ -184,7 +184,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo,fetchFunds, navigate, fetchItems]);
+  }, [userInfo, fetchFunds, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
@@ -355,51 +355,51 @@ const SellerDashboard = () => {
       notifyError("Error unpublishing item");
     }
   };
-// Unpublish item
-const handleRequestUnfreeze = async (id: string) => {
-  if (!userInfo) return;
-  try {
-    const resp = await sellerItemRequestUnfreeze({
-      headers: { Authorization: userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error && resp.error.status === 401) {
-      notifyError("Unauthorized Access");
-      setUserInfo(null);
-    } else if (resp.error) {
-      notifyError("Failed to unpublish item");
-    } else {
-      notifySuccess("Request unfreeze item successfully");
-      fetchItems();
+  // Unpublish item
+  const handleRequestUnfreeze = async (id: string) => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerItemRequestUnfreeze({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      } else if (resp.error) {
+        notifyError("Failed to unpublish item");
+      } else {
+        notifySuccess("Request unfreeze item successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error unpublishing item:", err);
+      notifyError("Error unpublishing item");
     }
-  } catch (err) {
-    console.error("Error unpublishing item:", err);
-    notifyError("Error unpublishing item");
   }
-}
 
-const handlefulfill = async (id: string) => {
-  if (!userInfo) return;
-  try {
-    const resp = await sellerItemFulfill({
-      headers: { Authorization: userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error && resp.error.status === 401) {
-      notifyError("Unauthorized Access");
-      setUserInfo(null);
-    } else if (resp.error) {
-      notifyError("Failed to fullfil item");
-    } else {
-      notifySuccess("fulfilled item successfully");
-      fetchItems();
+  const handlefulfill = async (id: string) => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerItemFulfill({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      } else if (resp.error) {
+        notifyError("Failed to fullfil item");
+      } else {
+        notifySuccess("fulfilled item successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error fulfilled item:", err);
+      notifyError("Error fulfilled item");
     }
-  } catch (err) {
-    console.error("Error fulfilled item:", err);
-    notifyError("Error fulfilled item");
   }
-}
-  
+
 
   if (loading) return <div>Loading...</div>;
 
@@ -419,7 +419,7 @@ const handlefulfill = async (id: string) => {
             <Button
               color="blue"
               onClick={() => {
-                  navigate("/");
+                navigate("/");
               }}
             >
               Home
@@ -428,11 +428,11 @@ const handlefulfill = async (id: string) => {
               Logout
             </Button>
             <Button
-                  onClick={handleCloseAccount}
-                  className="bg-red-600 text-white rounded"
-                >
-                  Close Account
-                </Button>
+              onClick={handleCloseAccount}
+              className="bg-red-600 text-white rounded"
+            >
+              Close Account
+            </Button>
           </div>
         )}
       </div>

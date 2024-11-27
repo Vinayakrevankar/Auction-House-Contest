@@ -47,6 +47,7 @@ export function archiveItem(sellerId: string, itemId: string, res: Response) {
 }
 
 export async function fulfillItem(sellerId: string, itemId: string, res: Response) {
+  const seller_table_id = res.locals.id;
   const queryItemCmd = new QueryCommand({
     TableName: "dev-items3",
     KeyConditionExpression: "id = :id",
@@ -109,7 +110,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": bid.bidUserId,
           },
-          UpdateExpression: "set fund = fund - :amount, purchases = list_append(purchases, :new_purchase), itemState = :new",
+          UpdateExpression: "set fund = fund - :amount, purchases = list_append(if_not_exists(purchases, :empty), :new_purchase)",
           ConditionExpression: "fund >= :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
@@ -120,7 +121,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
               soldTime: bid.bidTime,
               fulfillTime: new Date().toISOString(),
             }],
-            ":new": "archived",
+            ":empty": [],
           },
         }
       },
@@ -128,11 +129,12 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
         Update: {
           TableName: "dev-users3",
           Key: {
-            "id": sellerId,
+            "id": seller_table_id,
           },
-          UpdateExpression: "set fund = fund + :amount",
+          UpdateExpression: "set fund = if_not_exists(fund, :zero) + :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
+            ":zero": 0,
           },
         }
       },
@@ -142,10 +144,11 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": item.id,
           },
-          UpdateExpression: "set soldBidId = :id, soldTime = :time",
+          UpdateExpression: "set soldBidId = :id, soldTime = :time, itemState = :new_state",
           ExpressionAttributeValues: {
             ":id": bid.id,
             ":time": bid.bidTime,
+            ":new_state": "archived",
           },
         },
       },
