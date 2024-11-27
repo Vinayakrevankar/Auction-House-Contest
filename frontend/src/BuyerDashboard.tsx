@@ -369,7 +369,7 @@ const BuyerDashboard: React.FC = () => {
       fetchActiveBids();
       fetchPurchases();
     }
-  }, [userInfo, navigate, fetchActiveBids, fetchPurchases]);
+  }, [userInfo, fetchFunds, navigate, fetchActiveBids, fetchPurchases]);
 
   // Handler for closing the account
   const handleCloseAccount = async () => {
