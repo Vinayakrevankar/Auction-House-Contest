@@ -1,3 +1,50 @@
+commit 2dca9605e734cd0b4e30002aa11fab4297788068
+Merge: a7a72ab 909a444
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 09:00:07 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit a7a72abc495da4f0474e49fb5365ba9e8e5534c5
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 09:00:05 2024 -0500
+
+    minor changes
+
+commit cd43c2770038cdce269c5289a18dc94cfc02dfe1
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 08:57:47 2024 -0500
+
+    added git report
+
+commit 909a44411c8f27beb2177e2990080f7dac735641
+Merge: 08e5786 d1c56e5
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 08:56:44 2024 -0500
+
+    Merge pull request #14 from Vinayakrevankar/dev1
+    
+    Dev1
+
+commit d1c56e5327c3a56494c8cdc6d486af2c12dd38d6
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 04:52:53 2024 -0500
+
+    make sure the sellerDashbaord as same as the main
+
+commit 93db849d3d236cd42a8700aed21f2aa4d2856b41
+Merge: 02a51ca 08e5786
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 04:49:52 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 02a51ca7fd7672694b8bffdc7ae40b7a6eab1831
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 04:47:48 2024 -0500
+
+    Update the BuyerDashboard latest version with add Funds button
+
 commit 08e57866ae1ab26a6d33d268433ed6d8783b183a
 Author: vinayakrevankar <vinayakanrevankar@gmail.com>
 Date:   Wed Nov 27 03:43:56 2024 -0500
@@ -10,11 +57,32 @@ Date:   Wed Nov 27 03:42:10 2024 -0500
 
     minor change and handled close account and images on main screen
 
+commit 27d3c3d3856dee22eeb6a8e38c74fd9dad5f9d98
+Merge: d39d9f7 270f52c
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 02:03:46 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
 commit 270f52c9b462797e9878b846d5cb85c5376a09ba
 Author: vinayakrevankar <vinayakanrevankar@gmail.com>
 Date:   Wed Nov 27 02:02:49 2024 -0500
 
     minor changes
+
+commit d39d9f76b4d69926d8f607e7fb8a12d58aff14e0
+Merge: 8634482 af30ac8
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 01:59:46 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 8634482f0691fbdb171c862da47bc8644dea8659
+Merge: df47450 03f51e4
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Nov 27 01:59:42 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
 
 commit 03f51e4404f951e31ec7be62107f3782a76951c4
 Author: vinayakrevankar <vinayakanrevankar@gmail.com>
@@ -22,11 +90,86 @@ Date:   Wed Nov 27 01:58:42 2024 -0500
 
     Minor changes
 
+commit af30ac843d6d21643e97485fb184002820396959
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 14:03:47 2024 +0800
+
+            modified:   backend/src/app.ts
+            modified:   backend/src/manage-user/handler.ts
+            modified:   frontend/src/SellerDashboard.tsx
+
+commit 855312cd50f59f2634dc4a06720b6e9d5f12483f
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 13:43:49 2024 +0800
+
+            modified:   backend/src/app.ts
+            modified:   backend/src/manage-user/handler.ts
+            modified:   frontend/src/SellerDashboard.tsx
+
+commit 0dcf17b72987c5e3aade99c9fee5c75518bb64af
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 13:16:18 2024 +0800
+
+            modified:   backend/src/manage-user/handler.ts
+            modified:   frontend/src/SellerDashboard.tsx
+
+commit ccedcb6b88303440aa77d79d2cddfbc81bfd8739
+Merge: 063aa8a df47450
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 13:01:24 2024 +0800
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 063aa8ab5dc54da0f76750890c7c64b7c82c0a04
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 13:01:14 2024 +0800
+
+            modified:   backend/src/manage-user/handler.ts
+
+commit df47450ff3b66dcfdd247f521237f62d2400b135
+Merge: c673b47 89b494f
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 26 23:59:00 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit c673b47ba038560bc5eb8a2a073a534d4866c68a
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 26 23:58:56 2024 -0500
+
+    Update the index back to main
+
+commit 89b494f50cea08caa69bcade2ad1a8e6288c21e3
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Wed Nov 27 12:55:55 2024 +0800
+
+            modified:   backend/src/manage-user/handler.ts
+            modified:   frontend/src/BuyerDashboard.tsx
+
+commit 7d162b56587ad2993f606291262b15b90d717b93
+Merge: 19351bf d2e8e7f
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 26 23:31:07 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
 commit d2e8e7f8197dcf09f17da0eb84705f53084c5880
 Author: vinayakrevankar <vinayakanrevankar@gmail.com>
 Date:   Tue Nov 26 23:27:06 2024 -0500
 
     added fulfil button
+
+commit 19351bf7e016025b74a2f1e43be20cb123bad7f2
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Nov 26 22:50:32 2024 -0500
+
+    Update the reviewPurchases function
+
+commit dc991c5afddc5427a19855a1226277c3ef61c500
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Tue Nov 26 18:19:39 2024 -0500
+
+    Let fulfill item set item to archived; Added check_expired hook to UI.
 
 commit d0589ded0359126d336aa1d4ecf2bd8b12528019
 Merge: 46da84d 7b1dfda
