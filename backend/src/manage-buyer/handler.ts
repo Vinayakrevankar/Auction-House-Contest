@@ -198,31 +198,40 @@ export async function reviewActiveBids(req: Request, res: Response) {
 }
 
 export async function reviewPurchases(req: Request, res: Response) {
-  const buyerEmail = res.locals.id;
-
-  const getBuyerCmd = new GetCommand({
-    TableName: "dev-users3",
-    Key: { id: buyerEmail },
-  });
-  const getBuyerResp = await dclient.send(getBuyerCmd).catch((err) => {
-    res.status(500).send({ status: 500, message: `${err}` });
-    return;
-  });
-  if (!getBuyerResp) return;
-  if (!getBuyerResp.Item) {
-    res.status(404).send({ status: 404, message: "Buyer not found." });
-    return;
+    const buyerEmail = res.locals.id;
+  
+    // Fetch the buyer's record from the database
+    const getBuyerCmd = new GetCommand({
+      TableName: "dev-users3",
+      Key: { id: buyerEmail },
+    });
+  
+    const getBuyerResp = await dclient.send(getBuyerCmd).catch((err) => {
+      res.status(500).send({ status: 500, message: `${err}` });
+      return;
+    });
+  
+    if (!getBuyerResp) return;
+  
+    if (!getBuyerResp.Item) {
+      res.status(404).send({ status: 404, message: "Buyer not found." });
+      return;
+    }
+  
+    const buyer = getBuyerResp.Item;
+  
+    // Retrieve the purchases array from the buyer's record
+    const purchases = buyer.purchases ?? [];
+  
+    // Since fulfillTime is always present, no need to filter
+    res.status(200).send({
+      status: 200,
+      message: "Purchases retrieved successfully.",
+      payload: purchases,
+    });
   }
-  const buyer = getBuyerResp.Item;
-  const purchases = buyer.purchases ?? [];
 
-  res.status(200).send({
-    status: 200,
-    message: "Purchases retrieved successfully.",
-    payload: purchases,
-  });
-}
-
+  
 export async function addFunds(req: Request, res: Response) {
   const buyerEmail = res.locals.id;  // Use email address as the key
   const { amount } = req.body;
