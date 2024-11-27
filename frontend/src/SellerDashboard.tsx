@@ -426,11 +426,6 @@ const SellerDashboard = () => {
               Available Funds: ${funds}
             </Button>
             <Button
-              className="p-2 bg-green-500 text-white rounded"
-            >
-              Available Funds: ${funds}
-            </Button>
-            <Button
               color="blue"
               onClick={() => {
                 navigate("/");
