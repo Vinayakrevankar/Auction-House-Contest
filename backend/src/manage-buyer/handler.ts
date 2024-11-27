@@ -265,7 +265,7 @@ export async function addFunds(req: Request, res: Response) {
     });
 }
 export async function closeAccountHandler(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId; // User's email address from authentication middleware
+  const buyerEmail = res.locals.id; // User's email address from authentication middleware
 
   try {
     // Fetch the user's data from the database

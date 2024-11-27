@@ -277,48 +277,35 @@ export async function editProfileHandler(req: Request, res: Response) {
 }
 
 export async function closeAccountHandler(req: Request, res: Response) {
-  console.log("Entered closeAccountHandler");
-
-  const emailAddress = res.locals.emailAddress;
-  const buyerId = req.params.buyerId;
-  const sellerId = req.params.sellerId;
-  const authenticatedUserId = res.locals.userId;
-
-  // 确定用户类型和对应的 ID
-  let userId: string | null = null;
-  let userType: string | null = null;
-
-  if (buyerId) {
-    userId = buyerId;
-    userType = "buyer";
-  } else if (sellerId) {
-    userId = sellerId;
-    userType = "seller";
-  } else {
-    return res.status(400).json({
-      status: 400,
-      message: "User ID is required.",
-    });
-  }
-
-  console.log("emailAddress:", emailAddress);
-  console.log("userId:", userId);
-  console.log("authenticatedUserId:", authenticatedUserId);
-
-  if (userId !== authenticatedUserId) {
-    console.log("User ID does not match authenticated user");
-    return res.status(403).json({
-      status: 403,
-      message: "Forbidden: You can only close your own account.",
-    });
-  }
+  const userEmail = res.locals.id; // User's email address from authentication middleware
 
   try {
-    console.log(`Attempting to close account for userId: ${userId}`);
+    // Fetch the user's data from the database
+    const getUserCommand = new GetCommand({
+      TableName: USER_DB,
+      Key: { id: userEmail },
+    });
+    const userResult = await dclient.send(getUserCommand);
 
+    if (!userResult.Item) {
+      return res.status(404).json(getNotFound([null, "User not found."]));
+    }
+
+    if (userResult.Item.id !== userEmail) {
+      return res
+        .status(403)
+        .json(
+          getAccessDenied([
+            null,
+            "You are not authorized to close this account.",
+          ])
+        );
+    }
+
+    // Update the user's isActive status to false
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { id: userId },
+      Key: { id: userEmail },
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,

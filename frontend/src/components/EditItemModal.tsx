@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Modal, Button } from "flowbite-react";
 import { ItemSimple } from "../models/ItemSimple";
 import { itemCheckExpired, uploadImage } from "../api";
-import {
-itemDetail
-} from "./../api";
+import { itemDetail } from "./../api";
+
 interface EditItemModalProps {
   show: boolean;
   onClose: () => void;
@@ -30,7 +29,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onFulfill,
   refreshItems,
   onArchive,
-  onRequestUnfreeze
+  onRequestUnfreeze,
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
@@ -40,59 +39,63 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
 
+  const itemToEditRef = useRef<ItemSimple | null>(itemToEdit); // Using useRef to store the item
+
+  useEffect(() => {
+    itemToEditRef.current = itemToEdit; // Update the ref value whenever itemToEdit changes
+  }, [itemToEdit]);
+
   useEffect(() => {
     const fetchData = async () => {
-      
-      if (itemToEdit) {
-        const resp = await itemDetail({ path: { itemId: itemToEdit.id } }) // Get item details
+      if (itemToEditRef.current) {
+        const resp = await itemDetail({ path: { itemId: itemToEditRef.current.id } }); // Get item details
         if (resp.data) {
-          itemToEdit = resp.data.payload;
+          itemToEditRef.current = resp.data.payload; // Assign data to ref
         }
-        setEditItemName(itemToEdit.name);
-        setEditItemDescription(itemToEdit.description);
-        setEditItemInitPrice(itemToEdit.initPrice.toString());
-        setEditItemLengthOfAuction(itemToEdit.lengthOfAuction.toString());
+        setEditItemName(itemToEditRef.current.name);
+        setEditItemDescription(itemToEditRef.current.description);
+        setEditItemInitPrice(itemToEditRef.current.initPrice.toString());
+        setEditItemLengthOfAuction(itemToEditRef.current.lengthOfAuction.toString());
         setEditItemImages(null);
-        setCurrentItemState(itemToEdit.itemState); // Update current item state
-        const response = await itemCheckExpired({ path: { itemId: itemToEdit.id } });
+        setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
+        const response = await itemCheckExpired({ path: { itemId: itemToEditRef.current.id } });
         if (response.data) {
           setButtonFulfill(response.data.payload.isExpired);
-        }else{
+        } else {
           setButtonFulfill(false);
         }
       }
     };
     fetchData();
-  }, [itemToEdit, setButtonFulfill]);
+  }, [itemToEdit]);
 
   const handlePublishClick = async () => {
-    if (itemToEdit) {
-      await onPublish(itemToEdit.id);
+    if (itemToEditRef.current) {
+      await onPublish(itemToEditRef.current.id);
       await refreshItems();
       setCurrentItemState("active"); // Update button state immediately
     }
   };
 
   const handleUnpublishClick = async () => {
-    if (itemToEdit) {
-      await onUnpublish(itemToEdit.id);
+    if (itemToEditRef.current) {
+      await onUnpublish(itemToEditRef.current.id);
       await refreshItems();
       setCurrentItemState("inactive"); // Update button state immediately
     }
   };
 
   const handleArchiveClick = async () => {
-    if (itemToEdit) {
-      await onArchive(itemToEdit.id);
+    if (itemToEditRef.current) {
+      await onArchive(itemToEditRef.current.id);
       await refreshItems();
       setCurrentItemState("inactive"); // Update button state immediately
     }
   };
 
   const handleFulfillClick = async () => {
-    if (itemToEdit) {
-    
-      await onFulfill(itemToEdit.id);
+    if (itemToEditRef.current) {
+      await onFulfill(itemToEditRef.current.id);
       await refreshItems();
       setCurrentItemState("archived"); // Update button state immediately
     }
@@ -101,7 +104,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!itemToEdit) return;
+    if (!itemToEditRef.current) return;
 
     // Validation
     if (
@@ -113,7 +116,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       return;
     }
 
-    let images = itemToEdit.images || [];
+    let images = itemToEditRef.current.images || [];
 
     if (editItemImages && editItemImages.length > 0) {
       const imageData = await Promise.all(
@@ -153,7 +156,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     }
 
     const updatedItem: ItemSimple = {
-      ...itemToEdit,
+      ...itemToEditRef.current,
       name: editItemName,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
@@ -172,22 +175,18 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     onClose();
   };
 
-  if (!itemToEdit) return null;
+  if (!itemToEditRef.current) return null;
 
   return (
     <Modal show={show} size="7xl" popup onClose={onClose}>
       <Modal.Header>
-        <div className="ml-2 font-bold text-center text-gray-800">
-          Edit Item
-        </div>
+        <div className="ml-2 font-bold text-center text-gray-800">Edit Item</div>
       </Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Item Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Item Name</label>
               <input
                 type="text"
                 disabled={currentItemState === "active"}
@@ -198,9 +197,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Initial Price ($)
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Initial Price ($)</label>
               <input
                 type="number"
                 value={editItemInitPrice}
@@ -211,9 +208,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div className="sm:col-span-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Description</label>
               <textarea
                 value={editItemDescription}
                 disabled={currentItemState === "active"}
@@ -224,9 +219,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               ></textarea>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Status</label>
               <input
                 type="text"
                 disabled={true}
@@ -236,9 +229,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Auction Length (days)
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Auction Length (days)</label>
               <input
                 type="number"
                 disabled={currentItemState === "active"}
@@ -251,7 +242,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div>
               <h3 className="text-lg font-semibold">Images</h3>
               <div className="flex flex-wrap gap-4 mt-4">
-                {itemToEdit.images?.map((image, index) => (
+                {itemToEdit && itemToEdit.images?.map((image, index) => (
                   <div
                     key={index}
                     className="w-32 h-32 overflow-hidden border border-gray-200 rounded-md"
@@ -329,7 +320,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && onRequestUnfreeze(itemToEdit.id)}
-                disabled = {!itemToEdit.isFrozen}
+                disabled = {!itemToEdit || !itemToEdit.isFrozen}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >

@@ -6,6 +6,7 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import {
   Item,
   sellerAddItem,
+  sellerClose,
   sellerDeleteItem,
   sellerItemArchive,
   sellerItemFulfill,
@@ -21,8 +22,8 @@ import { ItemSimple, itemToSimple } from "./models/ItemSimple";
 import { notifySuccess, notifyError } from "./components/Notification";
 import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
-import LogoutButton from "./components/LogoutButton";
 import { FaEye, FaPlus } from "react-icons/fa"; // FaUser Import FontAwesome eye icon
+import { Button } from "flowbite-react";
 
 const stateTextColors = {
   active: "text-green-500",
@@ -55,7 +56,36 @@ const SellerDashboard = () => {
       Edit
     </button>
   );
-
+    // Handler for closing the account
+    const handleCloseAccount = async () => {
+      if (!userInfo) return;
+  
+      // Confirm with the user
+      const confirmClose = window.confirm(
+        "Are you sure you want to close your account? This action cannot be undone."
+      );
+      if (!confirmClose) return;
+  
+      try {
+        // Call the buyerClose API function
+        const response = await sellerClose({
+          headers: { Authorization: userInfo.token },
+          path: { sellerId: userInfo.userId },
+        });
+  
+        if (response.error) {
+          notifyError(response.error.message || "Failed to close account.");
+        } else {
+          notifySuccess("Account closed successfully.");
+          setUserInfo(null);
+          navigate("/", { replace: true });
+        }
+      } catch (error) {
+        console.error("Error closing account:", error);
+        notifyError("An error occurred while closing your account.");
+      }
+    };
+  
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openEditModal(data)}
@@ -389,19 +419,30 @@ const SellerDashboard = () => {
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
-        <div className="flex space-x-4">
-          {/* Logout Button */}
-          <LogoutButton />
-          {/* Close Account Button */}
-          <button
-            onClick={handleCloseAccount}
-            className="p-2 bg-red-600 text-white rounded"
-          >
-            Close Account
-          </button>
-        </div>
+      <div className="flex justify-between items-center mb-5">
+        <h1 className="text-2xl font-bold">Buyer Dashboard</h1>
+        {userInfo && (
+          <div className="flex items-center gap-4">
+            <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
+            <Button
+              color="blue"
+              onClick={() => {
+                  navigate("/");
+              }}
+            >
+              Home
+            </Button>
+            <Button color="red" onClick={() => setUserInfo(null)}>
+              Logout
+            </Button>
+            <Button
+                  onClick={handleCloseAccount}
+                  className="bg-red-600 text-white rounded"
+                >
+                  Close Account
+                </Button>
+          </div>
+        )}
       </div>
 
       {/* Add Item Button */}
