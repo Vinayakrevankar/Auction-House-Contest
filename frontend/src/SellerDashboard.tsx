@@ -255,7 +255,7 @@ const SellerDashboard = () => {
         notifyError("Unauthorized Access");
         setUserInfo(null);
       } else if (resp.error) {
-        notifyError("Failed to delete item");
+        notifyError(resp.error.message || "Failed to delete item"); // Show error message if available
       } else {
         notifySuccess("Item deleted successfully");
         setItems(items.filter((item) => item.id !== id));
