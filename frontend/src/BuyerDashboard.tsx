@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { buyerBids, buyerPurchases, buyerClose, Bid, Purchase } from "./api";
 import { useAuth } from "./AuthContext";
 import { notifyError, notifySuccess } from "./components/Notification";
-import LogoutButton from "./components/LogoutButton";
+import { Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
@@ -22,10 +22,17 @@ const BuyerDashboard: React.FC = () => {
   const fetchActiveBids = useCallback(async () => {
     if (!userInfo) return;
     try {
-      console.log("Fetching active bids for user:", decodeURIComponent(userInfo.emailAddress));
+      console.log(
+        "Fetching active bids for user:",
+        decodeURIComponent(userInfo.emailAddress)
+      );
       const resp = await buyerBids({
         headers: { Authorization: userInfo.token },
-        path: { buyerId: encodeURIComponent(decodeURIComponent(userInfo.emailAddress)) },
+        path: {
+          buyerId: encodeURIComponent(
+            decodeURIComponent(userInfo.emailAddress)
+          ),
+        },
       });
       console.log("Active bids response:", resp);
       if (resp.data) {
@@ -50,7 +57,11 @@ const BuyerDashboard: React.FC = () => {
     try {
       const resp = await buyerPurchases({
         headers: { Authorization: userInfo.token },
-        path: { buyerId: encodeURIComponent(decodeURIComponent(userInfo.emailAddress)) },
+        path: {
+          buyerId: encodeURIComponent(
+            decodeURIComponent(userInfo.emailAddress)
+          ),
+        },
       });
       if (resp.data) {
         setPurchases(resp.data.payload);
@@ -201,18 +212,30 @@ const BuyerDashboard: React.FC = () => {
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">Buyer Dashboard</h1>
-        <div className="flex space-x-4">
-          <LogoutButton />
-          {/* Close Account Button */}
-          <button
-            onClick={handleCloseAccount}
-            className="p-2 bg-red-600 text-white rounded"
-          >
-            Close Account
-          </button>
-        </div>
+        {userInfo && (
+          <div className="flex items-center gap-4">
+            <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
+            <Button
+              color="blue"
+              onClick={() => {
+                  navigate("/");
+              }}
+            >
+              Home
+            </Button>
+            <Button color="red" onClick={() => setUserInfo(null)}>
+              Logout
+            </Button>
+            <Button
+                  onClick={handleCloseAccount}
+                  className="bg-red-600 text-white rounded"
+                >
+                  Close Account
+                </Button>
+          </div>
+        )}
       </div>
 
       {/* Buttons to open modals */}

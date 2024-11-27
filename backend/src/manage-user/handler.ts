@@ -274,13 +274,13 @@ export async function editProfileHandler(req: Request, res: Response) {
 }
 
 export async function closeAccountHandler(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId; // User's email address from authentication middleware
+  const userEmail = res.locals.id; // User's email address from authentication middleware
 
   try {
     // Fetch the user's data from the database
     const getUserCommand = new GetCommand({
       TableName: USER_DB,
-      Key: { id: buyerEmail },
+      Key: { id: userEmail },
     });
     const userResult = await dclient.send(getUserCommand);
 
@@ -288,7 +288,7 @@ export async function closeAccountHandler(req: Request, res: Response) {
       return res.status(404).json(getNotFound([null, "User not found."]));
     }
 
-    if (userResult.Item.id !== buyerEmail) {
+    if (userResult.Item.id !== userEmail) {
       return res
         .status(403)
         .json(
@@ -302,7 +302,7 @@ export async function closeAccountHandler(req: Request, res: Response) {
     // Update the user's isActive status to false
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { id: buyerEmail },
+      Key: { id: userEmail },
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,
