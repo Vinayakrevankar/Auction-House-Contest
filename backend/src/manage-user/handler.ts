@@ -1,5 +1,8 @@
 import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  DynamoDBServiceException,
+} from "@aws-sdk/client-dynamodb";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -136,8 +139,8 @@ export async function loginHandler(req: Request, res: Response) {
     }
 
     const user = userResult.Item;
-
-    if (user.isActive === false) {
+    const isActive = user.isActive === true || user.isActive === "true";
+    if (isActive === false) {
       return res
         .status(403)
         .json(getAccessDenied([null, "Your account has been deactivated."]));
@@ -307,17 +310,24 @@ export async function closeAccountHandler(req: Request, res: Response) {
       ExpressionAttributeValues: {
         ":inactive": false,
       },
+      ReturnValues: "ALL_NEW",
     });
 
-    await dclient.send(updateUserCommand);
+    console.log("UpdateCommand:", updateUserCommand.input);
 
-    return res
-      .status(200)
-      .json(getSuccess(null, "Account closed successfully."));
+    const updatedUser = await dclient.send(updateUserCommand);
+    console.log("Updated User Response:", updatedUser);
+
+    console.log(`Account for user ${userId} has been closed successfully.`);
+    return res.status(200).json({
+      status: 200,
+      message: "Account closed successfully.",
+    });
   } catch (error) {
-    console.error("Error closing account:", error);
-    return res
-      .status(500)
-      .json(getException([null, "Could not close account."]));
+    console.error("Error in closeAccountHandler:", error);
+    return res.status(500).json({
+      status: 500,
+      message: "Could not close account due to an internal error.",
+    });
   }
 }
