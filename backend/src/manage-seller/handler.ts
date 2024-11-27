@@ -46,12 +46,7 @@ export function archiveItem(sellerId: string, itemId: string, res: Response) {
   });
 }
 
-export async function fulfillItem(
-  sellerId: string,
-  itemId: string,
-  res: Response
-) {
-  const sellerEmail = res.locals.id;
+export async function fulfillItem(sellerId: string, itemId: string, res: Response) {
   const queryItemCmd = new QueryCommand({
     TableName: "dev-items3",
     KeyConditionExpression: "id = :id",
@@ -61,7 +56,7 @@ export async function fulfillItem(
       ":sid": sellerId,
     },
   });
-  const queryItemResp = await dclient.send(queryItemCmd).catch((err) => {
+  const queryItemResp = await dclient.send(queryItemCmd).catch(err => {
     res.status(500).send(<ErrorResponsePayload>{
       status: 500,
       message: `${err}`,
@@ -72,7 +67,7 @@ export async function fulfillItem(
   } else if (queryItemResp.Items?.at(0) === undefined) {
     res.status(404).send(<ErrorResponsePayload>{
       status: 404,
-      message: "Item not found.",
+      message: "Item not found."
     });
     return;
   }
@@ -81,7 +76,7 @@ export async function fulfillItem(
   if (item.itemState !== "completed" || item.currentBidId === undefined) {
     res.status(400).send(<ErrorResponsePayload>{
       status: 400,
-      message: "This item cannot be fulfilled yet.",
+      message: "This item cannot be fulfilled yet."
     });
     return;
   }
@@ -89,10 +84,10 @@ export async function fulfillItem(
   const getBidCmd = new GetCommand({
     TableName: "dev-bids3",
     Key: {
-      id: item.currentBidId,
+      "id": item.currentBidId,
     },
   });
-  const getBidResp = await dclient.send(getBidCmd).catch((err) => {
+  const getBidResp = await dclient.send(getBidCmd).catch(err => {
     res.status(500).send({ error: err });
   });
   if (!getBidResp) {
@@ -100,89 +95,68 @@ export async function fulfillItem(
   } else if (getBidResp.Item === undefined) {
     res.status(404).send(<ErrorResponsePayload>{
       status: 404,
-      message: "Bid not found.",
+      message: "Bid not found."
     });
     return;
   }
   const bid = getBidResp.Item as Bid;
 
-  const getBidderCmd = new GetCommand({
-    TableName: "dev-users3",
-    Key: {
-      id: sellerEmail,
-    },
-  });
-
-  const getBidderResp = await dclient.send(getBidderCmd).catch((err) => {
-    res
-      .status(500)
-      .send({ error: "Failed to fetch bidder data", message: err.message });
-    return;
-  });
-
-  if (!getBidderResp || !getBidderResp.Item) {
-    res.status(404).send({ error: "Bidder not found" });
-    return;
-  }
-
-  const bidder = getBidderResp.Item as { fund: number }; // Assuming fund is a number in the bidder's item
-  if (!bidder.fund || bidder.fund < bid.bidAmount) {
-    res.status(400).send({ error: "Bidder has insufficient funds." });
-    return;
-  }
-  let fund = bidder.fund - bid.bidAmount;
-  const updateBidderCmd = await dclient.send(
-    new UpdateCommand({
-      TableName: "dev-users3",
-      Key: {
-        id: bid.bidUserId,
-      },
-      UpdateExpression:
-        "set fund = :amount, purchases = list_append(if_not_exists(purchases, :empty_list), :new_purchase)",
-      ExpressionAttributeValues: {
-        ":amount": fund,
-        ":empty_list": [],
-        ":new_purchase": [
-          {
-            itemId: item.id,
-            itemName: item.name,
-            price: bid.bidAmount,
-            soldTime: bid.bidTime,
-            fulfillTime: new Date().toISOString(),
+  const batchUpdateTransactionCmd = new TransactWriteCommand({
+    TransactItems: [
+      {
+        Update: {
+          TableName: "dev-users3",
+          Key: {
+            "id": bid.bidUserId,
           },
-        ],
+          UpdateExpression: "set fund = fund - :amount, purchases = list_append(purchases, :new_purchase), itemState = :new",
+          ConditionExpression: "fund >= :amount",
+          ExpressionAttributeValues: {
+            ":amount": bid.bidAmount,
+            ":new_purchase": <Purchase[]>[{
+              itemId: item.id,
+              itemName: item.name,
+              price: bid.bidAmount,
+              soldTime: bid.bidTime,
+              fulfillTime: new Date().toISOString(),
+            }],
+            ":new": "archived",
+          },
+        }
       },
-    })
-  );
-  const updateSellerCmd = await dclient.send(
-    new UpdateCommand({
-      TableName: "dev-users3",
-      Key: {
-        id: sellerEmail,
+      {
+        Update: {
+          TableName: "dev-users3",
+          Key: {
+            "id": sellerId,
+          },
+          UpdateExpression: "set fund = fund + :amount",
+          ExpressionAttributeValues: {
+            ":amount": bid.bidAmount,
+          },
+        }
       },
-      UpdateExpression: "set fund = if_not_exists(fund, :zero) + :amount",
-      ExpressionAttributeValues: {
-        ":zero": 0,
-        ":amount": bid.bidAmount,
+      {
+        Update: {
+          TableName: "dev-items3",
+          Key: {
+            "id": item.id,
+          },
+          UpdateExpression: "set soldBidId = :id, soldTime = :time",
+          ExpressionAttributeValues: {
+            ":id": bid.id,
+            ":time": bid.bidTime,
+          },
+        },
       },
-    })
-  );
-  const updateItemCmd = await dclient.send(
-    new UpdateCommand({
-      TableName: "dev-items3",
-      Key: {
-        id: item.id,
-      },
-      UpdateExpression:
-        "set soldBidId = :id, soldTime = :time, itemState = :newState",
-      ExpressionAttributeValues: {
-        ":id": bid.id,
-        ":time": bid.bidTime,
-        ":newState": "archived",
-      },
-    })
-  );
-
+    ],
+  });
+  const batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
+    res.status(500).send({ error: err });
+  });
+  if (!batchUpdateTransactionResp) {
+    return;
+  }
   res.status(200).send({
     status: 200,
     message: "Item fulfill success.",
@@ -192,74 +166,6 @@ export async function fulfillItem(
       soldTime: bid.bidTime,
     },
   });
-  // const batchUpdateTransactionCmd = new TransactWriteCommand({
-  //   TransactItems: [
-  //     {
-  //       Update: {
-  //         TableName: "dev-users3",
-  //         Key: {
-  //           "id": bid.bidUserId,
-  //         },
-  //         UpdateExpression: "set fund = if_not_exists(fund, :zero) - :amount, purchases = list_append(if_not_exists(purchases, :empty_list), :new_purchase)",
-  //         ConditionExpression: "fund >= :amount",
-  //         ExpressionAttributeValues: {
-  //           ":amount": bid.bidAmount,
-  //           ":zero": 0,
-  //           ":empty_list": [],
-  //           ":new_purchase": <Purchase[]>[{
-  //             itemId: item.id,
-  //             itemName: item.name,
-  //             price: bid.bidAmount,
-  //             soldTime: bid.bidTime,
-  //             fulfillTime: new Date().toISOString(),
-  //           }],
-  //         },
-  //       }
-  //     },
-  //     {
-  //       Update: {
-  //         TableName: "dev-users3",
-  //         Key: {
-  //           "id": sellerId,
-  //         },
-  //         UpdateExpression: "set fund = if_not_exists(fund, :zero) + :amount",
-  //         ExpressionAttributeValues: {
-  //           ":zero": 0,
-  //           ":amount": bid.bidAmount,
-  //         },
-  //       }
-  //     },
-  //     {
-  //       Update: {
-  //         TableName: "dev-items3",
-  //         Key: {
-  //           "id": item.id,
-  //         },
-  //         UpdateExpression: "set soldBidId = :id, soldTime = :time, itemState = :newState",
-  //         ExpressionAttributeValues: {
-  //           ":id": bid.id,
-  //           ":time": bid.bidTime,
-  //           ":newState": "archived"
-  //         },
-  //       },
-  //     },
-  //   ],
-  // });
-  // const batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd)
-  // .catch(err => {
-  //   res.status(500).send({ error: err });
-  // }).then(resp => {
-  //   console.log("resp", resp);
-  //   res.status(200).send({
-  //     status: 200,
-  //     message: "Item fulfill success.",
-  //     payload: <ItemFulfillResponsePayload>{
-  //       itemId: item.id,
-  //       soldBid: bid,
-  //       soldTime: bid.bidTime,
-  //     },
-  //   });
-  // });
 }
 
 export async function requestUnfreezeItem(
