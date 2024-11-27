@@ -276,7 +276,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
-                disabled={currentItemState === "active" || currentItemState === "archived"}
+                disabled={currentItemState === "active" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
                 className={`text-xs px-3 py-1 m-2 ${
                   currentItemState === "active"
@@ -288,7 +288,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={handleArchiveClick}
-                disabled={currentItemState === "archived" || currentItemState === "archived"}
+                disabled={currentItemState === "archived" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
                 className={`text-xs px-3 py-1 m-2 ${
                   currentItemState === "archived"
@@ -300,7 +300,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={handleUnpublishClick}
-                disabled={currentItemState === "inactive" || currentItemState === "archived"}
+                disabled={currentItemState === "inactive" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
                 className={`text-xs px-3 py-1 m-2 ${
                   currentItemState === "inactive"
@@ -312,7 +312,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled = {!buttonFulfill}
+                disabled = {!buttonFulfill || itemToEdit?.itemState !== "completed"}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
