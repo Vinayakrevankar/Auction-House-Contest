@@ -19,6 +19,7 @@ import {
   loginHandler,
   editProfileHandler,
   closeAccountHandler,
+  getProfileFund
 } from "./manage-user/handler";
 import {
   getActiveItems,
@@ -176,6 +177,9 @@ app.post(
   authFilterMiddleware,
   closeAccountHandler
 );
+
+app.get("/api/profile/fund", authFilterMiddleware, getProfileFund);
+
 
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   if (!req.file) {
