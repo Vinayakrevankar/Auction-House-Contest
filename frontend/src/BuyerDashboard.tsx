@@ -342,22 +342,25 @@ const BuyerDashboard: React.FC = () => {
     }
   }, [userInfo, setUserInfo, navigate]);
 
-  const fetchFunds = async () => {
+  // Wrap fetchFunds in useCallback
+  const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
     try {
-      const response = await fetch("https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund", {
-        method: "GET",
-        headers: {
-          Authorization: `${userInfo?.token}`, // Assuming userInfo contains a token for authentication
+      const response = await fetch(
+        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund",
+        {
+          method: "GET",
+          headers: {
+            Authorization: `${userInfo?.token}`, // Assuming userInfo contains a token for authentication
+          },
         }
-      });
+      );
       const data = await response.json();
       setFunds(data.payload?.fund || 0);
-      // Handle the response if needed
     } catch (error) {
       console.error("Error fetching funds:", error);
     }
-  };
+  }, [userInfo]);
 
   useEffect(() => {
     
