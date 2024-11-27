@@ -1,5 +1,8 @@
 import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+  DynamoDBClient,
+  DynamoDBServiceException,
+} from "@aws-sdk/client-dynamodb";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
@@ -136,8 +139,8 @@ export async function loginHandler(req: Request, res: Response) {
     }
 
     const user = userResult.Item;
-
-    if (user.isActive === false) {
+    const isActive = user.isActive === true || user.isActive === "true";
+    if (isActive === false) {
       return res
         .status(403)
         .json(getAccessDenied([null, "Your account has been deactivated."]));
@@ -274,17 +277,19 @@ export async function editProfileHandler(req: Request, res: Response) {
 }
 
 export async function closeAccountHandler(req: Request, res: Response) {
-  const buyerId = req.params.buyerId;
-  const authenticatedBuyerId = res.locals.buyerId;
+  const emailAddress = res.locals.emailAddress;
+  const buyerId = req.params.buyerId || req.params.sellerId;
+  const authenticatedUserId = res.locals.userId;
 
-  if (!buyerId) {
+  if (!buyerId || !emailAddress) {
     return res.status(400).json({
       status: 400,
-      message: "Buyer ID is required.",
+      message: "User ID and email address are required.",
     });
   }
 
-  if (buyerId !== authenticatedBuyerId) {
+  // 确保 buyerId 与已认证的用户 ID 或 emailAddress 一致
+  if (buyerId !== authenticatedUserId && buyerId !== emailAddress) {
     return res.status(403).json({
       status: 403,
       message: "Forbidden: You can only close your own account.",
@@ -292,9 +297,12 @@ export async function closeAccountHandler(req: Request, res: Response) {
   }
 
   try {
+    console.log("Attempting to close account for email:", emailAddress);
+    console.log("UpdateCommand Key:", { id: emailAddress });
+
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { userId: buyerId },
+      Key: { id: emailAddress },
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,
@@ -303,13 +311,19 @@ export async function closeAccountHandler(req: Request, res: Response) {
     });
 
     const updatedUser = await dclient.send(updateUserCommand);
+    console.log("Updated User Response:", updatedUser);
 
-    console.log(`Account for user ${buyerId} has been closed successfully.`);
+    console.log(
+      `Account for user ${emailAddress} has been closed successfully.`
+    );
     return res
       .status(200)
       .json({ status: 200, message: "Account closed successfully." });
   } catch (error) {
     console.error("Error closing account:", error);
+    if (error instanceof DynamoDBServiceException) {
+      console.error("DynamoDB Error Details:", error);
+    }
     return res.status(500).json({
       status: 500,
       message: "Could not close account due to an internal error.",
