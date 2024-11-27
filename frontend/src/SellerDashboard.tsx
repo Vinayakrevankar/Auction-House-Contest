@@ -21,7 +21,8 @@ import { ItemSimple, itemToSimple } from "./models/ItemSimple";
 import { notifySuccess, notifyError } from "./components/Notification";
 import AddItemModal from "./components/AddItemModal";
 import EditItemModal from "./components/EditItemModal";
-import { FaEye, FaPlus } from "react-icons/fa"; // FaUser Import FontAwesome eye icon
+import BidModal from "./components/BidModal";
+import { FaEye, FaPlus } from "react-icons/fa";
 import { Button } from "flowbite-react";
 
 const stateTextColors = {
@@ -40,8 +41,11 @@ const SellerDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [funds, setFunds] = useState<number>(0);
 
+  const [showBidModal, setShowBidModal] = useState(false); // For Bid Modal
+  const [selectedItemId, setSelectedItemId] = useState<string | null>(null); // Selected Item ID for Bid Modal
+
   const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
-    const colorClass = stateTextColors[value] || "bg-red-500 text-white"; // Default style for undefined states
+    const colorClass = stateTextColors[value] || "bg-red-500 text-white";
     return (
       <div className={`px-2 py-1 font-bold rounded ${colorClass}`}>
         {value.toUpperCase()}
@@ -57,7 +61,7 @@ const SellerDashboard = () => {
         {
           method: "GET",
           headers: {
-            Authorization: `${userInfo?.token}`, // Assuming userInfo contains a token for authentication
+            Authorization: `${userInfo?.token}`,
           },
         }
       );
@@ -68,6 +72,15 @@ const SellerDashboard = () => {
     }
   }, [userInfo]);
 
+  const openBidModal = (itemId: string) => {
+    setSelectedItemId(itemId);
+    setShowBidModal(true);
+  };
+
+  const closeBidModal = () => {
+    setSelectedItemId(null);
+    setShowBidModal(false);
+  };
 
   const EditButtonComponent = ({ data }: { data: Item }) => (
     <button
@@ -105,11 +118,11 @@ const SellerDashboard = () => {
       console.error("Error closing account:", error);
       notifyError("An error occurred while closing your account.");
     }
-  };
 
+    };
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
-      onClick={() => openEditModal(data)}
+      onClick={() => openBidModal(data.id)}
       className="px-2 py-1 rounded bg-blue-500 text-white hover:bg-blue-600"
     >
       <FaEye />
@@ -163,7 +176,7 @@ const SellerDashboard = () => {
       });
       if (resp.data) {
         setItems(resp.data.payload);
-      } else if (resp.error.status === 401) {
+      } else if (resp.error?.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
       } else if (resp.error) {
@@ -175,7 +188,6 @@ const SellerDashboard = () => {
     }
   }, [userInfo, setUserInfo]);
 
-  // Load data on mount
   useEffect(() => {
     fetchFunds();
     if (!userInfo) {
@@ -184,7 +196,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo, fetchFunds, navigate, fetchItems]);
+  }, [userInfo,fetchFunds, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
@@ -405,12 +417,14 @@ const SellerDashboard = () => {
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
-      {/* Header */}
       <div className="flex justify-between items-center mb-5">
         <h1 className="text-2xl font-bold">Seller Dashboard</h1>
         {userInfo && (
           <div className="flex items-center gap-4">
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
+            <Button className="p-2 bg-green-500 text-white rounded">
+              Available Funds: ${funds}
+            </Button>
             <Button
               className="p-2 bg-green-500 text-white rounded"
             >
@@ -472,7 +486,12 @@ const SellerDashboard = () => {
         />
       )}
 
-      {/* AG Grid Table */}
+      <BidModal
+        show={showBidModal}
+        onClose={closeBidModal}
+        itemId={selectedItemId}
+      />
+
       <div
         className="ag-theme-alpine rounded-lg shadow-lg"
         style={{ height: "80vh", width: "100%" }}

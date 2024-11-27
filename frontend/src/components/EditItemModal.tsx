@@ -309,7 +309,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed"}
+                disabled = {!buttonFulfill || itemToEdit?.itemState !== "completed"}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
