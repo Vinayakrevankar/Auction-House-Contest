@@ -2,7 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Modal, Button } from "flowbite-react";
 import { ItemSimple } from "../models/ItemSimple";
 import { itemCheckExpired, uploadImage } from "../api";
-
+import {
+itemDetail
+} from "./../api";
 interface EditItemModalProps {
   show: boolean;
   onClose: () => void;
@@ -40,7 +42,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
 
   useEffect(() => {
     const fetchData = async () => {
+      
       if (itemToEdit) {
+        const resp = await itemDetail({ path: { itemId: itemToEdit.id } }) // Get item details
+        if (resp.data) {
+          itemToEdit = resp.data.payload;
+        }
         setEditItemName(itemToEdit.name);
         setEditItemDescription(itemToEdit.description);
         setEditItemInitPrice(itemToEdit.initPrice.toString());
@@ -56,7 +63,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       }
     };
     fetchData();
-  }, [itemToEdit]);
+  }, [setButtonFulfill]);
 
   const handlePublishClick = async () => {
     if (itemToEdit) {
@@ -82,12 +89,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     }
   };
 
-  const handleFulfillClick = async (id: string) => {
+  const handleFulfillClick = async () => {
     if (itemToEdit) {
     
-      await onFulfill(id);
+      await onFulfill(itemToEdit.id);
       await refreshItems();
-      // setCurrentItemState("inactive"); // Update button state immediately
+      setCurrentItemState("archived"); // Update button state immediately
     }
   };
 
@@ -313,7 +320,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 Unpublish
               </Button>
               <Button
-                onClick={() => handleFulfillClick(itemToEdit.id)}
+                onClick={() => itemToEdit && handleFulfillClick()}
                 disabled = {!buttonFulfill}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
@@ -321,7 +328,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 Fulfill
               </Button>
               <Button
-                onClick={() => onRequestUnfreeze(itemToEdit.id)}
+                onClick={() => itemToEdit && onRequestUnfreeze(itemToEdit.id)}
                 disabled = {!itemToEdit.isFrozen}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
@@ -329,7 +336,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 Request Unfreeze
               </Button>
               <Button
-                onClick={() => onDelete(itemToEdit.id)}
+                onClick={() => itemToEdit && onDelete(itemToEdit.id)}
                 size="sm"
                 className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 m-2"
               >
@@ -341,7 +348,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="relative group">
               <Button
                 type="submit"
-                disabled={currentItemState === "active"} // Disable submit button if item is active
+                disabled={currentItemState === "active" || currentItemState === "achived"} // Disable submit button if item is active
                 className={`${
                   currentItemState === "active" ? "cursor-not-allowed" : ""
                 }`}
