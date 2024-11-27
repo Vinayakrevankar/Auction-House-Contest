@@ -278,11 +278,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 onClick={handlePublishClick}
                 disabled={currentItemState === "active" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "active"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState === "active"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
               >
                 Publish
               </Button>
@@ -290,11 +289,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 onClick={handleArchiveClick}
                 disabled={currentItemState === "archived" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "archived"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-orange-500 hover:bg-orange-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState === "archived"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600 text-white"
+                  }`}
               >
                 Archive
               </Button>
@@ -302,11 +300,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 onClick={handleUnpublishClick}
                 disabled={currentItemState === "inactive" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "inactive"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState === "inactive"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  }`}
               >
                 Unpublish
               </Button>
@@ -320,7 +317,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && onRequestUnfreeze(itemToEdit.id)}
-                disabled = {!itemToEdit || !itemToEdit.isFrozen}
+                disabled={!itemToEdit || !itemToEdit.isFrozen}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
@@ -340,9 +337,8 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <Button
                 type="submit"
                 disabled={currentItemState === "active" || currentItemState === "achived"} // Disable submit button if item is active
-                className={`${
-                  currentItemState === "active" ? "cursor-not-allowed" : ""
-                }`}
+                className={`${currentItemState === "active" ? "cursor-not-allowed" : ""
+                  }`}
               >
                 Save Changes
               </Button>

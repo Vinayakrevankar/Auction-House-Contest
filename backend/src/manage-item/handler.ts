@@ -491,7 +491,17 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
     const item = resp.Item as Item;
     const currTime = new Date();
     const endDate = new Date(item.endDate);
-    if (currTime.getTime() <= endDate.getTime()) {
+    if (item.itemState === "completed" || item.itemState === "failed") {
+      // Already expired.
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: {
+          isExpired: true,
+        },
+      });
+    }
+    else if (currTime.getTime() <= endDate.getTime()) {
       res.send({
         status: 200,
         message: "Success",
