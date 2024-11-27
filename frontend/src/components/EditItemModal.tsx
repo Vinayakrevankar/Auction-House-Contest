@@ -63,7 +63,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       }
     };
     fetchData();
-  }, [setButtonFulfill]);
+  }, [itemToEdit, setButtonFulfill]);
 
   const handlePublishClick = async () => {
     if (itemToEdit) {
