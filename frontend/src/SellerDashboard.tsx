@@ -351,7 +351,9 @@ const SellerDashboard = () => {
 
   const handleCloseAccount = async () => {
     if (!userInfo) return;
-    console.log("Closing account for sellerId:", userInfo?.userId);
+
+    console.log("Closing account for sellerId:", userInfo.userId);
+
     const confirmClose = window.confirm(
       "Are you sure you want to close your account? This action cannot be undone."
     );
@@ -362,19 +364,22 @@ const SellerDashboard = () => {
         headers: { Authorization: `${userInfo.token}` },
         path: { sellerId: userInfo.userId },
       });
-      if (response.data) {
+
+      console.log("Response from sellerClose:", response);
+
+      if (response.data && response.data.status === 200) {
         notifySuccess("Account closed successfully.");
         setUserInfo(null);
         navigate("/", { replace: true });
-      } else if (response.error && response.error.status === 401) {
-        notifyError("Unauthorized Access");
-        setUserInfo(null);
-        navigate("/");
+      } else if (response.error) {
+        console.error("Error from sellerClose:", response.error);
+        notifyError(response.error.message || "Failed to close account");
       } else {
-        notifyError("Failed to close account");
+        console.error("Error from sellerClose:", response.data);
+        notifyError(response.data?.message || "Failed to close account");
       }
     } catch (error) {
-      console.error("Error closing account:", error);
+      console.error("Error in handleCloseAccount:", error);
       notifyError("An error occurred while closing your account.");
     }
   };

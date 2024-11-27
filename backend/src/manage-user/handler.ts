@@ -277,20 +277,36 @@ export async function editProfileHandler(req: Request, res: Response) {
 }
 
 export async function closeAccountHandler(req: Request, res: Response) {
+  console.log("Entered closeAccountHandler");
+
   const emailAddress = res.locals.emailAddress;
   const buyerId = req.params.buyerId;
   const sellerId = req.params.sellerId;
   const authenticatedUserId = res.locals.userId;
-  const userId = buyerId || sellerId;
 
-  if (!userId || !emailAddress) {
+  // 确定用户类型和对应的 ID
+  let userId: string | null = null;
+  let userType: string | null = null;
+
+  if (buyerId) {
+    userId = buyerId;
+    userType = "buyer";
+  } else if (sellerId) {
+    userId = sellerId;
+    userType = "seller";
+  } else {
     return res.status(400).json({
       status: 400,
-      message: "User ID and email address are required.",
+      message: "User ID is required.",
     });
   }
 
-  if (userId !== authenticatedUserId && emailAddress !== authenticatedUserId) {
+  console.log("emailAddress:", emailAddress);
+  console.log("userId:", userId);
+  console.log("authenticatedUserId:", authenticatedUserId);
+
+  if (userId !== authenticatedUserId) {
+    console.log("User ID does not match authenticated user");
     return res.status(403).json({
       status: 403,
       message: "Forbidden: You can only close your own account.",
@@ -298,12 +314,11 @@ export async function closeAccountHandler(req: Request, res: Response) {
   }
 
   try {
-    console.log("Attempting to close account for email:", emailAddress);
-    console.log("UpdateCommand Key:", { id: emailAddress });
+    console.log(`Attempting to close account for userId: ${userId}`);
 
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { id: emailAddress },
+      Key: { id: userId },
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,
@@ -311,20 +326,18 @@ export async function closeAccountHandler(req: Request, res: Response) {
       ReturnValues: "ALL_NEW",
     });
 
+    console.log("UpdateCommand:", updateUserCommand.input);
+
     const updatedUser = await dclient.send(updateUserCommand);
     console.log("Updated User Response:", updatedUser);
 
-    console.log(
-      `Account for user ${emailAddress} has been closed successfully.`
-    );
-    return res
-      .status(200)
-      .json({ status: 200, message: "Account closed successfully." });
+    console.log(`Account for user ${userId} has been closed successfully.`);
+    return res.status(200).json({
+      status: 200,
+      message: "Account closed successfully.",
+    });
   } catch (error) {
-    console.error("Error closing account:", error);
-    if (error instanceof DynamoDBServiceException) {
-      console.error("DynamoDB Error Details:", error);
-    }
+    console.error("Error in closeAccountHandler:", error);
     return res.status(500).json({
       status: 500,
       message: "Could not close account due to an internal error.",
