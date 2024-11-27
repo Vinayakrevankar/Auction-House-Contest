@@ -170,7 +170,15 @@ app.post(
   authFilterMiddleware,
   closeAccountHandler
 );
-
+app.post(
+  "/api/sellers/:sellerId/close",
+  authFilterMiddleware,
+  closeAccountHandler
+);
+app.use((req, res, next) => {
+  console.log(`Incoming Request: ${req.method} ${req.url}`);
+  next();
+});
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   if (!req.file) {
     return res.status(400).json({ message: "No file uploaded" });

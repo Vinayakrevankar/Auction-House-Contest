@@ -14,7 +14,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
-  sellerClose, // 导入 sellerClose 函数
+  sellerClose,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -351,7 +351,7 @@ const SellerDashboard = () => {
 
   const handleCloseAccount = async () => {
     if (!userInfo) return;
-
+    console.log("Closing account for sellerId:", userInfo?.userId);
     const confirmClose = window.confirm(
       "Are you sure you want to close your account? This action cannot be undone."
     );
@@ -362,7 +362,6 @@ const SellerDashboard = () => {
         headers: { Authorization: `${userInfo.token}` },
         path: { sellerId: userInfo.userId },
       });
-
       if (response.data) {
         notifySuccess("Account closed successfully.");
         setUserInfo(null);

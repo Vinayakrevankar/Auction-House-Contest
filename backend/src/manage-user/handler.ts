@@ -278,18 +278,19 @@ export async function editProfileHandler(req: Request, res: Response) {
 
 export async function closeAccountHandler(req: Request, res: Response) {
   const emailAddress = res.locals.emailAddress;
-  const buyerId = req.params.buyerId || req.params.sellerId;
+  const buyerId = req.params.buyerId;
+  const sellerId = req.params.sellerId;
   const authenticatedUserId = res.locals.userId;
+  const userId = buyerId || sellerId;
 
-  if (!buyerId || !emailAddress) {
+  if (!userId || !emailAddress) {
     return res.status(400).json({
       status: 400,
       message: "User ID and email address are required.",
     });
   }
 
-  // 确保 buyerId 与已认证的用户 ID 或 emailAddress 一致
-  if (buyerId !== authenticatedUserId && buyerId !== emailAddress) {
+  if (userId !== authenticatedUserId && emailAddress !== authenticatedUserId) {
     return res.status(403).json({
       status: 403,
       message: "Forbidden: You can only close your own account.",
