@@ -274,50 +274,45 @@ export async function editProfileHandler(req: Request, res: Response) {
 }
 
 export async function closeAccountHandler(req: Request, res: Response) {
-  const buyerEmail = res.locals.userId; // User's email address from authentication middleware
+  const buyerId = req.params.buyerId;
+  const authenticatedBuyerId = res.locals.buyerId;
+
+  if (!buyerId) {
+    return res.status(400).json({
+      status: 400,
+      message: "Buyer ID is required.",
+    });
+  }
+
+  if (buyerId !== authenticatedBuyerId) {
+    return res.status(403).json({
+      status: 403,
+      message: "Forbidden: You can only close your own account.",
+    });
+  }
 
   try {
-    // Fetch the user's data from the database
-    const getUserCommand = new GetCommand({
-      TableName: USER_DB,
-      Key: { id: buyerEmail },
-    });
-    const userResult = await dclient.send(getUserCommand);
-
-    if (!userResult.Item) {
-      return res.status(404).json(getNotFound([null, "User not found."]));
-    }
-
-    if (userResult.Item.id !== buyerEmail) {
-      return res
-        .status(403)
-        .json(
-          getAccessDenied([
-            null,
-            "You are not authorized to close this account.",
-          ])
-        );
-    }
-
-    // Update the user's isActive status to false
     const updateUserCommand = new UpdateCommand({
       TableName: USER_DB,
-      Key: { id: buyerEmail },
+      Key: { userId: buyerId }, // 使用 userId 作为键
       UpdateExpression: "SET isActive = :inactive",
       ExpressionAttributeValues: {
         ":inactive": false,
       },
+      ReturnValues: "ALL_NEW",
     });
 
-    await dclient.send(updateUserCommand);
+    const updatedUser = await dclient.send(updateUserCommand);
 
+    console.log(`Account for user ${buyerId} has been closed successfully.`);
     return res
       .status(200)
-      .json(getSuccess(null, "Account closed successfully."));
+      .json({ status: 200, message: "Account closed successfully." });
   } catch (error) {
     console.error("Error closing account:", error);
-    return res
-      .status(500)
-      .json(getException([null, "Could not close account."]));
+    return res.status(500).json({
+      status: 500,
+      message: "Could not close account due to an internal error.",
+    });
   }
 }
