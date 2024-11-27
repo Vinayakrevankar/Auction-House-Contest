@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import {
   buyerBidsPlace,
-  ErrorResponsePayload,
   Item,
   itemBids,
   itemGetActive,
   buyerClose,
+  Bid,
 } from "./api"; //Bid,
 import {
   Button,
@@ -70,13 +70,14 @@ function BidField(props: {
                   bidAmount: props.bidAmount,
                 },
               })
-                .then((_) => {
-                  notifySuccess("Bid success!");
-                  props.setRefresh(true);
-                })
-                .catch((err: ErrorResponsePayload) =>
-                  notifyError(`Failed to bid item: ${err.message}`)
-                );
+                .then((resp) => {
+                  if (resp.data) {
+                    notifySuccess("Bid success!");
+                    props.setRefresh(true);
+                  } else {
+                    notifyError(`Failed to bid item: ${resp.error.message}`);
+                  }
+                });
             } else {
               setColor("failure");
               notifyError("Bid Failed!");
@@ -110,13 +111,10 @@ function ItemCard({ item }: { item: Item }) {
       itemBids({ path: { itemId: item.id } }).then((resp) => {
         if (resp.data) {
           // setBids(resp.data.payload);
-          if (item.currentBidId) {
-            const bid = resp.data.payload.find(
-              (b) => b.id === item.currentBidId
-            );
-            if (bid) {
-              setCurrentPrice(bid.bidAmount);
-            }
+          const bids = resp.data.payload.sort((a, b) => b.createAt - a.createAt);
+          const newest = bids.at(0);
+          if (newest) {
+            setCurrentPrice(newest.bidAmount);
           }
         } else {
           notifyError(
@@ -267,7 +265,7 @@ export function MainPage() {
     <>
       <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl text-white font-bold">Auction House { userInfo && `- ${userInfo?.userType.toUpperCase()}`}</h1>
+          <h1 className="text-2xl text-white font-bold">Auction House {userInfo && `- ${userInfo?.userType.toUpperCase()}`}</h1>
           <div className="flex gap-5">
             {userInfo !== null ? (
               <>
