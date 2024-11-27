@@ -8,6 +8,7 @@ import {
   sellerAddItem,
   sellerDeleteItem,
   sellerItemArchive,
+  sellerItemFulfill,
   sellerItemPublish,
   sellerItemRequestUnfreeze,
   sellerItemUnpublish,
@@ -324,6 +325,27 @@ const handleRequestUnfreeze = async (id: string) => {
   }
 }
 
+const handlefulfill = async (id: string) => {
+  if (!userInfo) return;
+  try {
+    const resp = await sellerItemFulfill({
+      headers: { Authorization: userInfo.token },
+      path: { sellerId: userInfo.userId, itemId: id },
+    });
+    if (resp.error && resp.error.status === 401) {
+      notifyError("Unauthorized Access");
+      setUserInfo(null);
+    } else if (resp.error) {
+      notifyError("Failed to fullfil item");
+    } else {
+      notifySuccess("fulfilled item successfully");
+      fetchItems();
+    }
+  } catch (err) {
+    console.error("Error fulfilled item:", err);
+    notifyError("Error fulfilled item");
+  }
+}
   
 
   if (loading) return <div>Loading...</div>;
@@ -375,6 +397,7 @@ const handleRequestUnfreeze = async (id: string) => {
           onUnpublish={handleUnpublish}
           onDelete={handleDelete}
           onRequestUnfreeze={handleRequestUnfreeze}
+          onFulfill={handlefulfill}
           refreshItems={fetchItems}
           onArchive={handleArchive}
         />
