@@ -14,6 +14,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
+  sellerClose,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -270,13 +271,13 @@ const SellerDashboard = () => {
         notifyError("Unauthorized Access");
         setUserInfo(null);
       } else if (resp.error) {
-        notifyError("Failed to archived item");
+        notifyError("Failed to archive item");
       } else {
         notifySuccess("Item archived successfully");
         fetchItems();
       }
     } catch (err) {
-      console.error("Error Archived item:", err);
+      console.error("Error archiving item:", err);
       notifyError("Error archiving item");
     }
   };
@@ -302,51 +303,86 @@ const SellerDashboard = () => {
       notifyError("Error unpublishing item");
     }
   };
-// Unpublish item
-const handleRequestUnfreeze = async (id: string) => {
-  if (!userInfo) return;
-  try {
-    const resp = await sellerItemRequestUnfreeze({
-      headers: { Authorization: userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error && resp.error.status === 401) {
-      notifyError("Unauthorized Access");
-      setUserInfo(null);
-    } else if (resp.error) {
-      notifyError("Failed to unpublish item");
-    } else {
-      notifySuccess("Request unfreeze item successfully");
-      fetchItems();
+  // Request unfreeze item
+  const handleRequestUnfreeze = async (id: string) => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerItemRequestUnfreeze({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      } else if (resp.error) {
+        notifyError("Failed to request unfreeze item");
+      } else {
+        notifySuccess("Requested unfreeze item successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error requesting unfreeze item:", err);
+      notifyError("Error requesting unfreeze item");
     }
-  } catch (err) {
-    console.error("Error unpublishing item:", err);
-    notifyError("Error unpublishing item");
-  }
-}
+  };
 
-const handlefulfill = async (id: string) => {
-  if (!userInfo) return;
-  try {
-    const resp = await sellerItemFulfill({
-      headers: { Authorization: userInfo.token },
-      path: { sellerId: userInfo.userId, itemId: id },
-    });
-    if (resp.error && resp.error.status === 401) {
-      notifyError("Unauthorized Access");
-      setUserInfo(null);
-    } else if (resp.error) {
-      notifyError("Failed to fullfil item");
-    } else {
-      notifySuccess("fulfilled item successfully");
-      fetchItems();
+  // Fulfill item
+  const handleFulfill = async (id: string) => {
+    if (!userInfo) return;
+    try {
+      const resp = await sellerItemFulfill({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId, itemId: id },
+      });
+      if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+      } else if (resp.error) {
+        notifyError("Failed to fulfill item");
+      } else {
+        notifySuccess("Item fulfilled successfully");
+        fetchItems();
+      }
+    } catch (err) {
+      console.error("Error fulfilling item:", err);
+      notifyError("Error fulfilling item");
     }
-  } catch (err) {
-    console.error("Error fulfilled item:", err);
-    notifyError("Error fulfilled item");
-  }
-}
-  
+  };
+
+  const handleCloseAccount = async () => {
+    if (!userInfo) return;
+
+    console.log("Closing account for sellerId:", userInfo.userId);
+
+    const confirmClose = window.confirm(
+      "Are you sure you want to close your account? This action cannot be undone."
+    );
+    if (!confirmClose) return;
+
+    try {
+      const response = await sellerClose({
+        headers: { Authorization: `${userInfo.token}` },
+        path: { sellerId: userInfo.userId },
+      });
+
+      console.log("Response from sellerClose:", response);
+
+      if (response.data && response.data.status === 200) {
+        notifySuccess("Account closed successfully.");
+        setUserInfo(null);
+        navigate("/", { replace: true });
+      } else if (response.error) {
+        console.error("Error from sellerClose:", response.error);
+        notifyError(response.error.message || "Failed to close account");
+      } else {
+        console.error("Error from sellerClose:", response.data);
+        notifyError(response.data?.message || "Failed to close account");
+      }
+    } catch (error) {
+      console.error("Error in handleCloseAccount:", error);
+      notifyError("An error occurred while closing your account.");
+    }
+  };
 
   if (loading) return <div>Loading...</div>;
 
@@ -356,15 +392,15 @@ const handlefulfill = async (id: string) => {
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-2xl font-bold">Seller Dashboard</h1>
         <div className="flex space-x-4">
-          {/* Profile Edit Button */}
-          {/* <button
-            title="Edit Profile"
-            className="px-4 py-2 flex items-center justify-center text-sm font-semibold rounded border border-white bg-blue-500 text-white hover:bg-blue-600"
-          >
-            <FaUser />
-          </button> */}
           {/* Logout Button */}
           <LogoutButton />
+          {/* Close Account Button */}
+          <button
+            onClick={handleCloseAccount}
+            className="p-2 bg-red-600 text-white rounded"
+          >
+            Close Account
+          </button>
         </div>
       </div>
 
@@ -397,7 +433,7 @@ const handlefulfill = async (id: string) => {
           onUnpublish={handleUnpublish}
           onDelete={handleDelete}
           onRequestUnfreeze={handleRequestUnfreeze}
-          onFulfill={handlefulfill}
+          onFulfill={handleFulfill}
           refreshItems={fetchItems}
           onArchive={handleArchive}
         />
@@ -413,10 +449,10 @@ const handlefulfill = async (id: string) => {
           columnDefs={columnDefs}
           domLayout="autoHeight"
           defaultColDef={{
-            flex: 1, // Automatically distribute column width equally
-            minWidth: 100, // Minimum width for each column
-            resizable: true, // Allow column resizing
-            floatingFilter: true, // Enable floating filters
+            flex: 1,
+            minWidth: 100,
+            resizable: true,
+            floatingFilter: true,
           }}
         />
       </div>
