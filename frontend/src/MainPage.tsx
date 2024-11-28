@@ -7,7 +7,7 @@ import {
   itemBids,
   itemGetActive,
   buyerClose,
-  Bid,
+  // Bid,
 } from "./api"; //Bid,
 import {
   Button,
