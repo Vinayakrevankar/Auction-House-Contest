@@ -171,7 +171,7 @@ export async function placeBid(req: Request, res: Response) {
 }
 
 export async function reviewActiveBids(req: Request, res: Response) {
-  const buyerId = res.locals.userId;
+  const buyerId = res.locals.id;
 
   const scanBidsCmd = new ScanCommand({
     TableName: "dev-bids3",
@@ -188,7 +188,7 @@ export async function reviewActiveBids(req: Request, res: Response) {
   });
   if (!scanBidsResp) return;
 
-  const activeBids = (scanBidsResp.Items as Bid[]) || [];
+  const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
   res.status(200).send({
     status: 200,
@@ -277,6 +277,27 @@ export async function closeAccountHandler(req: Request, res: Response) {
 
     if (!userResult.Item) {
       return res.status(404).send({ status: 404, message: "User not found." });
+    }
+    const scanBidsCmd = new ScanCommand({
+      TableName: "dev-bids3",
+      FilterExpression: "bidUserId = :buyerId AND isActive = :true",
+      ExpressionAttributeValues: {
+        ":buyerId": buyerEmail,
+        ":true": true,
+      },
+    });
+  
+    const scanBidsResp = await dclient.send(scanBidsCmd).catch((err) => {
+      res.status(500).send({ status: 500, message: `${err}` });
+      return;
+    });
+  
+    const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
+
+    if(activeBids.length > 0) {
+      return res
+      .status(400)
+      .send({ status: 400, message: "Could not close account since there are active bids" });
     }
 
     if (userResult.Item.id !== buyerEmail) {

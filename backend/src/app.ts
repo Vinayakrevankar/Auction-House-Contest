@@ -34,6 +34,7 @@ import {
   addFunds,
   reviewPurchases,
   reviewActiveBids,
+  closeAccountHandler as closeAccountHandlerBuyer,
 } from "./manage-buyer/handler";
 import * as httpUtil from "./util/httpUtil";
 import { authFilterMiddleware } from "./security/authFilterMiddleware";
@@ -169,7 +170,7 @@ app.post("/api/buyers/:buyerId/add-funds", authFilterMiddleware, (req, res) => {
 app.post(
   "/api/buyers/:buyerId/close",
   authFilterMiddleware,
-  closeAccountHandler
+  closeAccountHandlerBuyer
 );
 
 app.post(

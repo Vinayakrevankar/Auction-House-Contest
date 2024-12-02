@@ -7,6 +7,7 @@ import {
   itemBids,
   itemGetActive,
   buyerClose,
+  sellerClose,
   // Bid,
 } from "./api"; //Bid,
 import {
@@ -137,11 +138,14 @@ function ItemCard({ item }: { item: Item }) {
   return (
     <>
       <Card
-        className="transition-all ease-in-out hover:scale-110"
-        imgAlt={`IMG:${item.name}`}
-        imgSrc={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
+        className="max-w-full max-h-80 object-cover self-center transition-all ease-in-out hover:scale-110"
         onClick={() => setShow(true)}
       >
+        <img
+  className="max-w-full max-h-40 object-cover self-center"
+  src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
+  alt={`IMG:${item.name}`}
+/>
         <p className="text-xl font-bold tracking-tight text-gray-900">
           {item.name}
         </p>
@@ -225,6 +229,34 @@ export function MainPage() {
         headers: { Authorization: userInfo.token },
         path: { buyerId: userInfo.userId },
       });
+      if (response.error) {
+        notifyError(response.error.message || "Failed to close account.");
+      } else {
+        notifySuccess("Account closed successfully.");
+        setUserInfo(null);
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      console.error("Error closing account:", error);
+      notifyError("An error occurred while closing your account.");
+    }
+  };
+
+  const handleSellerCloseAccount = async () => {
+    if (!userInfo) return;
+
+    // Confirm with the user
+    const confirmClose = window.confirm(
+      "Are you sure you want to close your account? This action cannot be undone."
+    );
+    if (!confirmClose) return;
+
+    try {
+      // Call the buyerClose API function
+      const response = await sellerClose({
+        headers: { Authorization: userInfo.token },
+        path: { sellerId: userInfo.userId },
+      });
 
       if (response.error) {
         notifyError(response.error.message || "Failed to close account.");
@@ -288,7 +320,7 @@ export function MainPage() {
                   Logout
                 </Button>
                 <Button
-                  onClick={handleCloseAccount}
+                  onClick={userInfo.userType === "seller" ? handleSellerCloseAccount : handleCloseAccount}
                   className="bg-red-600 text-white rounded"
                 >
                   Close Account

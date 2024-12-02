@@ -152,6 +152,18 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           },
         },
       },
+      {
+        Update: {
+          TableName: "dev-bids3",
+          Key: {
+            "id": bid.id,
+          },
+          UpdateExpression: "set isActive = :inactive",
+          ExpressionAttributeValues: {
+            ":inactive": false,
+          },
+        },
+      },
     ],
   });
   const batchUpdateTransactionResp = dclient.send(batchUpdateTransactionCmd).catch(err => {
