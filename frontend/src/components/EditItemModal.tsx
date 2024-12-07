@@ -63,9 +63,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         setEditItemInitPrice(itemToEditRef.current.initPrice.toString());
         setEditItemLengthOfAuction({
           day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
-          hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000)),
-          min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000)),
-          sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000),
+          hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000) % 24),
+          min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000) % 60),
+          sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000 % 60),
         });
         setEditItemImages(null);
         setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
@@ -248,7 +248,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Auction Length (days)</label>
+              <label className="block text-sm font-medium text-gray-700">Auction Length</label>
               <div className='flex flex-row space-x-3'>
                 <input
                   type="number"

@@ -5,6 +5,7 @@ import {
   buyerBidsPlace,
   Item,
   itemBids,
+  itemCheckExpired,
   itemGetActive,
   buyerClose,
   sellerClose,
@@ -109,20 +110,20 @@ function ItemCard({ item }: { item: Item }) {
 
   useEffect(() => {
     if (refresh) {
-      itemBids({ path: { itemId: item.id } }).then((resp) => {
-        if (resp.data) {
-          // setBids(resp.data.payload);
-          const bids = resp.data.payload.sort((a, b) => b.createAt - a.createAt);
-          const newest = bids.at(0);
-          if (newest) {
-            setCurrentPrice(newest.bidAmount);
-          }
-        } else {
-          notifyError(
-            `Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`
-          );
+      const fetchData = async () => {
+        const resp = await itemBids({ path: { itemId: item.id } });
+        if (!resp.data) {
+          notifyError(`Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`);
+          return;
         }
-      });
+        if (item.currentBidId) {
+          const bid = resp.data.payload.find(b => b.id === item.currentBidId);
+          if (bid) {
+            setCurrentPrice(bid.bidAmount);
+          }
+        }
+      };
+      fetchData();
       setRefresh(false);
     }
   }, [refresh, item.currentBidId, item.id]);
@@ -142,10 +143,10 @@ function ItemCard({ item }: { item: Item }) {
         onClick={() => setShow(true)}
       >
         <img
-  className="max-w-full max-h-40 object-cover self-center"
-  src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
-  alt={`IMG:${item.name}`}
-/>
+          className="max-w-full max-h-40 object-cover self-center"
+          src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
+          alt={`IMG:${item.name}`}
+        />
         <p className="text-xl font-bold tracking-tight text-gray-900">
           {item.name}
         </p>
@@ -273,16 +274,30 @@ export function MainPage() {
 
   useEffect(() => {
     if (refresh) {
-      itemGetActive().then((resp) => {
-        if (resp.data) {
-          setItems(resp.data.payload);
-        } else {
-          notifyError(
-            `Get active items failed with status ${resp.error.status}: ${resp.error.message}`
-          );
+      const fetchData = async () => {
+        const resp = await itemGetActive();
+        if (!resp.data) {
+          notifyError(`Get active items failed with status ${resp.error.status}: ${resp.error.message}`);
+          return;
         }
-      });
-      setRefresh(false);
+        const ps = resp.data.payload.map(async item => {
+          const resp = await itemCheckExpired({ path: { itemId: item.id } });
+          return { item: item, resp: resp };
+        });
+        const result = await Promise.all(ps);
+        const new_items = result.filter(({ item, resp }) => {
+          if (resp.error) {
+            notifyError(`Failed to check expired status for ${item.id}: ${resp.error.message}`);
+            return false;
+          } else if (resp.data.payload.isExpired) {
+            return false;
+          } else {
+            return true;
+          }
+        }).map(({ item }) => item);
+        setItems(new_items);
+      };
+      fetchData();
     }
   }, [refresh]);
 

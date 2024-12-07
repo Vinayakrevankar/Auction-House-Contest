@@ -135,7 +135,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
 
             {/* Length of Auction */}
             <div>
-              <label className="block text-sm font-medium text-gray-700">Length of Auction (days)</label>
+              <label className="block text-sm font-medium text-gray-700">Length of Auction</label>
               <div className='flex flex-row space-x-3'>
                 <input
                   type="number"

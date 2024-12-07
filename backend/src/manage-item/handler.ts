@@ -45,7 +45,7 @@ export async function addItem(
 
   // Calculate startDate and endDate based on lengthOfAuction
   const startDate = new Date(); // Auction starts now
-  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction);
 
   const item: Item = {
     id: itemId,
@@ -284,7 +284,7 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
   }
   const item = resp.Item as Item;
   const sdate = new Date();
-  const edate = new Date(sdate.getTime() + item.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const edate = new Date(sdate.getTime() + item.lengthOfAuction);
   const updateCmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
@@ -294,8 +294,8 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
-      ":sdate": sdate.toString(),
-      ":edate": edate.toString(),
+      ":sdate": sdate.toISOString(),
+      ":edate": edate.toISOString(),
       ":old": "inactive",
       ":sid": sellerId,
     },
