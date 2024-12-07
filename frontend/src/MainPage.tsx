@@ -298,6 +298,7 @@ export function MainPage() {
         setItems(new_items);
       };
       fetchData();
+      setRefresh(false);
     }
   }, [refresh]);
 
