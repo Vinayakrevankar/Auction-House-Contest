@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Modal, Button } from 'flowbite-react';
 import { ItemSimple } from '../models/ItemSimple';
 import { uploadImage } from '../api';
+import { la2ts, LengthOfAuction } from '../models/LeengthOfAuction';
 
 interface AddItemModalProps {
   show: boolean;
@@ -13,7 +14,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
   const [newItemName, setNewItemName] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [newItemInitPrice, setNewItemInitPrice] = useState('');
-  const [newItemLengthOfAuction, setNewItemLengthOfAuction] = useState('');
+  const [newItemLengthOfAuction, setNewItemLengthOfAuction] = useState<LengthOfAuction>({
+    day: -1,
+    hour: -1,
+    min: -1,
+    sec: -1,
+  });
   const [newItemImages, setNewItemImages] = useState<FileList | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -22,7 +28,10 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       newItemName.trim() === '' ||
       newItemDescription.trim() === '' ||
       newItemInitPrice.trim() === '' ||
-      newItemLengthOfAuction.trim() === '' ||
+      (newItemLengthOfAuction.day === -1
+        || newItemLengthOfAuction.hour === -1
+        || newItemLengthOfAuction.min === -1
+        || newItemLengthOfAuction.sec === -1) ||
       !newItemImages || newItemImages.length === 0
     ) {
       return; // Add validation messages if needed
@@ -57,7 +66,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       itemState: 'inactive',
       description: newItemDescription,
       initPrice: parseFloat(newItemInitPrice),
-      lengthOfAuction: parseInt(newItemLengthOfAuction),
+      lengthOfAuction: la2ts(newItemLengthOfAuction),
       images: images.filter((v) => v !== undefined), // For simplicity,
       isFrozen: false,
     };
@@ -67,7 +76,12 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
     setNewItemName('');
     setNewItemDescription('');
     setNewItemInitPrice('');
-    setNewItemLengthOfAuction('');
+    setNewItemLengthOfAuction({
+      day: -1,
+      hour: -1,
+      min: -1,
+      sec: -1,
+    });
     setNewItemImages(null);
     onClose();
   };
@@ -76,7 +90,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
     <Modal show={show} size="lg" popup onClose={onClose}>
       <Modal.Header>
         <div className="ml-2 font-bold text-center text-gray-800">
-        Add New Item
+          Add New Item
         </div>
       </Modal.Header>
       <Modal.Body>
@@ -122,14 +136,67 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
             {/* Length of Auction */}
             <div>
               <label className="block text-sm font-medium text-gray-700">Length of Auction (days)</label>
-              <input
-                type="number"
-                min="1"
-                value={newItemLengthOfAuction}
-                onChange={(e) => setNewItemLengthOfAuction(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
-                required
-              />
+              <div className='flex flex-row space-x-3'>
+                <input
+                  type="number"
+                  min="0"
+                  value={newItemLengthOfAuction.day === -1 ? '' : newItemLengthOfAuction.day}
+                  onChange={(e) => setNewItemLengthOfAuction({
+                    day: parseInt(e.target.value),
+                    hour: newItemLengthOfAuction.hour,
+                    min: newItemLengthOfAuction.min,
+                    sec: newItemLengthOfAuction.sec,
+                  })}
+                  placeholder='Days'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="23"
+                  value={newItemLengthOfAuction.hour === -1 ? '' : newItemLengthOfAuction.hour}
+                  onChange={(e) => setNewItemLengthOfAuction({
+                    day: newItemLengthOfAuction.day,
+                    hour: parseInt(e.target.value),
+                    min: newItemLengthOfAuction.min,
+                    sec: newItemLengthOfAuction.sec,
+                  })}
+                  placeholder='H'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={newItemLengthOfAuction.min === -1 ? '' : newItemLengthOfAuction.min}
+                  onChange={(e) => setNewItemLengthOfAuction({
+                    day: newItemLengthOfAuction.day,
+                    hour: newItemLengthOfAuction.hour,
+                    min: parseInt(e.target.value),
+                    sec: newItemLengthOfAuction.sec,
+                  })}
+                  placeholder='M'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={newItemLengthOfAuction.sec === -1 ? '' : newItemLengthOfAuction.sec}
+                  onChange={(e) => setNewItemLengthOfAuction({
+                    day: newItemLengthOfAuction.day,
+                    hour: newItemLengthOfAuction.hour,
+                    min: newItemLengthOfAuction.min,
+                    sec: parseInt(e.target.value),
+                  })}
+                  placeholder='S'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+              </div>
             </div>
 
             {/* Images */}

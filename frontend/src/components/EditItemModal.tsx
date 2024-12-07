@@ -3,6 +3,7 @@ import { Modal, Button } from "flowbite-react";
 import { ItemSimple } from "../models/ItemSimple";
 import { itemCheckExpired, uploadImage } from "../api";
 import { itemDetail } from "./../api";
+import { la2ts, LengthOfAuction } from "../models/LeengthOfAuction";
 
 interface EditItemModalProps {
   show: boolean;
@@ -34,7 +35,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
-  const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState("");
+  const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState<LengthOfAuction>({
+    day: -1,
+    hour: -1,
+    min: -1,
+    sec: -1,
+  });
   const [buttonFulfill, setButtonFulfill] = useState(false);
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
@@ -55,7 +61,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         setEditItemName(itemToEditRef.current.name);
         setEditItemDescription(itemToEditRef.current.description);
         setEditItemInitPrice(itemToEditRef.current.initPrice.toString());
-        setEditItemLengthOfAuction(itemToEditRef.current.lengthOfAuction.toString());
+        setEditItemLengthOfAuction({
+          day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
+          hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000)),
+          min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000)),
+          sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000),
+        });
         setEditItemImages(null);
         setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
         const response = await itemCheckExpired({ path: { itemId: itemToEditRef.current.id } });
@@ -111,7 +122,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       !editItemName.trim() ||
       !editItemDescription.trim() ||
       !editItemInitPrice.trim() ||
-      !editItemLengthOfAuction.trim()
+      (editItemLengthOfAuction.day === -1
+        || editItemLengthOfAuction.hour === -1
+        || editItemLengthOfAuction.min === -1
+        || editItemLengthOfAuction.sec === -1)
     ) {
       return;
     }
@@ -160,7 +174,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       name: editItemName,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
-      lengthOfAuction: parseInt(editItemLengthOfAuction, 10),
+      lengthOfAuction: la2ts(editItemLengthOfAuction),
       images,
     };
 
@@ -170,7 +184,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     setEditItemName("");
     setEditItemDescription("");
     setEditItemInitPrice("");
-    setEditItemLengthOfAuction("");
+    setEditItemLengthOfAuction({
+      day: -1,
+      hour: -1,
+      min: -1,
+      sec: -1,
+    });
     setEditItemImages(null);
     onClose();
   };
@@ -230,14 +249,67 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700">Auction Length (days)</label>
-              <input
-                type="number"
-                disabled={currentItemState === "active"}
-                value={editItemLengthOfAuction}
-                onChange={(e) => setEditItemLengthOfAuction(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
-                required
-              />
+              <div className='flex flex-row space-x-3'>
+                <input
+                  type="number"
+                  min="0"
+                  value={editItemLengthOfAuction.day === -1 ? '' : editItemLengthOfAuction.day}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: parseInt(e.target.value),
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='Days'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="23"
+                  value={editItemLengthOfAuction.hour === -1 ? '' : editItemLengthOfAuction.hour}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: parseInt(e.target.value),
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='H'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={editItemLengthOfAuction.min === -1 ? '' : editItemLengthOfAuction.min}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: parseInt(e.target.value),
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='M'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={editItemLengthOfAuction.sec === -1 ? '' : editItemLengthOfAuction.sec}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: parseInt(e.target.value),
+                  })}
+                  placeholder='S'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+              </div>
             </div>
             <div>
               <h3 className="text-lg font-semibold">Images</h3>
@@ -309,7 +381,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled = {!buttonFulfill || itemToEdit?.itemState !== "completed"}
+                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed"}
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
