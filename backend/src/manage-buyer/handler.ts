@@ -190,9 +190,6 @@ export async function placeBid(req: Request, res: Response) {
     return;
   }
 
-  const bidId = `${buyerId}#${Date.now()}`;
-  const bidTime = moment(new Date()).toISOString(true);
-
   const newBid: Bid = {
     id: bidId,
     bidItemId: itemId,
