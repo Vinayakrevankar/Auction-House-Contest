@@ -61,7 +61,7 @@ const SellerDashboard = () => {
         "Authorization": `${userInfo.token}`,
       }
     });
-    if (response.error) {
+    if (!response.data) {
       notifyError(`Error fetching funds: ${response.error.message}`);
     } else {
       setFunds(response.data.payload.fund);
@@ -145,6 +145,13 @@ const SellerDashboard = () => {
       headerName: "Length of Auction",
       sortable: true,
       filter: true,
+      valueFormatter: (p: { value: number }) => {
+        const day = Math.floor(p.value / (24 * 60 * 60 * 1000));
+        const hour = Math.floor(p.value / (60 * 60 * 1000) % 24);
+        const min = Math.floor(p.value / (60 * 1000) % 60);
+        const sec = Math.floor(p.value / 1000 % 60);
+        return `${day}d ${hour}h ${min}m ${sec}s`;
+      },
     },
     {
       field: "itemState",
