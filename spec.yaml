@@ -1047,9 +1047,13 @@ paths:
                         type: string
                         format: email
                         description: User email ID
+                      fundsOnHold:
+                        type: integer
+                        description: User fund being hold for previous bids
                     required:
                       - fund
                       - userId
+                      - fundsOnHold
                 required:
                   - status
                   - message
@@ -1129,7 +1133,7 @@ components:
           description: Auction length, in days
         isAvailableToBuy:
           type: boolean
-          description: Is item available to buy immediately 
+          description: Is item available to buy immediately
         itemState:
           type: string
           enum:
@@ -1304,7 +1308,7 @@ components:
           description: Length of auction in days
         isAvailableToBuy:
           type: boolean
-          description: Is item available to buy immediately  
+          description: Is item available to buy immediately
         images:
           type: array
           items:

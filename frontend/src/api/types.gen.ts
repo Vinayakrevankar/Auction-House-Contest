@@ -867,6 +867,10 @@ export type UserFundResponse = ({
          * User email ID
          */
         userId: string;
+        /**
+         * User fund being hold for previous bids
+         */
+        fundsOnHold: number;
     };
 });
 
