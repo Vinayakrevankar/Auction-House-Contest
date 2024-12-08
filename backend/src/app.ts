@@ -179,7 +179,7 @@ app.post(
   closeAccountHandler
 );
 
-app.get("/api/profile/fund", authFilterMiddleware, getProfileFund);
+app.get("/api/get-user-funds", authFilterMiddleware, getProfileFund);
 
 
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {

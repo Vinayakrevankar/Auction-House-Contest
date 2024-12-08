@@ -363,8 +363,10 @@ export function MainPage() {
                   onClick={() => {
                     if (userInfo.userType === "seller") {
                       navigate("/seller-dashboard");
-                    } else {
+                    } else if(userInfo.userType === "buyer") {
                       navigate("/buyer-dashboard");
+                    }else{
+                      navigate("/admin-dashboard");
                     }
                   }}
                 >
@@ -374,6 +376,7 @@ export function MainPage() {
                   Logout
                 </Button>
                 <Button
+                  hidden={userInfo.role === "admin"}
                   onClick={
                     userInfo.userType === "seller"
                       ? handleSellerCloseAccount
