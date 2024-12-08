@@ -208,7 +208,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">Item Name</label>
               <input
                 type="text"
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 value={editItemName}
                 onChange={(e) => setEditItemName(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
@@ -220,7 +220,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <input
                 type="number"
                 value={editItemInitPrice}
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => setEditItemInitPrice(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
                 required
@@ -230,7 +230,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">Description</label>
               <textarea
                 value={editItemDescription}
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => setEditItemDescription(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
                 rows={4}
@@ -253,6 +253,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 <input
                   type="number"
                   min="0"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
                   value={editItemLengthOfAuction.day === -1 ? '' : editItemLengthOfAuction.day}
                   onChange={(e) => setEditItemLengthOfAuction({
                     day: parseInt(e.target.value),
@@ -268,6 +269,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   type="number"
                   min="0"
                   max="23"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
                   value={editItemLengthOfAuction.hour === -1 ? '' : editItemLengthOfAuction.hour}
                   onChange={(e) => setEditItemLengthOfAuction({
                     day: editItemLengthOfAuction.day,
@@ -283,6 +285,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   type="number"
                   min="0"
                   max="59"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
                   value={editItemLengthOfAuction.min === -1 ? '' : editItemLengthOfAuction.min}
                   onChange={(e) => setEditItemLengthOfAuction({
                     day: editItemLengthOfAuction.day,
@@ -298,6 +301,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   type="number"
                   min="0"
                   max="59"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
                   value={editItemLengthOfAuction.sec === -1 ? '' : editItemLengthOfAuction.sec}
                   onChange={(e) => setEditItemLengthOfAuction({
                     day: editItemLengthOfAuction.day,
@@ -334,7 +338,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </label>
               <input
                 type="file"
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
                     setEditItemImages(e.target.files); // Store the single selected file
