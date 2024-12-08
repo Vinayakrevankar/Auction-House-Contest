@@ -33,7 +33,6 @@ function BidField(props: {
   setBidAmount: (v: number | undefined) => void;
   setRefresh: (v: boolean) => void;
 }) {
-  const [itemIsAvailableToBuy, setIsAvailableToBuy] = useState(props.itemIsAvailableToBuy);
   const { userInfo } = useAuth();
   const [color, setColor] = useState<
     DynamicStringEnumKeysOf<FlowbiteTextInputColors> | undefined
@@ -43,7 +42,7 @@ function BidField(props: {
     userInfo && (
       <div className="flex flex-row justify-between space-x-5 items-start">
         
-        {itemIsAvailableToBuy ? (
+        {props.itemIsAvailableToBuy ? (
           <Button
             color="success"
             onClick={() => {
@@ -53,7 +52,7 @@ function BidField(props: {
                 body: {
                   itemId: props.itemId,
                   bidAmount: props.currentPrice, // Assume buy now uses the current price.
-                  isAvailableToBuy: itemIsAvailableToBuy,
+                  isAvailableToBuy: props.itemIsAvailableToBuy,
                 },
               }).then((resp) => {
                 if (resp.data) {
@@ -121,9 +120,9 @@ function BidField(props: {
 
 function ItemCard({ item }: { item: Item }) {
   const [show, setShow] = useState(false);
+  const userInfo = useAuth().userInfo;
   // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
-  const [itemIsAvailableToBuy, setIsAvailableToBuy] = useState(item.isAvailableToBuy);
   const [refresh, setRefresh] = useState(true);
   const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
   const [days, setDays] = useState(0);
@@ -203,14 +202,14 @@ function ItemCard({ item }: { item: Item }) {
                 <p className="text-xl font-bold text-gray-900">
                   Ending in: {days} days {hours} hr {minutes} mins
                 </p>
-                <BidField
+                { userInfo && userInfo.role !== "admin" ?  (<BidField
                   itemId={item.id}
                   bidAmount={bidAmount}
                   currentPrice={currentPrice}
                   setBidAmount={setBidAmount}
                   setRefresh={setRefresh}
-                  itemIsAvailableToBuy={itemIsAvailableToBuy ?? false}
-                />
+                  itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
+                />): <p> FREEZE ITEM </p>}
               </div>
             </div>
           </div>
@@ -350,7 +349,7 @@ export function MainPage() {
       <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500">
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl text-white font-bold">
-            Auction House {userInfo && `- ${userInfo?.userType.toUpperCase()}`}
+            Auction House {userInfo && `- ${ userInfo.role === "admin" ? "Admin": userInfo?.userType.toUpperCase()}`}
           </h1>
           <div className="flex gap-5">
             {userInfo !== null ? (
@@ -361,12 +360,13 @@ export function MainPage() {
                 <Button
                   color="blue"
                   onClick={() => {
+                    if(userInfo.role === "admin") {
+                        navigate("/admin-dashboard");
+                    }else
                     if (userInfo.userType === "seller") {
                       navigate("/seller-dashboard");
                     } else if(userInfo.userType === "buyer") {
                       navigate("/buyer-dashboard");
-                    }else{
-                      navigate("/admin-dashboard");
                     }
                   }}
                 >
@@ -375,8 +375,7 @@ export function MainPage() {
                 <Button color="red" onClick={() => setUserInfo(null)}>
                   Logout
                 </Button>
-                <Button
-                  hidden={userInfo.role === "admin"}
+                { userInfo.role !=="admin" && (<Button
                   onClick={
                     userInfo.userType === "seller"
                       ? handleSellerCloseAccount
@@ -385,7 +384,7 @@ export function MainPage() {
                   className="bg-red-600 text-white rounded"
                 >
                   Close Account
-                </Button>
+                </Button>)}
               </>
             ) : (
               <LoginButtons />
