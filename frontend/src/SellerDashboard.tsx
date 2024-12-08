@@ -15,6 +15,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
+  profileFunds
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -57,17 +58,11 @@ const SellerDashboard = () => {
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
     try {
-      const response = await fetch(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `${userInfo?.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setFunds(data.payload?.fund || 0);
+      const response = await profileFunds({
+        headers: { Authorization: userInfo?.token }
+      });
+      const data = response.data as { payload: { funds: number, fundsOnHold: number } } | undefined;
+      setFunds(data?.payload?.funds || 0);
     } catch (error) {
       console.error("Error fetching funds:", error);
     }
@@ -427,9 +422,6 @@ const SellerDashboard = () => {
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
             <Button className="p-2 bg-green-500 text-white rounded">
               Available Funds: ${funds}
-            </Button>
-            <Button className="p-2 bg-yellow-500 text-white rounded">
-              Available Funds on Hold: ${"IMPLEMENTATION NEEDED"}
             </Button>
             <Button
               color="blue"

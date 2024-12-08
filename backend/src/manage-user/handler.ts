@@ -360,7 +360,8 @@ export async function getProfileFund(req: Request, res: Response) {
       message: "Funds retrieved successfully.",
       payload: {
         userId: emailId,
-        fund: fund,
+        funds: fund,
+        fundsOnHold: userResult.Item.fundsOnHold
       },
     });
   } catch (error) {

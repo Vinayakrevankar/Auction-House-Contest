@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Auction House
   description: This is a sample description about this spec.
-  termsOfService: ''
+  termsOfService: ""
   contact:
     email: pchen1@wpi.edu
   license:
@@ -11,54 +11,54 @@ info:
   version: 1.0.0
 externalDocs:
   description: Find out more about spec
-  url: ''
+  url: ""
 servers: []
 tags:
   - name: Default
-    description: ''
+    description: ""
   - name: User
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
   - name: Image
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
   - name: Seller
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
   - name: Buyer
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
   - name: Item
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
   - name: Admin
-    description: ''
+    description: ""
     externalDocs:
-      description: ''
-      url: ''
+      description: ""
+      url: ""
 paths:
   /api/login:
     post:
       summary: User Login Endpoint
-      description: ''
+      description: ""
       operationId: user-login
       tags:
         - User
       parameters: []
       requestBody:
-        $ref: '#/components/requestBodies/UserLoginRequest'
+        $ref: "#/components/requestBodies/UserLoginRequest"
       responses:
-        '202':
+        "202":
           headers: {}
           content:
             application/json:
@@ -72,28 +72,28 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/UserInfo'
+                    $ref: "#/components/schemas/UserInfo"
                 required:
                   - status
                   - message
                   - payload
           description: Login Success
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/register:
     post:
       summary: User Register Endpoint
-      description: ''
+      description: ""
       operationId: user-register
       tags:
         - User
       parameters: []
       requestBody:
-        $ref: '#/components/requestBodies/UserRegisterRequest'
+        $ref: "#/components/requestBodies/UserRegisterRequest"
       responses:
-        '201':
+        "201":
           headers: {}
           content:
             application/json:
@@ -107,26 +107,26 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/UserInfo'
+                    $ref: "#/components/schemas/UserInfo"
                 required:
                   - status
                   - message
                   - payload
           description: Register Success
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/upload-image:
     post:
       summary: Upload image to S3
-      description: ''
+      description: ""
       operationId: upload-image
       tags:
         - Image
       parameters: []
       requestBody:
-        description: ''
+        description: ""
         content:
           multipart/form-data:
             schema:
@@ -143,7 +143,7 @@ paths:
                 value:
                   image: <binary data...>
       responses:
-        '201':
+        "201":
           headers: {}
           content:
             application/json:
@@ -170,44 +170,44 @@ paths:
                   - message
                   - payload
           description: Image uploaded to S3
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/sellers/{sellerId}/close:
     post:
       summary: Close seller account
-      description: ''
+      description: ""
       operationId: seller-close
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
+        - $ref: "#/components/parameters/SellerID"
       requestBody:
         content: {}
       responses:
-        '202':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "202":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     parameters: []
   /api/sellers/{sellerId}/items:
     get:
       summary: Get seller's items
-      description: ''
+      description: ""
       operationId: seller-review-item
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
+        - $ref: "#/components/parameters/SellerID"
       responses:
-        '200':
+        "200":
           description: Returns seller's items
           headers: {}
           content:
@@ -224,148 +224,148 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Item'
+                      $ref: "#/components/schemas/Item"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     post:
       summary: Add item for seller
-      description: ''
+      description: ""
       operationId: seller-add-item
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
+        - $ref: "#/components/parameters/SellerID"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ItemRequestPayload'
+              $ref: "#/components/schemas/ItemRequestPayload"
       responses:
-        '201':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "201":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     parameters: []
   /api/sellers/{sellerId}/items/{itemId}:
     delete:
       summary: Delete item of seller
-      description: ''
+      description: ""
       operationId: seller-delete-item
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     put:
       summary: Update item of seller
-      description: ''
+      description: ""
       operationId: seller-update-item
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ItemRequestPayload'
+              $ref: "#/components/schemas/ItemRequestPayload"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     parameters: []
   /api/sellers/{sellerId}/items/{itemId}/publish:
     post:
       summary: Publish an item of seller
-      description: ''
+      description: ""
       operationId: seller-item-publish
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/unpublish:
     post:
       summary: Unpublish an item of seller
-      description: ''
+      description: ""
       operationId: seller-item-unpublish
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/fulfill:
     post:
       summary: Fulfill an item of seller
-      description: ''
+      description: ""
       operationId: seller-item-fulfill
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
+        "200":
           headers: {}
           content:
             application/json:
@@ -379,101 +379,101 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/ItemFulfillResponsePayload'
+                    $ref: "#/components/schemas/ItemFulfillResponsePayload"
                 required:
                   - status
                   - message
                   - payload
           description: Item fulfilled
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/archive:
     post:
       summary: Archive an item of seller
-      description: ''
+      description: ""
       operationId: seller-item-archive
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/sellers/{sellerId}/items/{itemId}/request-unfreeze:
     post:
       summary: Request unfreeze an item of seller.
-      description: ''
+      description: ""
       operationId: seller-item-request-unfreeze
       tags:
         - Seller
       parameters:
-        - $ref: '#/components/parameters/SellerID'
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/SellerID"
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '400':
-          $ref: '#/components/responses/ErrorResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "200":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "400":
+          $ref: "#/components/responses/ErrorResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/buyers/{buyerId}/close:
     post:
       summary: Close buyer account.
-      description: ''
+      description: ""
       operationId: buyer-close
       tags:
         - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerID'
+        - $ref: "#/components/parameters/BuyerID"
       responses:
-        '202':
-          $ref: '#/components/responses/PlainSuccessResponse'
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "202":
+          $ref: "#/components/responses/PlainSuccessResponse"
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/buyers/{buyerId}/add-funds:
     post:
       summary: Add funds to buyer account.
-      description: ''
+      description: ""
       operationId: buyer-add-funds
       tags:
         - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerID'
+        - $ref: "#/components/parameters/BuyerID"
       requestBody:
-        $ref: '#/components/requestBodies/AddFundRequest'
+        $ref: "#/components/requestBodies/AddFundRequest"
       responses:
-        '200':
+        "200":
           headers: {}
           content:
             application/json:
@@ -487,31 +487,31 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/AddFundsResponsePayload'
+                    $ref: "#/components/schemas/AddFundsResponsePayload"
                 required:
                   - status
                   - message
                   - payload
           description: Funds added
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/buyers/{buyerId}/bids:
     get:
       summary: Get current bids of the buyer
-      description: ''
+      description: ""
       operationId: buyer-bids
       tags:
         - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerID'
+        - $ref: "#/components/parameters/BuyerID"
       responses:
-        '200':
+        "200":
           description: Get buyer's bids successfully
           headers: {}
           content:
@@ -528,32 +528,32 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Bid'
+                      $ref: "#/components/schemas/Bid"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
     post:
       summary: Put bid on an item
-      description: ''
+      description: ""
       operationId: buyer-bids-place
       tags:
         - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerID'
+        - $ref: "#/components/parameters/BuyerID"
       requestBody:
-        $ref: '#/components/requestBodies/ItemBidRequest'
+        $ref: "#/components/requestBodies/ItemBidRequest"
       responses:
-        '202':
+        "202":
           headers: {}
           content:
             application/json:
@@ -567,31 +567,31 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/Bid'
+                    $ref: "#/components/schemas/Bid"
                 required:
                   - status
                   - message
                   - payload
           description: Bid placed
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/buyers/{buyerId}/purchases:
     get:
       summary: Get purchases of a buyer
-      description: ''
+      description: ""
       operationId: buyer-purchases
       tags:
         - Buyer
       parameters:
-        - $ref: '#/components/parameters/BuyerID'
+        - $ref: "#/components/parameters/BuyerID"
       responses:
-        '200':
+        "200":
           description: Get list of purchases of the buyer
           headers: {}
           content:
@@ -608,24 +608,24 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Purchase'
+                      $ref: "#/components/schemas/Purchase"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/items:
     get:
       summary: Search and sort items
-      description: ''
+      description: ""
       operationId: item-search
       tags:
         - Item
@@ -662,7 +662,7 @@ paths:
               - asc
               - desc
       responses:
-        '200':
+        "200":
           description: List of items
           headers: {}
           content:
@@ -677,23 +677,23 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/Item'
+                    $ref: "#/components/schemas/Item"
                 required:
                   - status
                   - message
                   - payload
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/items/active:
     get:
       summary: Get all active items
-      description: ''
+      description: ""
       operationId: item-get-active
       tags:
         - Item
       parameters: []
       responses:
-        '200':
+        "200":
           description: List of items
           headers: {}
           content:
@@ -710,25 +710,25 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Item'
+                      $ref: "#/components/schemas/Item"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/items/{itemId}:
     get:
       summary: Get item details
-      description: ''
+      description: ""
       operationId: item-detail
       tags:
         - Item
       parameters:
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
+        "200":
           description: Item
           headers: {}
           content:
@@ -743,26 +743,26 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/Item'
+                    $ref: "#/components/schemas/Item"
                 required:
                   - status
                   - message
                   - payload
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/items/{itemId}/bids:
     get:
       summary: Get bids of an item
-      description: ''
+      description: ""
       operationId: item-bids
       tags:
         - Item
       parameters:
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
+        "200":
           description: List of bids
           headers: {}
           content:
@@ -779,20 +779,20 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Bid'
+                      $ref: "#/components/schemas/Bid"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/items/recently-sold:
     get:
       summary: Get recently sold items
-      description: ''
+      description: ""
       operationId: item-recently-sold
       tags:
         - Item
@@ -829,7 +829,7 @@ paths:
               - asc
               - desc
       responses:
-        '200':
+        "200":
           description: List of items
           headers: {}
           content:
@@ -846,27 +846,27 @@ paths:
                   payload:
                     type: array
                     items:
-                      $ref: '#/components/schemas/Item'
+                      $ref: "#/components/schemas/Item"
                     description: Response Payload
                 required:
                   - status
                   - message
                   - payload
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
   /api/admin/items/{itemId}/freeze:
     post:
       summary: Freeze or unfreeze item
-      description: ''
+      description: ""
       operationId: admin-freeze-item
       tags:
         - Admin
       parameters:
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/ItemID"
       requestBody:
-        $ref: '#/components/requestBodies/ItemFreezeRequest'
+        $ref: "#/components/requestBodies/ItemFreezeRequest"
       responses:
-        '200':
+        "200":
           headers: {}
           content:
             application/json:
@@ -897,24 +897,24 @@ paths:
                   - message
                   - payload
           description: Freeze state changed
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/admin/reports/auction:
     get:
       summary: Get auction report
-      description: ''
+      description: ""
       operationId: admin-auction-report
       tags:
         - Admin
       parameters: []
       responses:
-        '200':
+        "200":
           description: Report generated
           headers: {}
           content:
@@ -929,27 +929,27 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/AuctionReport'
+                    $ref: "#/components/schemas/AuctionReport"
                 required:
                   - status
                   - message
                   - payload
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/admin/reports/forensic:
     get:
       summary: Get forensic report
-      description: ''
+      description: ""
       operationId: admin-forensic-report
       tags:
         - Admin
       parameters: []
       responses:
-        '200':
+        "200":
           description: Report generated
           headers: {}
           content:
@@ -964,28 +964,28 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    $ref: '#/components/schemas/ForensicReport'
+                    $ref: "#/components/schemas/ForensicReport"
                 required:
                   - status
                   - message
                   - payload
-        '401':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "401":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
       security:
         - http-jwt: []
   /api/items/{itemId}/check-expired:
     post:
       summary: Check and update if item is expired or not.
-      description: ''
+      description: ""
       operationId: item-check-expired
       tags:
         - Item
       parameters:
-        - $ref: '#/components/parameters/ItemID'
+        - $ref: "#/components/parameters/ItemID"
       responses:
-        '200':
+        "200":
           description: OK
           content:
             application/json:
@@ -1011,10 +1011,49 @@ paths:
                   - status
                   - message
                   - payload
-        '404':
-          $ref: '#/components/responses/ErrorResponse'
-        '500':
-          $ref: '#/components/responses/ErrorResponse'
+        "404":
+          $ref: "#/components/responses/ErrorResponse"
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+  /api/get-user-funds:
+    get:
+      summary: Get funds from user profile
+      description: ""
+      operationId: profile-funds
+      tags:
+        - User
+      responses:
+        "200":
+          description: Fund details
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    userId:
+                      type: string
+                      description: User ID
+                    funds:
+                      type: float
+                      description: User fund
+                    fundsOnHold:
+                      type: float
+                      description: User funds on hold
+                required:
+                  - status
+                  - message
+                  - payload
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+
 components:
   schemas:
     UserInfo:
@@ -1082,7 +1121,7 @@ components:
           description: Auction length, in days
         isAvailableToBuy:
           type: boolean
-          description: Is item available to buy immediately 
+          description: Is item available to buy immediately
         itemState:
           type: string
           enum:
@@ -1257,7 +1296,7 @@ components:
           description: Length of auction in days
         isAvailableToBuy:
           type: boolean
-          description: Is item available to buy immediately  
+          description: Is item available to buy immediately
         images:
           type: array
           items:
@@ -1277,7 +1316,7 @@ components:
         itemId:
           type: string
         soldBid:
-          $ref: '#/components/schemas/Bid'
+          $ref: "#/components/schemas/Bid"
         soldTime:
           type: string
           format: date-time
@@ -1330,7 +1369,7 @@ components:
   requestBodies:
     UserLoginRequest:
       required: false
-      description: ''
+      description: ""
       content:
         application/json:
           schema:
@@ -1353,7 +1392,7 @@ components:
                 password: abc123
     UserRegisterRequest:
       required: false
-      description: ''
+      description: ""
       content:
         application/json:
           schema:
@@ -1398,7 +1437,7 @@ components:
             description: User register payload
     AddFundRequest:
       required: false
-      description: ''
+      description: ""
       content:
         application/json:
           schema:
@@ -1433,7 +1472,7 @@ components:
             description: Bid info
     ItemFreezeRequest:
       required: false
-      description: ''
+      description: ""
       content:
         application/json:
           schema:
@@ -1454,26 +1493,26 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ErrorResponsePayload'
+            $ref: "#/components/schemas/ErrorResponsePayload"
     PlainSuccessResponse:
       description: Success Response without payload
       headers: {}
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/PlainSuccessResponsePayload'
+            $ref: "#/components/schemas/PlainSuccessResponsePayload"
   parameters:
     SellerID:
       in: path
       required: true
-      description: ''
+      description: ""
       schema:
         type: string
       name: sellerId
     ItemID:
       in: path
       required: true
-      description: ''
+      description: ""
       schema:
         type: string
         format: uuid
@@ -1481,7 +1520,7 @@ components:
     BuyerID:
       in: path
       required: true
-      description: ''
+      description: ""
       schema:
         type: string
       name: buyerId

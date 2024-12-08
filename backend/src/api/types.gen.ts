@@ -848,3 +848,17 @@ export type ItemCheckExpiredResponse = ({
 });
 
 export type ItemCheckExpiredError = (ErrorResponsePayload);
+
+export type ProfileFundsResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: unknown;
+});
+
+export type ProfileFundsError = (ErrorResponsePayload);
