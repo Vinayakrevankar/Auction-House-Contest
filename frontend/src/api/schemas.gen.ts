@@ -345,3 +345,65 @@ export const PlainSuccessResponsePayloadSchema = {
     },
     required: ['status', 'message']
 } as const;
+
+export const UserListSchema = {
+    type: 'array',
+    properties: {
+        username: {
+            type: 'string',
+            description: 'Username'
+        },
+        emailAddress: {
+            type: 'string',
+            format: 'email',
+            description: 'User email'
+        },
+        userId: {
+            type: 'string',
+            description: 'User ID'
+        },
+        createdAt: {
+            type: 'integer',
+            description: 'User creation time'
+        },
+        userType: {
+            type: 'string',
+            enum: ['seller', 'buyer'],
+            description: 'User type, one of [seller, buyer]'
+        },
+        role: {
+            type: 'string',
+            enum: ['admin', 'user'],
+            description: 'User role, one of [admin, user]'
+        },
+        purchases: {
+            type: 'array',
+            items: {
+                '$ref': '#/components/schemas/Purchase'
+            },
+            description: 'List of purchases'
+        },
+        fund: {
+            type: 'number',
+            description: 'User fund'
+        },
+        fundOnHold: {
+            type: 'number',
+            description: 'User fund on hold'
+        },
+        isActive: {
+            type: 'boolean',
+            description: 'Is user active'
+        },
+        firstName: {
+            type: 'string',
+            description: 'User first name'
+        },
+        lastName: {
+            type: 'string',
+            description: 'User last name'
+        }
+    },
+    required: ['id', 'createdAt', 'firstName', 'isActive', 'lastName', 'username', 'emailAddress', 'userId', 'role', 'userType'],
+    description: 'User info'
+} as const;

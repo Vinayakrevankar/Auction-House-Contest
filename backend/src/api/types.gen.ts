@@ -252,6 +252,60 @@ export type PlainSuccessResponsePayload = {
     message: string;
 };
 
+/**
+ * User info
+ */
+export type UserList = {
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * User email
+     */
+    emailAddress: string;
+    /**
+     * User ID
+     */
+    userId: string;
+    /**
+     * User creation time
+     */
+    createdAt: number;
+    /**
+     * User type, one of [seller, buyer]
+     */
+    userType: 'seller' | 'buyer';
+    /**
+     * User role, one of [admin, user]
+     */
+    role: 'admin' | 'user';
+    /**
+     * List of purchases
+     */
+    purchases?: Array<Purchase>;
+    /**
+     * User fund
+     */
+    fund?: number;
+    /**
+     * User fund on hold
+     */
+    fundOnHold?: number;
+    /**
+     * Is user active
+     */
+    isActive: boolean;
+    /**
+     * User first name
+     */
+    firstName: string;
+    /**
+     * User last name
+     */
+    lastName: string;
+};
+
 export type ParameterSellerID = string;
 
 export type ParameterItemID = string;
@@ -636,6 +690,10 @@ export type ItemSearchData = {
          * Sort order
          */
         sortOrder?: 'asc' | 'desc';
+        /**
+         * get all item if userRole is admin
+         */
+        userRole?: string;
     };
 };
 
@@ -875,3 +933,37 @@ export type UserFundResponse = ({
 });
 
 export type UserFundError = (ErrorResponsePayload);
+
+export type AdminUsersResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<UserList>;
+});
+
+export type AdminUsersError = (ErrorResponsePayload);
+
+export type AdminBidsResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Bid>;
+});
+
+export type AdminBidsError = (ErrorResponsePayload);

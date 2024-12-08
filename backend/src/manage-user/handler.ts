@@ -1,4 +1,4 @@
-import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
   DynamoDBClient,
   DynamoDBServiceException,
@@ -15,6 +15,7 @@ import {
   getAccessDenied,
   getNotFound,
 } from "../util/httpUtil"; // Import response utilities
+import { ErrorResponsePayload } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 const JWT_SECRET = "JqaXPsfAMN4omyJWj9c8o9nbEQStbsiJ";
@@ -368,4 +369,27 @@ export async function getProfileFund(req: Request, res: Response) {
     console.error("Error retrieving funds:", error);
     return res.status(500).json({ status: 500, message: `${error}` });
   }
+}
+
+export function getAllUsers(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: USER_DB,
+    Limit: 100,
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 400,
+        message: err,
+      });
+    } else {
+      console.log("Scan data:", data);
+      res.status(200).send({
+        status: 200,
+        message: "Success",
+        payload: data?.Items,
+      });
+    }
+  });
 }

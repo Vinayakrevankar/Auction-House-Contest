@@ -1,10 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
 import { ErrorResponsePayload, Item, ItemRequestPayload, PlainSuccessResponsePayload } from "../api";
 import moment from "moment";
+import { Request, Response } from "express";
+
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -377,6 +378,28 @@ export function reviewItems(
     ExpressionAttributeValues: {
       ":sid": sellerId,
     },
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
+    } else {
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
+    }
+  });
+}
+
+//Get all item
+export function getAllItems(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
   });
 
   dclient.send(scanCmd, (err, data) => {

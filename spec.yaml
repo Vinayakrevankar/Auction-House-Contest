@@ -661,6 +661,11 @@ paths:
             enum:
               - asc
               - desc
+        - in: query
+          name: userRole
+          description: get all item if userRole is admin
+          schema:
+            type: string
       responses:
         '200':
           description: List of items
@@ -1066,6 +1071,72 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
       security:
         - http-jwt: []
+  /api/admin/users:
+    get:
+      summary: Get all users
+      description: ""
+      operationId: admin-users
+      tags:
+        - User
+      responses:
+        "200":
+          description: List of users
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/UserList"
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
+  /api/admin/bids:
+    get:
+      summary: Get all bids
+      description: ""
+      operationId: admin-bids
+      tags:
+        - User
+      responses:
+        "200":
+          description: List of bids
+          headers: {}
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Bid"
+                    description: Response Payload
+                required:
+                  - status
+                  - message
+                  - payload
+        "500":
+          $ref: "#/components/responses/ErrorResponse"
 components:
   schemas:
     UserInfo:
@@ -1372,6 +1443,66 @@ components:
       required:
         - status
         - message
+    UserList:
+      type: array
+      properties:
+        username:
+          type: string
+          description: Username
+        emailAddress:
+          type: string
+          format: email
+          description: User email
+        userId:
+          type: string
+          description: User ID
+        createdAt:
+          type: integer
+          description: User creation time
+        userType:
+          type: string
+          enum:
+            - seller
+            - buyer
+          description: User type, one of [seller, buyer]
+        role:
+          type: string
+          enum:
+            - admin
+            - user
+          description: User role, one of [admin, user]
+        purchases:
+          type: array
+          items:
+            $ref: "#/components/schemas/Purchase"
+          description: List of purchases
+        fund:
+          type: number
+          description: User fund
+        fundOnHold:
+          type: number
+          description: User fund on hold
+        isActive:
+          type: boolean
+          description: Is user active
+        firstName:
+          type: string
+          description: User first name
+        lastName:
+          type: string
+          description: User last name
+      required:
+        - id
+        - createdAt
+        - firstName
+        - isActive
+        - lastName
+        - username
+        - emailAddress
+        - userId
+        - role
+        - userType
+      description: User info
   securitySchemes:
     http-jwt:
       type: http

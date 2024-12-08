@@ -19,7 +19,8 @@ import {
   loginHandler,
   editProfileHandler,
   closeAccountHandler,
-  getProfileFund
+  getProfileFund,
+  getAllUsers
 } from "./manage-user/handler";
 import {
   getActiveItems,
@@ -28,6 +29,7 @@ import {
   publishItem,
   reviewItems,
   unpublishItem,
+  getAllItems
 } from "./manage-item/handler";
 import {
   placeBid,
@@ -47,6 +49,10 @@ const s3Client = new S3Client({ region: "us-east-1" });
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorResponsePayload, PlainSuccessResponsePayload } from "./api";
+import {
+  getAllBids,
+} from "./manage-admin/handler";
+
 
 // Initialize multer for file uploads
 const upload = multer({
@@ -180,6 +186,9 @@ app.post(
 );
 
 app.get("/api/get-user-funds", authFilterMiddleware, getProfileFund);
+app.get("/api/items", authFilterMiddleware, getAllItems);
+app.get("/api/admin/users", authFilterMiddleware, getAllUsers);
+app.get("/api/admin/bids", authFilterMiddleware, getAllBids);
 
 
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {
