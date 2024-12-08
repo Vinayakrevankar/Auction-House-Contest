@@ -12,6 +12,7 @@ import {
   AddFundsResponsePayload,
   ErrorResponsePayload,
 } from "../api";
+import moment from "moment";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 const ADMIN_ROLE = "admin";
@@ -112,7 +113,7 @@ export async function placeBid(req: Request, res: Response) {
   }
 
   const bidId = `${buyerId}#${Date.now()}`;
-  const bidTime = new Date().toISOString();
+  const bidTime = moment(new Date()).toISOString(true);
 
   const newBid: Bid = {
     id: bidId,
@@ -286,18 +287,18 @@ export async function closeAccountHandler(req: Request, res: Response) {
         ":true": true,
       },
     });
-  
+
     const scanBidsResp = await dclient.send(scanBidsCmd).catch((err) => {
       res.status(500).send({ status: 500, message: `${err}` });
       return;
     });
-  
+
     const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
-    if(activeBids.length > 0) {
+    if (activeBids.length > 0) {
       return res
-      .status(400)
-      .send({ status: 400, message: "Could not close account since there are active bids" });
+        .status(400)
+        .send({ status: 400, message: "Could not close account since there are active bids" });
     }
 
     if (userResult.Item.id !== buyerEmail) {

@@ -1015,6 +1015,53 @@ paths:
           $ref: '#/components/responses/ErrorResponse'
         '500':
           $ref: '#/components/responses/ErrorResponse'
+  /api/profile/fund:
+    get:
+      summary: Get user fund
+      description: ''
+      operationId: user-fund
+      tags:
+        - User
+      parameters: []
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: integer
+                    description: Response HTTP status
+                  message:
+                    type: string
+                    description: Response message
+                  payload:
+                    type: object
+                    properties:
+                      fund:
+                        type: integer
+                        description: User fund
+                      userId:
+                        type: string
+                        format: email
+                        description: User email ID
+                    required:
+                      - fund
+                      - userId
+                required:
+                  - status
+                  - message
+                  - payload
+        '403':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
 components:
   schemas:
     UserInfo:

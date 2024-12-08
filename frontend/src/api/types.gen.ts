@@ -836,3 +836,26 @@ export type ItemCheckExpiredResponse = ({
 });
 
 export type ItemCheckExpiredError = (ErrorResponsePayload);
+
+export type UserFundResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: {
+        /**
+         * User fund
+         */
+        fund: number;
+        /**
+         * User email ID
+         */
+        userId: string;
+    };
+});
+
+export type UserFundError = (ErrorResponsePayload);

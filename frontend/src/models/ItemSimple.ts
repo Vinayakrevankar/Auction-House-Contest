@@ -1,3 +1,4 @@
+import moment from "moment";
 import { Item } from "../api";
 
 export type ItemSimple = {
@@ -20,8 +21,8 @@ export function itemFromSimple(v: ItemSimple, userId: string): Item {
     name: v.name,
     description: v.description,
     initPrice: v.initPrice,
-    startDate: sdate.toISOString(),
-    endDate: edate.toISOString(),
+    startDate: moment(sdate).toISOString(),
+    endDate: moment(edate).toISOString(),
     lengthOfAuction: v.lengthOfAuction,
     itemState: 'inactive',
     isFrozen: false,
@@ -41,6 +42,6 @@ export function itemToSimple(v: Item): ItemSimple {
     itemState: v.itemState,
     isFrozen: v.isFrozen,
     lengthOfAuction: v.lengthOfAuction,
-    images: v.images || [], 
+    images: v.images || [],
   };
 }

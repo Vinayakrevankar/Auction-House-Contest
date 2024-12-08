@@ -4,6 +4,7 @@ import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
 import { ErrorResponsePayload, Item, ItemRequestPayload, PlainSuccessResponsePayload } from "../api";
+import moment from "moment";
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -55,8 +56,8 @@ export async function addItem(
     images: itemData.images,
     initPrice: itemData.initPrice,
     lengthOfAuction: itemData.lengthOfAuction,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: moment(startDate).toISOString(true),
+    endDate: moment(endDate).toISOString(true),
     itemState: "inactive", // Initial state is inactive
     isFrozen: false,
     createAt: createAt,
@@ -294,8 +295,8 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
-      ":sdate": sdate.toISOString(),
-      ":edate": edate.toISOString(),
+      ":sdate": moment(sdate).toISOString(true),
+      ":edate": moment(edate).toISOString(true),
       ":old": "inactive",
       ":sid": sellerId,
     },

@@ -251,16 +251,16 @@ export async function editProfileHandler(req: Request, res: Response) {
     return res.status(400).json(getBadRequest([null, "No fields to update."]));
   }
 
-  try {
-    const updateCommand = new UpdateCommand({
-      TableName: USER_DB,
-      Key: { id: emailAddress },
-      UpdateExpression: `SET ${updateExpressions.join(", ")}`,
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "ALL_NEW",
-    });
+  const updateCommand = new UpdateCommand({
+    TableName: USER_DB,
+    Key: { id: emailAddress },
+    UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
+    ReturnValues: "ALL_NEW",
+  });
 
+  try {
     const updatedUser = await dclient.send(updateCommand);
 
     return res
@@ -332,7 +332,7 @@ export async function closeAccountHandler(req: Request, res: Response) {
 }
 
 
-export async function getProfileFund(req: Request, res: Response) {    
+export async function getProfileFund(req: Request, res: Response) {
   const emailId = res.locals.id; // User's email address from authentication middleware
 
   try {

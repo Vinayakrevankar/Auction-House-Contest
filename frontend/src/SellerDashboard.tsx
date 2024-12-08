@@ -15,6 +15,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
+  userFund,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -55,20 +56,15 @@ const SellerDashboard = () => {
 
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
-    try {
-      const response = await fetch(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `${userInfo?.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setFunds(data.payload?.fund || 0);
-    } catch (error) {
-      console.error("Error fetching funds:", error);
+    const response = await userFund({
+      headers: {
+        "Authorization": `${userInfo.token}`,
+      }
+    });
+    if (response.error) {
+      notifyError(`Error fetching funds: ${response.error.message}`);
+    } else {
+      setFunds(response.data.payload.fund);
     }
   }, [userInfo]);
 
@@ -119,7 +115,7 @@ const SellerDashboard = () => {
       notifyError("An error occurred while closing your account.");
     }
 
-    };
+  };
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openBidModal(data.id)}
@@ -196,7 +192,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo,fetchFunds, navigate, fetchItems]);
+  }, [userInfo, fetchFunds, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
