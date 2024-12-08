@@ -149,7 +149,8 @@ app.post("/api/items/:itemId/check-expired", (req, res) =>
 // login and register
 app.post("/api/register", registerHandler);
 app.post("/api/login", loginHandler);
-app.put("/api/profile/update", editProfileHandler);
+app.get("/api/profile/fund", authFilterMiddleware, getProfileFund);
+app.put("/api/profile/update", authFilterMiddleware, editProfileHandler);
 // Upload endpoint to handle file upload to S3
 
 // Buyer use cases

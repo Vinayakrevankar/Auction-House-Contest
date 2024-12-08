@@ -1,7 +1,6 @@
 import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
   DynamoDBClient,
-  DynamoDBServiceException,
 } from "@aws-sdk/client-dynamodb";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
@@ -336,39 +335,42 @@ export async function closeAccountHandler(req: Request, res: Response) {
 export async function getProfileFund(req: Request, res: Response) {
   const emailId = res.locals.id; // User's email address from authentication middleware
 
-  try {
-    const getUserCommand = new GetCommand({
-      TableName: USER_DB,
-      Key: { id: emailId },
-    });
-    const userResult = await dclient.send(getUserCommand);
-
-    if (!userResult.Item) {
-      return res.status(404).json({ status: 404, message: "User not found." });
-    }
-
-    if (userResult.Item.id !== emailId) {
-      return res.status(403).json({
-        status: 403,
-        message: "You are not authorized to view this account's funds.",
-      });
-    }
-
-    const fund = userResult.Item.fund;
-
-    return res.status(200).json({
-      status: 200,
-      message: "Funds retrieved successfully.",
-      payload: {
-        userId: emailId,
-        funds: fund,
-        fundsOnHold: userResult.Item.fundsOnHold
-      },
-    });
-  } catch (error) {
-    console.error("Error retrieving funds:", error);
-    return res.status(500).json({ status: 500, message: `${error}` });
+  const getUserCommand = new GetCommand({
+    TableName: USER_DB,
+    Key: {
+      "id": emailId,
+    },
+  });
+  const userResult = await dclient.send(getUserCommand).catch(err => {
+    console.error("Error retrieving funds:", err);
+    res.status(500).json({ status: 500, message: `${err}` });
+  });
+  if (!userResult) {
+    return
   }
+
+  if (!userResult.Item) {
+    return res.status(404).json({ status: 404, message: "User not found." });
+  }
+
+  if (userResult.Item.id !== emailId) {
+    return res.status(403).json({
+      status: 403,
+      message: "You are not authorized to view this account's funds.",
+    });
+  }
+
+  const fund = userResult.Item.fund;
+
+  return res.status(200).json({
+    status: 200,
+    message: "Funds retrieved successfully.",
+    payload: {
+      userId: emailId,
+      fund: fund,
+      fundsOnHold: userResult.Item.fundsOnHold
+    },
+  });
 }
 
 export function getAllUsers(req: Request, res: Response) {
