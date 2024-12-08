@@ -385,7 +385,7 @@ const SellerDashboard = () => {
         notifyError("Unauthorized Access");
         setUserInfo(null);
       } else if (resp.error) {
-        notifyError("Failed to unpublish item");
+        notifyError(`Failed to request unfreeze item: ${resp.error.message}`);
       } else {
         notifySuccess("Request unfreeze item successfully");
         fetchItems();
