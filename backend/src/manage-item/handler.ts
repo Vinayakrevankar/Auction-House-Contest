@@ -64,6 +64,7 @@ export async function addItem(
     currentBidId: undefined,
     pastBidIds: [],
     soldBidId: undefined,
+    isAvailableToBuy: itemData.isAvailableToBuy ?? false,
   };
 
   const cmd = new PutCommand({
@@ -138,6 +139,10 @@ export async function editItem(
     if (itemData.description) {
       updateExpression += ", description = :description";
       expressionAttributeValues[":description"] = itemData.description;
+    }
+    if (itemData.isAvailableToBuy) {
+      updateExpression += ", isAvailableToBuy = :isAvailableToBuy";
+      expressionAttributeValues[":isAvailableToBuy"] = itemData.isAvailableToBuy;
     }
 
     if (itemData.images) {

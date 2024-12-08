@@ -9,6 +9,8 @@ export type ItemSimple = {
   isFrozen: boolean,
   lengthOfAuction: number;
   images: string[]; // For simplicity
+  isAvailableToBuy: boolean;
+  currentBidId: string;
 };
 
 export function itemFromSimple(v: ItemSimple, userId: string): Item {
@@ -16,6 +18,7 @@ export function itemFromSimple(v: ItemSimple, userId: string): Item {
   const edate = new Date(sdate.getTime());
   edate.setDate(edate.getDate() + v.lengthOfAuction);
   const item: Item = {
+    isAvailableToBuy: false,
     id: v.id,
     name: v.name,
     description: v.description,
@@ -27,6 +30,7 @@ export function itemFromSimple(v: ItemSimple, userId: string): Item {
     isFrozen: false,
     images: v.images,
     sellerId: userId,
+    currentBidId: v.currentBidId ?? '',
     createAt: sdate.getTime(),
   };
   return item;
@@ -34,12 +38,14 @@ export function itemFromSimple(v: ItemSimple, userId: string): Item {
 
 export function itemToSimple(v: Item): ItemSimple {
   return {
+    isAvailableToBuy: v.isAvailableToBuy ?? false,
     id: v.id,
     name: v.name,
     description: v.description,
     initPrice: v.initPrice,
     itemState: v.itemState,
     isFrozen: v.isFrozen,
+    currentBidId: v.currentBidId ?? '',
     lengthOfAuction: v.lengthOfAuction,
     images: v.images || [], 
   };

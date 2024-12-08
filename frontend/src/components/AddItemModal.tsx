@@ -14,6 +14,8 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
   const [newItemName, setNewItemName] = useState('');
   const [newItemDescription, setNewItemDescription] = useState('');
   const [newItemInitPrice, setNewItemInitPrice] = useState('');
+  const [newisAvailableToBuy, setIsAvailableToBuy] = useState(false);
+
   const [newItemLengthOfAuction, setNewItemLengthOfAuction] = useState<LengthOfAuction>({
     day: -1,
     hour: -1,
@@ -61,6 +63,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       }
     }));
     const newItem: ItemSimple = {
+      isAvailableToBuy: newisAvailableToBuy,
       id: `${Date.now()}`, // Use a better unique ID in production
       name: newItemName,
       itemState: 'inactive',
@@ -68,6 +71,7 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
       initPrice: parseFloat(newItemInitPrice),
       lengthOfAuction: la2ts(newItemLengthOfAuction),
       images: images.filter((v) => v !== undefined), // For simplicity,
+      currentBidId: '',
       isFrozen: false,
     };
 
@@ -197,6 +201,18 @@ const AddItemModal: React.FC<AddItemModalProps> = ({ show, onClose, onAddItem })
                   required
                 />
               </div>
+            </div>
+            <div>
+              
+            <label className="block text-sm font-medium text-gray-700 ml-3">
+              <input
+                type="checkbox"
+                checked={newisAvailableToBuy}
+                onChange={(e) => setIsAvailableToBuy(e.target.checked)}
+                className="mr-3">
+              </input>
+              Available to buy immediately
+                </label>
             </div>
 
             {/* Images */}

@@ -1080,6 +1080,9 @@ components:
         lengthOfAuction:
           type: integer
           description: Auction length, in days
+        isAvailableToBuy:
+          type: boolean
+          description: Is item available to buy immediately 
         itemState:
           type: string
           enum:
@@ -1252,6 +1255,9 @@ components:
           type: integer
           minimum: 1
           description: Length of auction in days
+        isAvailableToBuy:
+          type: boolean
+          description: Is item available to buy immediately  
         images:
           type: array
           items:
@@ -1418,6 +1424,9 @@ components:
               bidAmount:
                 type: number
                 description: Bid amount
+              isAvailableToBuy:
+                type: boolean
+                description: Is item available to buy immediately
             required:
               - itemId
               - bidAmount

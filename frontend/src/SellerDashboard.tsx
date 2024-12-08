@@ -29,6 +29,7 @@ const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
   archived: "text-gray-500",
+  completed: "bg-green-500 text-white",
 };
 
 const SellerDashboard = () => {
@@ -225,6 +226,7 @@ const SellerDashboard = () => {
           description: newItem.description,
           initPrice: newItem.initPrice,
           lengthOfAuction: newItem.lengthOfAuction,
+          isAvailableToBuy: newItem.isAvailableToBuy,
           images: newItem.images,
         },
       });
@@ -260,6 +262,7 @@ const SellerDashboard = () => {
           initPrice: updatedItem.initPrice,
           lengthOfAuction: updatedItem.lengthOfAuction,
           images: updatedItem.images,
+          isAvailableToBuy: updatedItem.isAvailableToBuy,
         },
       });
       if (resp.error && resp.error.status === 401) {
@@ -425,6 +428,9 @@ const SellerDashboard = () => {
             <Button className="p-2 bg-green-500 text-white rounded">
               Available Funds: ${funds}
             </Button>
+            <Button className="p-2 bg-yellow-500 text-white rounded">
+              Available Funds on Hold: ${"IMPLEMENTATION NEEDED"}
+            </Button>
             <Button
               color="blue"
               onClick={() => {
@@ -478,6 +484,7 @@ const SellerDashboard = () => {
           onFulfill={handlefulfill}
           refreshItems={fetchItems}
           onArchive={handleArchive}
+
         />
       )}
 
