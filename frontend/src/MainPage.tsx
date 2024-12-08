@@ -29,65 +29,91 @@ function BidField(props: {
   itemId: string;
   bidAmount: number | undefined;
   currentPrice: number;
+  itemIsAvailableToBuy: boolean;
   setBidAmount: (v: number | undefined) => void;
   setRefresh: (v: boolean) => void;
 }) {
+  const [itemIsAvailableToBuy, setIsAvailableToBuy] = useState(props.itemIsAvailableToBuy);
   const { userInfo } = useAuth();
   const [color, setColor] = useState<
     DynamicStringEnumKeysOf<FlowbiteTextInputColors> | undefined
   >(undefined);
+
   return (
     userInfo && (
       <div className="flex flex-row justify-between space-x-5 items-start">
-        <div className=" flex flex-col">
-          <TextInput
-            type="number"
-            placeholder="Amount"
-            value={props.bidAmount}
-            color={color}
-            helperText={
-              color === "failure" && "Bid amount must > current price."
-            }
-            onChange={(ev) => {
-              if (ev.target.value === "") {
-                props.setBidAmount(undefined);
-              } else {
-                props.setBidAmount(parseFloat(ev.target.value));
-              }
-            }}
-          />
-        </div>
-        <Button
-          color="info"
-          onClick={() => {
-            if (props.bidAmount && props.bidAmount > props.currentPrice) {
-              if (color) {
-                setColor(undefined);
-              }
+        
+        {itemIsAvailableToBuy ? (
+          <Button
+            color="success"
+            onClick={() => {
               buyerBidsPlace({
                 path: { buyerId: userInfo.userId },
                 headers: { Authorization: userInfo.token },
                 body: {
                   itemId: props.itemId,
-                  bidAmount: props.bidAmount,
+                  bidAmount: props.currentPrice, // Assume buy now uses the current price.
+                  isAvailableToBuy: itemIsAvailableToBuy,
                 },
-              })
-                .then((resp) => {
-                  if (resp.data) {
-                    notifySuccess("Bid success!");
-                    props.setRefresh(true);
+              }).then((resp) => {
+                if (resp.data) {
+                  notifySuccess("Item purchased successfully!");
+                  props.setRefresh(true);
+                } else {
+                  notifyError(`Failed to purchase item: ${resp.error.message}`);
+                }
+              });
+            }}
+          >
+            Buy Now
+          </Button>
+        ) : (
+          <><div className="flex flex-col">
+              <TextInput
+                type="number"
+                placeholder="Amount"
+                value={props.bidAmount}
+                color={color}
+                helperText={color === "failure" && "Bid amount must be greater than the current price."}
+                onChange={(ev) => {
+                  if (ev.target.value === "") {
+                    props.setBidAmount(undefined);
                   } else {
-                    notifyError(`Failed to bid item: ${resp.error.message}`);
+                    props.setBidAmount(parseFloat(ev.target.value));
                   }
-                });
-            } else {
-              setColor("failure");
-              notifyError("Bid Failed!");
-            }
-          }}
-        >
-          Bid!
-        </Button>
+                } } />
+            </div>
+            <Button
+              color="info"
+              onClick={() => {
+                if (props.bidAmount && props.bidAmount > props.currentPrice) {
+                  if (color) {
+                    setColor(undefined);
+                  }
+                  buyerBidsPlace({
+                    path: { buyerId: userInfo.userId },
+                    headers: { Authorization: userInfo.token },
+                    body: {
+                      itemId: props.itemId,
+                      bidAmount: props.bidAmount,
+                    },
+                  }).then((resp) => {
+                    if (resp.data) {
+                      notifySuccess("Bid success!");
+                      props.setRefresh(true);
+                    } else {
+                      notifyError(`Failed to bid item: ${resp.error.message}`);
+                    }
+                  });
+                } else {
+                  setColor("failure");
+                  notifyError("Bid Failed! Please bid higher than the current price.");
+                }
+              } }
+            >
+                Bid!
+              </Button></>
+        )}
       </div>
     )
   );
@@ -97,6 +123,7 @@ function ItemCard({ item }: { item: Item }) {
   const [show, setShow] = useState(false);
   // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
+  const [itemIsAvailableToBuy, setIsAvailableToBuy] = useState(item.isAvailableToBuy);
   const [refresh, setRefresh] = useState(true);
   const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
   const [days, setDays] = useState(0);
@@ -113,11 +140,13 @@ function ItemCard({ item }: { item: Item }) {
       const fetchData = async () => {
         const resp = await itemBids({ path: { itemId: item.id } });
         if (!resp.data) {
-          notifyError(`Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`);
+          notifyError(
+            `Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`
+          );
           return;
         }
         if (item.currentBidId) {
-          const bid = resp.data.payload.find(b => b.id === item.currentBidId);
+          const bid = resp.data.payload.find((b) => b.id === item.currentBidId);
           if (bid) {
             setCurrentPrice(bid.bidAmount);
           }
@@ -180,6 +209,7 @@ function ItemCard({ item }: { item: Item }) {
                   currentPrice={currentPrice}
                   setBidAmount={setBidAmount}
                   setRefresh={setRefresh}
+                  itemIsAvailableToBuy={itemIsAvailableToBuy ?? false}
                 />
               </div>
             </div>
@@ -277,24 +307,30 @@ export function MainPage() {
       const fetchData = async () => {
         const resp = await itemGetActive();
         if (!resp.data) {
-          notifyError(`Get active items failed with status ${resp.error.status}: ${resp.error.message}`);
+          notifyError(
+            `Get active items failed with status ${resp.error.status}: ${resp.error.message}`
+          );
           return;
         }
-        const ps = resp.data.payload.map(async item => {
+        const ps = resp.data.payload.map(async (item) => {
           const resp = await itemCheckExpired({ path: { itemId: item.id } });
           return { item: item, resp: resp };
         });
         const result = await Promise.all(ps);
-        const new_items = result.filter(({ item, resp }) => {
-          if (resp.error) {
-            notifyError(`Failed to check expired status for ${item.id}: ${resp.error.message}`);
-            return false;
-          } else if (resp.data.payload.isExpired) {
-            return false;
-          } else {
-            return true;
-          }
-        }).map(({ item }) => item);
+        const new_items = result
+          .filter(({ item, resp }) => {
+            if (resp.error) {
+              notifyError(
+                `Failed to check expired status for ${item.id}: ${resp.error.message}`
+              );
+              return false;
+            } else if (resp.data.payload.isExpired) {
+              return false;
+            } else {
+              return true;
+            }
+          })
+          .map(({ item }) => item);
         setItems(new_items);
       };
       fetchData();
@@ -313,7 +349,9 @@ export function MainPage() {
     <>
       <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl text-white font-bold">Auction House {userInfo && `- ${userInfo?.userType.toUpperCase()}`}</h1>
+          <h1 className="text-2xl text-white font-bold">
+            Auction House {userInfo && `- ${userInfo?.userType.toUpperCase()}`}
+          </h1>
           <div className="flex gap-5">
             {userInfo !== null ? (
               <>
@@ -336,7 +374,11 @@ export function MainPage() {
                   Logout
                 </Button>
                 <Button
-                  onClick={userInfo.userType === "seller" ? handleSellerCloseAccount : handleCloseAccount}
+                  onClick={
+                    userInfo.userType === "seller"
+                      ? handleSellerCloseAccount
+                      : handleCloseAccount
+                  }
                   className="bg-red-600 text-white rounded"
                 >
                   Close Account

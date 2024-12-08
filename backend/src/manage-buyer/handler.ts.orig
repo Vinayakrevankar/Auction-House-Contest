@@ -190,9 +190,12 @@ export async function placeBid(req: Request, res: Response) {
     return;
   }
 
+<<<<<<< HEAD
   const bidId = `${buyerId}#${Date.now()}`;
   const bidTime = moment(new Date()).toISOString(true);
 
+=======
+>>>>>>> 91f33c9 (added buy now feature)
   const newBid: Bid = {
     id: bidId,
     bidItemId: itemId,
@@ -248,6 +251,7 @@ export async function placeBid(req: Request, res: Response) {
       }
     });
 }
+
 
 export async function reviewActiveBids(req: Request, res: Response) {
   const buyerId = res.locals.id;

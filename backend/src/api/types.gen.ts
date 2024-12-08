@@ -73,6 +73,10 @@ export type Item = {
      */
     lengthOfAuction: number;
     /**
+     * Is item available to buy immediately
+     */
+    isAvailableToBuy?: boolean;
+    /**
      * Current state of item
      */
     itemState: 'active' | 'archived' | 'completed' | 'failed' | 'inactive';
@@ -204,6 +208,10 @@ export type ItemRequestPayload = {
      * Length of auction in days
      */
     lengthOfAuction: number;
+    /**
+     * Is item available to buy immediately
+     */
+    isAvailableToBuy?: boolean;
     /**
      * S3 object keys for the images
      */
@@ -559,6 +567,10 @@ export type BuyerBidsPlaceData = {
          * Bid amount
          */
         bidAmount: number;
+        /**
+         * Is item available to buy immediately
+         */
+        isAvailableToBuy?: boolean;
     };
     path: {
         buyerId: string;

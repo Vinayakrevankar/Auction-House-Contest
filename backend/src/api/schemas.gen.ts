@@ -69,6 +69,10 @@ export const ItemSchema = {
             type: 'integer',
             description: 'Auction length, in days'
         },
+        isAvailableToBuy: {
+            type: 'boolean',
+            description: 'Is item available to buy immediately'
+        },
         itemState: {
             type: 'string',
             enum: ['active', 'archived', 'completed', 'failed', 'inactive'],
@@ -261,6 +265,10 @@ export const ItemRequestPayloadSchema = {
             type: 'integer',
             minimum: 1,
             description: 'Length of auction in days'
+        },
+        isAvailableToBuy: {
+            type: 'boolean',
+            description: 'Is item available to buy immediately'
         },
         images: {
             type: 'array',

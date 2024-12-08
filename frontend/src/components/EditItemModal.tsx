@@ -30,17 +30,19 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onFulfill,
   refreshItems,
   onArchive,
-  onRequestUnfreeze,
+  onRequestUnfreeze
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
+  const [newIsAvailableToBuy, setIsAvailableToBuy] = useState(false);
   const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState<LengthOfAuction>({
     day: -1,
     hour: -1,
     min: -1,
     sec: -1,
   });
+  
   const [buttonFulfill, setButtonFulfill] = useState(false);
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
@@ -56,17 +58,26 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       if (itemToEditRef.current) {
         const resp = await itemDetail({ path: { itemId: itemToEditRef.current.id } }); // Get item details
         if (resp.data) {
-          itemToEditRef.current = resp.data.payload; // Assign data to ref
+          itemToEditRef.current = {
+            ...resp.data.payload,
+            isAvailableToBuy: resp.data.payload.isAvailableToBuy ?? false,
+            currentBidId: resp.data.payload.currentBidId ?? "", // Ensure currentBidId is a string
+          }; // Assign data to ref
         }
-        setEditItemName(itemToEditRef.current.name);
+        if (itemToEditRef.current) {
+          setEditItemName(itemToEditRef.current.name);
+        }
         setEditItemDescription(itemToEditRef.current.description);
         setEditItemInitPrice(itemToEditRef.current.initPrice.toString());
-        setEditItemLengthOfAuction({
-          day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
-          hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000) % 24),
-          min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000) % 60),
-          sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000 % 60),
-        });
+        setIsAvailableToBuy(itemToEditRef.current.isAvailableToBuy);
+        if (itemToEditRef.current) {
+          setEditItemLengthOfAuction({
+            day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
+            hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000) % 24),
+            min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000) % 60),
+            sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000 % 60),
+          });
+        }
         setEditItemImages(null);
         setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
         const response = await itemCheckExpired({ path: { itemId: itemToEditRef.current.id } });
@@ -175,6 +186,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
       lengthOfAuction: la2ts(editItemLengthOfAuction),
+      isAvailableToBuy: newIsAvailableToBuy,
       images,
     };
 
@@ -317,7 +329,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             </div>
             <div>
               <h3 className="text-lg font-semibold">Images</h3>
-              <div className="flex flex-wrap gap-4 mt-4">
+              <div className="flex flex-wrap gap-3 mt-4">
                 {itemToEdit && itemToEdit.images?.map((image, index) => (
                   <div
                     key={index}
@@ -331,7 +343,18 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   </div>
                 ))}
               </div>
+              <label className="block text-sm font-medium text-gray-700 ml-3 mt-2">
+                <input
+                  type="checkbox"
+                  disabled={itemToEditRef.current?.currentBidId.length > 0 || currentItemState !== "inactive"}
+                  checked={newIsAvailableToBuy}
+                  onChange={(e) => setIsAvailableToBuy(e.target.checked)}
+                  className="mr-3">
+                </input>
+                Available to buy immediately
+                  </label>
             </div>
+           
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Upload Image
@@ -347,8 +370,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 className="mt-1 block w-full"
                 accept="image/*" // Optional: Restrict to image files only
               />
-            </div>
 
+            </div>
+            
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
