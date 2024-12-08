@@ -9,6 +9,7 @@ import {
   itemGetActive,
   buyerClose,
   sellerClose,
+  adminFreezeItem,
   // Bid,
 } from "./api"; //Bid,
 import {
@@ -155,7 +156,34 @@ function ItemCard({ item }: { item: Item }) {
       setRefresh(false);
     }
   }, [refresh, item.currentBidId, item.id]);
+// Handler for closing the account
+const handleFreezeItem = async () => {
+  if (!userInfo) return;
 
+  // Confirm with the user
+  const confirmClose = window.confirm(
+    "Are you sure you want to freeze item? This action cannot be undone."
+  );
+  if (!confirmClose) return;
+
+  try {
+    // Call the buyerClose API function
+    const response = await adminFreezeItem({
+      headers: { Authorization: userInfo.token },
+      path: { itemId: item.id },
+    });
+
+    if (response.error) {
+      notifyError(response.error.message || "An error occurred while freezing the item.");
+    } else {
+      notifySuccess("Item is successfully frozen.");
+    }
+  } catch (error) {
+    console.error("Error freezing item:", error);
+    notifyError("Error: An error occurred while freezing the item.");
+  }
+
+  };
   useEffect(() => {
     const interval = setInterval(() => setEnd(end - 1000), 1000);
     setDays(Math.floor(end / (1000 * 60 * 60 * 24)));
@@ -209,7 +237,12 @@ function ItemCard({ item }: { item: Item }) {
                   setBidAmount={setBidAmount}
                   setRefresh={setRefresh}
                   itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
-                />): <p> FREEZE ITEM </p>}
+                />): <button
+                onClick={() => handleFreezeItem()}
+                className="p-2 bg-red-500 text-white rounded"
+              >
+                Freeze Item
+              </button>}
               </div>
             </div>
           </div>
