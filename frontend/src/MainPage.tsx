@@ -161,7 +161,7 @@ function ItemCard({ item }: { item: Item }) {
     const interval = setInterval(() => setEnd(end - 1000), 1000);
     setDays(Math.floor(end / (1000 * 60 * 60 * 24)));
     setHours(Math.floor((end / (1000 * 60 * 60)) % 24));
-    setMinutes(Math.floor((end / 1000 / 60) % 60));
+    setMinutes(Math.floor((end / (1000 * 60)) % 60));
     return () => clearInterval(interval);
   }, [end]);
 
