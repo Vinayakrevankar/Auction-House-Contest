@@ -1011,21 +1011,21 @@ paths:
                   - status
                   - message
                   - payload
-        "404":
-          $ref: "#/components/responses/ErrorResponse"
-        "500":
-          $ref: "#/components/responses/ErrorResponse"
-  /api/get-user-funds:
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+  /api/profile/fund:
     get:
-      summary: Get funds from user profile
-      description: ""
-      operationId: profile-funds
+      summary: Get user fund
+      description: ''
+      operationId: user-fund
       tags:
         - User
+      parameters: []
       responses:
-        "200":
-          description: Fund details
-          headers: {}
+        '200':
+          description: OK
           content:
             application/json:
               schema:
@@ -1038,22 +1038,34 @@ paths:
                     type: string
                     description: Response message
                   payload:
-                    userId:
-                      type: string
-                      description: User ID
-                    funds:
-                      type: float
-                      description: User fund
-                    fundsOnHold:
-                      type: float
-                      description: User funds on hold
+                    type: object
+                    properties:
+                      fund:
+                        type: integer
+                        description: User fund
+                      userId:
+                        type: string
+                        format: email
+                        description: User email ID
+                      fundsOnHold:
+                        type: integer
+                        description: User fund being hold for previous bids
+                    required:
+                      - fund
+                      - userId
+                      - fundsOnHold
                 required:
                   - status
                   - message
                   - payload
-        "500":
-          $ref: "#/components/responses/ErrorResponse"
-
+        '403':
+          $ref: '#/components/responses/ErrorResponse'
+        '404':
+          $ref: '#/components/responses/ErrorResponse'
+        '500':
+          $ref: '#/components/responses/ErrorResponse'
+      security:
+        - http-jwt: []
 components:
   schemas:
     UserInfo:

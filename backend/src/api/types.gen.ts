@@ -849,7 +849,7 @@ export type ItemCheckExpiredResponse = ({
 
 export type ItemCheckExpiredError = (ErrorResponsePayload);
 
-export type ProfileFundsResponse = ({
+export type UserFundResponse = ({
     /**
      * Response HTTP status
      */
@@ -858,7 +858,20 @@ export type ProfileFundsResponse = ({
      * Response message
      */
     message: string;
-    payload: unknown;
+    payload: {
+        /**
+         * User fund
+         */
+        fund: number;
+        /**
+         * User email ID
+         */
+        userId: string;
+        /**
+         * User fund being hold for previous bids
+         */
+        fundsOnHold: number;
+    };
 });
 
-export type ProfileFundsError = (ErrorResponsePayload);
+export type UserFundError = (ErrorResponsePayload);

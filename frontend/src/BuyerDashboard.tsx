@@ -1,12 +1,26 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { buyerBids, buyerPurchases, buyerClose, buyerAddFunds, Bid, Purchase, profileFunds } from "./api"; // Ensure buyerAddFunds is imported
+import { buyerBids, buyerPurchases, buyerClose, buyerAddFunds, Bid, Purchase, userFund } from "./api"; // Ensure buyerAddFunds is imported
 import { useAuth } from "./AuthContext";
 import { notifyError, notifySuccess } from "./components/Notification";
 import { Button } from "flowbite-react";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
+import moment from "moment";
+
+function reformatPurchase(p: Purchase): Purchase {
+  let pnew = p;
+  pnew.soldTime = moment(p.soldTime).toISOString(true);
+  pnew.fulfillTime = moment(p.fulfillTime).toISOString(true);
+  return pnew;
+}
+
+function reformatBid(b: Bid): Bid {
+  let bnew = b;
+  bnew.bidTime = moment(b.bidTime).toISOString(true);
+  return bnew;
+}
 
 const BuyerDashboard: React.FC = () => {
   const { userInfo, setUserInfo } = useAuth();
@@ -40,7 +54,7 @@ const BuyerDashboard: React.FC = () => {
       console.log("Active bids response:", resp);
       if (resp.data) {
         console.log("Setting active bids:", resp.data.payload);
-        setActiveBids(resp.data.payload);
+        setActiveBids(resp.data.payload.map(reformatBid));
       } else if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
@@ -67,7 +81,7 @@ const BuyerDashboard: React.FC = () => {
         },
       });
       if (resp.data) {
-        setPurchases(resp.data.payload);
+        setPurchases(resp.data.payload.map(reformatPurchase));
       } else if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
@@ -84,20 +98,21 @@ const BuyerDashboard: React.FC = () => {
   // Wrap fetchFunds in useCallback
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
-    try {
-      const response = await profileFunds({
-        headers: { Authorization: userInfo?.token }
-      });
-      const data = response.data as { payload: { funds: number, fundsOnHold?: number } } | undefined;
-      setFunds(data?.payload?.funds || 0);
-    } catch (error) {
-      console.error("Error fetching funds:", error);
+    const response = await userFund({
+      headers: {
+        "Authorization": `${userInfo.token}`,
+      }
+    });
+    if (response.error) {
+      notifyError(`Error fetching funds: ${response.error.message}`);
+    } else {
+      setFunds(response.data.payload.fund);
     }
   }, [userInfo]);
 
 
   useEffect(() => {
-    
+
     fetchFunds();
     if (!userInfo) {
       navigate("/", { state: { openLoginModal: true } });
@@ -329,7 +344,7 @@ const BuyerDashboard: React.FC = () => {
             <Button
               color="blue"
               onClick={() => {
-                  navigate("/");
+                navigate("/");
               }}
             >
               Home
@@ -338,11 +353,11 @@ const BuyerDashboard: React.FC = () => {
               Logout
             </Button>
             <Button
-                  onClick={handleCloseAccount}
-                  className="bg-red-600 text-white rounded"
-                >
-                  Close Account
-                </Button>
+              onClick={handleCloseAccount}
+              className="bg-red-600 text-white rounded"
+            >
+              Close Account
+            </Button>
           </div>
         )}
       </div>

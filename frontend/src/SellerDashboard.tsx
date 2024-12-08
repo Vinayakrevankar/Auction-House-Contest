@@ -15,7 +15,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
-  profileFunds
+  userFund,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -57,14 +57,15 @@ const SellerDashboard = () => {
 
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
-    try {
-      const response = await profileFunds({
-        headers: { Authorization: userInfo?.token }
-      });
-      const data = response.data as { payload: { funds: number, fundsOnHold: number } } | undefined;
-      setFunds(data?.payload?.funds || 0);
-    } catch (error) {
-      console.error("Error fetching funds:", error);
+    const response = await userFund({
+      headers: {
+        "Authorization": `${userInfo.token}`,
+      }
+    });
+    if (!response.data) {
+      notifyError(`Error fetching funds: ${response.error.message}`);
+    } else {
+      setFunds(response.data.payload.fund);
     }
   }, [userInfo]);
 
@@ -115,7 +116,7 @@ const SellerDashboard = () => {
       notifyError("An error occurred while closing your account.");
     }
 
-    };
+  };
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openBidModal(data.id)}
@@ -145,6 +146,13 @@ const SellerDashboard = () => {
       headerName: "Length of Auction",
       sortable: true,
       filter: true,
+      valueFormatter: (p: { value: number }) => {
+        const day = Math.floor(p.value / (24 * 60 * 60 * 1000));
+        const hour = Math.floor(p.value / (60 * 60 * 1000) % 24);
+        const min = Math.floor(p.value / (60 * 1000) % 60);
+        const sec = Math.floor(p.value / 1000 % 60);
+        return `${day}d ${hour}h ${min}m ${sec}s`;
+      },
     },
     {
       field: "itemState",
@@ -192,7 +200,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo,fetchFunds, navigate, fetchItems]);
+  }, [userInfo, fetchFunds, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
@@ -422,6 +430,9 @@ const SellerDashboard = () => {
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
             <Button className="p-2 bg-green-500 text-white rounded">
               Available Funds: ${funds}
+            </Button>
+            <Button className="p-2 bg-yellow-500 text-white rounded">
+              Available Funds on Hold: ${"IMPLEMENTATION NEEDED"}
             </Button>
             <Button
               color="blue"
