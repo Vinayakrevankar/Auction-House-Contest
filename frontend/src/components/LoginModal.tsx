@@ -38,9 +38,11 @@ const LoginModal = ({ onClose }: LoginModalProps) => {
         setUserInfo(userInfo);
         onClose();
         notifySuccess("Login successfully!");
-        if (info.userType === "buyer") {
+        if (userInfo.role === "admin") {
+          navigate("/admin-dashboard");
+        } else if (info.userType === "buyer") {
           navigate("/");
-        } else {
+        } else if (info.userType === "seller") {
           navigate("/seller-dashboard");
         }
       } else if (response.error?.status === 403) {

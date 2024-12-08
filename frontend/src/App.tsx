@@ -10,6 +10,7 @@ import SellerDashboard from "./SellerDashboard";
 import BuyerDashboard from "./BuyerDashboard";
 import Notification from "./components/Notification";
 import { MainPage } from "./MainPage";
+import AdminDashboard from "./AdminDashboard";
 
 // ProtectedRoute Component
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
@@ -42,6 +43,14 @@ const App = () => {
             element={
               <ProtectedRoute>
                 <BuyerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin-dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
               </ProtectedRoute>
             }
           />

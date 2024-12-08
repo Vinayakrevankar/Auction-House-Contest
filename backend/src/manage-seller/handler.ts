@@ -15,6 +15,7 @@ import {
   ItemFulfillResponsePayload,
 } from "../api";
 import { ADMIN_ID } from "../constants";
+import moment from "moment";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export function archiveItem(sellerId: string, itemId: string, res: Response) {
@@ -119,7 +120,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
               itemName: item.name,
               price: bid.bidAmount,
               soldTime: bid.bidTime,
-              fulfillTime: new Date().toISOString(),
+              fulfillTime: moment().toISOString(true),
             }],
             ":empty": [],
           },

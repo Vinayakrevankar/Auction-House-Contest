@@ -14,5 +14,5 @@ function customException(message: string, code?: number): CustomError {
 
 export {
   httpUtil,
-  customException
+  customException,
 };

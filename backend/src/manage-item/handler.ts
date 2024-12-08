@@ -1,9 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
 import { ErrorResponsePayload, Item, ItemRequestPayload, PlainSuccessResponsePayload } from "../api";
+import moment from "moment";
+import { Request, Response } from "express";
+
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -45,7 +47,7 @@ export async function addItem(
 
   // Calculate startDate and endDate based on lengthOfAuction
   const startDate = new Date(); // Auction starts now
-  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction);
 
   const item: Item = {
     id: itemId,
@@ -55,8 +57,8 @@ export async function addItem(
     images: itemData.images,
     initPrice: itemData.initPrice,
     lengthOfAuction: itemData.lengthOfAuction,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: moment(startDate).toISOString(true),
+    endDate: moment(endDate).toISOString(true),
     itemState: "inactive", // Initial state is inactive
     isFrozen: false,
     createAt: createAt,
@@ -64,6 +66,7 @@ export async function addItem(
     currentBidId: undefined,
     pastBidIds: [],
     soldBidId: undefined,
+    isAvailableToBuy: itemData.isAvailableToBuy ?? false,
   };
 
   const cmd = new PutCommand({
@@ -138,6 +141,10 @@ export async function editItem(
     if (itemData.description) {
       updateExpression += ", description = :description";
       expressionAttributeValues[":description"] = itemData.description;
+    }
+    if (itemData.isAvailableToBuy) {
+      updateExpression += ", isAvailableToBuy = :isAvailableToBuy";
+      expressionAttributeValues[":isAvailableToBuy"] = itemData.isAvailableToBuy;
     }
 
     if (itemData.images) {
@@ -284,7 +291,7 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
   }
   const item = resp.Item as Item;
   const sdate = new Date();
-  const edate = new Date(sdate.getTime() + item.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const edate = new Date(sdate.getTime() + item.lengthOfAuction);
   const updateCmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
@@ -294,8 +301,8 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
-      ":sdate": sdate.toString(),
-      ":edate": edate.toString(),
+      ":sdate": moment(sdate).toISOString(true),
+      ":edate": moment(edate).toISOString(true),
       ":old": "inactive",
       ":sid": sellerId,
     },
@@ -371,6 +378,28 @@ export function reviewItems(
     ExpressionAttributeValues: {
       ":sid": sellerId,
     },
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
+    } else {
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
+    }
+  });
+}
+
+//Get all item
+export function getAllItems(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
   });
 
   dclient.send(scanCmd, (err, data) => {

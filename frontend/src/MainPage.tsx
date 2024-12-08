@@ -5,9 +5,11 @@ import {
   buyerBidsPlace,
   Item,
   itemBids,
+  itemCheckExpired,
   itemGetActive,
   buyerClose,
   sellerClose,
+  adminFreezeItem,
   // Bid,
 } from "./api"; //Bid,
 import {
@@ -28,6 +30,7 @@ function BidField(props: {
   itemId: string;
   bidAmount: number | undefined;
   currentPrice: number;
+  itemIsAvailableToBuy: boolean;
   setBidAmount: (v: number | undefined) => void;
   setRefresh: (v: boolean) => void;
 }) {
@@ -35,58 +38,82 @@ function BidField(props: {
   const [color, setColor] = useState<
     DynamicStringEnumKeysOf<FlowbiteTextInputColors> | undefined
   >(undefined);
+
   return (
     userInfo && (
       <div className="flex flex-row justify-between space-x-5 items-start">
-        <div className=" flex flex-col">
-          <TextInput
-            type="number"
-            placeholder="Amount"
-            value={props.bidAmount}
-            color={color}
-            helperText={
-              color === "failure" && "Bid amount must > current price."
-            }
-            onChange={(ev) => {
-              if (ev.target.value === "") {
-                props.setBidAmount(undefined);
-              } else {
-                props.setBidAmount(parseFloat(ev.target.value));
-              }
-            }}
-          />
-        </div>
-        <Button
-          color="info"
-          onClick={() => {
-            if (props.bidAmount && props.bidAmount > props.currentPrice) {
-              if (color) {
-                setColor(undefined);
-              }
+        
+        {props.itemIsAvailableToBuy ? (
+          <Button
+            color="success"
+            onClick={() => {
               buyerBidsPlace({
                 path: { buyerId: userInfo.userId },
                 headers: { Authorization: userInfo.token },
                 body: {
                   itemId: props.itemId,
-                  bidAmount: props.bidAmount,
+                  bidAmount: props.currentPrice, // Assume buy now uses the current price.
+                  isAvailableToBuy: props.itemIsAvailableToBuy,
                 },
-              })
-                .then((resp) => {
-                  if (resp.data) {
-                    notifySuccess("Bid success!");
-                    props.setRefresh(true);
+              }).then((resp) => {
+                if (resp.data) {
+                  notifySuccess("Item purchased successfully!");
+                  props.setRefresh(true);
+                } else {
+                  notifyError(`Failed to purchase item: ${resp.error.message}`);
+                }
+              });
+            }}
+          >
+            Buy Now
+          </Button>
+        ) : (
+          <><div className="flex flex-col">
+              <TextInput
+                type="number"
+                placeholder="Amount"
+                value={props.bidAmount}
+                color={color}
+                helperText={color === "failure" && "Bid amount must be greater than the current price."}
+                onChange={(ev) => {
+                  if (ev.target.value === "") {
+                    props.setBidAmount(undefined);
                   } else {
-                    notifyError(`Failed to bid item: ${resp.error.message}`);
+                    props.setBidAmount(parseFloat(ev.target.value));
                   }
-                });
-            } else {
-              setColor("failure");
-              notifyError("Bid Failed!");
-            }
-          }}
-        >
-          Bid!
-        </Button>
+                } } />
+            </div>
+            <Button
+              color="info"
+              onClick={() => {
+                if (props.bidAmount && props.bidAmount > props.currentPrice) {
+                  if (color) {
+                    setColor(undefined);
+                  }
+                  buyerBidsPlace({
+                    path: { buyerId: userInfo.userId },
+                    headers: { Authorization: userInfo.token },
+                    body: {
+                      itemId: props.itemId,
+                      bidAmount: props.bidAmount,
+                    },
+                  }).then((resp) => {
+                    if (resp.data) {
+                      notifySuccess("Bid success!");
+                      props.setRefresh(true);
+                    } else {
+                      notifyError(`Failed to bid item: ${resp.error.message}`);
+                    }
+                  });
+                } else {
+                  setColor("failure");
+                  notifyError("Bid Failed! Please bid higher than the current price.");
+                }
+              } }
+            >
+                Bid!
+              </Button></>
+        )}
       </div>
     )
   );
@@ -94,6 +121,7 @@ function BidField(props: {
 
 function ItemCard({ item }: { item: Item }) {
   const [show, setShow] = useState(false);
+  const userInfo = useAuth().userInfo;
   // const [_bids, setBids] = useState<Bid[]>([]);
   const [currentPrice, setCurrentPrice] = useState(item.initPrice);
   const [refresh, setRefresh] = useState(true);
@@ -109,29 +137,58 @@ function ItemCard({ item }: { item: Item }) {
 
   useEffect(() => {
     if (refresh) {
-      itemBids({ path: { itemId: item.id } }).then((resp) => {
-        if (resp.data) {
-          // setBids(resp.data.payload);
-          const bids = resp.data.payload.sort((a, b) => b.createAt - a.createAt);
-          const newest = bids.at(0);
-          if (newest) {
-            setCurrentPrice(newest.bidAmount);
-          }
-        } else {
+      const fetchData = async () => {
+        const resp = await itemBids({ path: { itemId: item.id } });
+        if (!resp.data) {
           notifyError(
             `Failed to get bids for item with status ${resp.error.status}: ${resp.error.message}`
           );
+          return;
         }
-      });
+        if (item.currentBidId) {
+          const bid = resp.data.payload.find((b) => b.id === item.currentBidId);
+          if (bid) {
+            setCurrentPrice(bid.bidAmount);
+          }
+        }
+      };
+      fetchData();
       setRefresh(false);
     }
   }, [refresh, item.currentBidId, item.id]);
+// Handler for closing the account
+const handleFreezeItem = async () => {
+  if (!userInfo) return;
 
+  // Confirm with the user
+  const confirmClose = window.confirm(
+    "Are you sure you want to freeze item? This action cannot be undone."
+  );
+  if (!confirmClose) return;
+
+  try {
+    // Call the buyerClose API function
+    const response = await adminFreezeItem({
+      headers: { Authorization: userInfo.token },
+      path: { itemId: item.id },
+    });
+
+    if (response.error) {
+      notifyError(response.error.message || "An error occurred while freezing the item.");
+    } else {
+      notifySuccess("Item is successfully frozen.");
+    }
+  } catch (error) {
+    console.error("Error freezing item:", error);
+    notifyError("Error: An error occurred while freezing the item.");
+  }
+
+  };
   useEffect(() => {
     const interval = setInterval(() => setEnd(end - 1000), 1000);
     setDays(Math.floor(end / (1000 * 60 * 60 * 24)));
     setHours(Math.floor((end / (1000 * 60 * 60)) % 24));
-    setMinutes(Math.floor((end / 1000 / 60) % 60));
+    setMinutes(Math.floor((end / (1000 * 60)) % 60));
     return () => clearInterval(interval);
   }, [end]);
 
@@ -142,10 +199,10 @@ function ItemCard({ item }: { item: Item }) {
         onClick={() => setShow(true)}
       >
         <img
-  className="max-w-full max-h-40 object-cover self-center"
-  src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
-  alt={`IMG:${item.name}`}
-/>
+          className="max-w-full max-h-40 object-cover self-center"
+          src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${item.images[0]}`}
+          alt={`IMG:${item.name}`}
+        />
         <p className="text-xl font-bold tracking-tight text-gray-900">
           {item.name}
         </p>
@@ -173,13 +230,19 @@ function ItemCard({ item }: { item: Item }) {
                 <p className="text-xl font-bold text-gray-900">
                   Ending in: {days} days {hours} hr {minutes} mins
                 </p>
-                <BidField
+                { userInfo && userInfo.role !== "admin" ?  (<BidField
                   itemId={item.id}
                   bidAmount={bidAmount}
                   currentPrice={currentPrice}
                   setBidAmount={setBidAmount}
                   setRefresh={setRefresh}
-                />
+                  itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
+                />): <button
+                onClick={() => handleFreezeItem()}
+                className="p-2 bg-red-500 text-white rounded"
+              >
+                Freeze Item
+              </button>}
               </div>
             </div>
           </div>
@@ -273,15 +336,36 @@ export function MainPage() {
 
   useEffect(() => {
     if (refresh) {
-      itemGetActive().then((resp) => {
-        if (resp.data) {
-          setItems(resp.data.payload);
-        } else {
+      const fetchData = async () => {
+        const resp = await itemGetActive();
+        if (!resp.data) {
           notifyError(
             `Get active items failed with status ${resp.error.status}: ${resp.error.message}`
           );
+          return;
         }
-      });
+        const ps = resp.data.payload.map(async (item) => {
+          const resp = await itemCheckExpired({ path: { itemId: item.id } });
+          return { item: item, resp: resp };
+        });
+        const result = await Promise.all(ps);
+        const new_items = result
+          .filter(({ item, resp }) => {
+            if (resp.error) {
+              notifyError(
+                `Failed to check expired status for ${item.id}: ${resp.error.message}`
+              );
+              return false;
+            } else if (resp.data.payload.isExpired) {
+              return false;
+            } else {
+              return true;
+            }
+          })
+          .map(({ item }) => item);
+        setItems(new_items);
+      };
+      fetchData();
       setRefresh(false);
     }
   }, [refresh]);
@@ -297,7 +381,9 @@ export function MainPage() {
     <>
       <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500">
         <div className="flex items-center justify-between mb-6">
-          <h1 className="text-2xl text-white font-bold">Auction House {userInfo && `- ${userInfo?.userType.toUpperCase()}`}</h1>
+          <h1 className="text-2xl text-white font-bold">
+            Auction House {userInfo && `- ${ userInfo.role === "admin" ? "Admin": userInfo?.userType.toUpperCase()}`}
+          </h1>
           <div className="flex gap-5">
             {userInfo !== null ? (
               <>
@@ -307,9 +393,12 @@ export function MainPage() {
                 <Button
                   color="blue"
                   onClick={() => {
+                    if(userInfo.role === "admin") {
+                        navigate("/admin-dashboard");
+                    }else
                     if (userInfo.userType === "seller") {
                       navigate("/seller-dashboard");
-                    } else {
+                    } else if(userInfo.userType === "buyer") {
                       navigate("/buyer-dashboard");
                     }
                   }}
@@ -319,12 +408,16 @@ export function MainPage() {
                 <Button color="red" onClick={() => setUserInfo(null)}>
                   Logout
                 </Button>
-                <Button
-                  onClick={userInfo.userType === "seller" ? handleSellerCloseAccount : handleCloseAccount}
+                { userInfo.role !=="admin" && (<Button
+                  onClick={
+                    userInfo.userType === "seller"
+                      ? handleSellerCloseAccount
+                      : handleCloseAccount
+                  }
                   className="bg-red-600 text-white rounded"
                 >
                   Close Account
-                </Button>
+                </Button>)}
               </>
             ) : (
               <LoginButtons />
