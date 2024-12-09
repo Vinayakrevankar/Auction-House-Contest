@@ -665,7 +665,7 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState = :state",
     ExpressionAttributeValues: {
-      ":state": "completed",
+      "state": "completed",
     },
   });
 
