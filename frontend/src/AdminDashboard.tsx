@@ -17,8 +17,12 @@ const AdminDashboard = () => {
         "Authorization": `${userInfo.token}`,
       }
     });
-    if (response.error) {
-      notifyError(`Error fetching funds: ${response.error.message}`);
+    if (response.error && response.error.status === 401) {
+      notifyError(`Unauthorized Access`);
+      
+      setUserInfo(null);
+    }else if (response.error){
+      notifyError(`Error fetching funds`)
     } else {
       setFunds(response.data.payload.fund || 0 );
     }

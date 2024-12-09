@@ -167,7 +167,7 @@ export async function loginHandler(req: Request, res: Response) {
         userId: user.userId,
       },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "5h" }
     );
 
     return res.status(200).json(
