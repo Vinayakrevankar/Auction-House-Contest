@@ -166,7 +166,6 @@ app.get("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
 });
 
 //working
-// Get recently sold items (just add this line in app.ts)
 app.get("/api/items/recently-sold", (req, res) => getRecentlySoldItems(req, res));
 
 // Review purchases

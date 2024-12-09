@@ -575,72 +575,82 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 }
 
 // working
-
 export async function getRecentlySoldItems(req: Request, res: Response) {
+  const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query as {
+    keywords?: string;
+    minPrice?: string;
+    maxPrice?: string;
+    sortBy?: string;
+    sortOrder?: string;
+  };
+
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
+  });
+
   try {
-    const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
+    const data = await dclient.send(scanCmd);
+    let items = (data.Items ?? []) as Item[];
 
-    const keywordsStr = typeof keywords === 'string' ? keywords.trim().toLowerCase() : undefined;
-    const minPriceNum = minPrice ? Number(minPrice) : undefined;
-    const maxPriceNum = maxPrice ? Number(maxPrice) : undefined;
-    const validSortFields = ['price', 'date'];
-    const sortField = validSortFields.includes(String(sortBy)) ? String(sortBy) : 'date';
-    const order = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
+    // Filter by itemState = completed
+    items = items.filter((item) => item.itemState === "completed");
 
-    // Determine the time window for "recently sold" (past 24 hours)
-    const twentyFourHoursAgo = moment().subtract(24, 'hours').toISOString(true);
-
-    // Scan the same table where items are stored
-    const scanCmd = new ScanCommand({
-      TableName: "dev-items3",
-      FilterExpression: "itemState = :completed AND endDate >= :twentyFourHoursAgo",
-      ExpressionAttributeValues: {
-        ":completed": "completed",
-        ":twentyFourHoursAgo": twentyFourHoursAgo,
-      },
+    // Filter by endDate within last 24 hours
+    const now = Date.now();
+    const twentyFourHoursAgo = now - 24 * 60 * 60 * 1000;
+    items = items.filter((item) => {
+      const endTime = new Date(item.endDate).getTime();
+      return endTime >= twentyFourHoursAgo && endTime <= now;
     });
 
-    const data = await dclient.send(scanCmd);
-    let items = (data?.Items ?? []) as Item[];
-
-    // Filter by keywords
-    if (keywordsStr) {
-      items = items.filter(item =>
-        (item.name && item.name.toLowerCase().includes(keywordsStr)) ||
-        (item.description && item.description.toLowerCase().includes(keywordsStr))
+    // Filter by keywords if provided
+    if (keywords) {
+      const kw = keywords.toLowerCase();
+      items = items.filter((item) =>
+        item.name.toLowerCase().includes(kw) || item.description.toLowerCase().includes(kw)
       );
     }
 
-    // Filter by price range
-    if (minPriceNum !== undefined) {
-      items = items.filter(item => item.initPrice >= minPriceNum);
+    // Filter by minPrice and maxPrice if provided
+    if (minPrice) {
+      const minP = parseFloat(minPrice);
+      if (!isNaN(minP)) {
+        items = items.filter((item) => item.initPrice >= minP);
+      }
     }
-    if (maxPriceNum !== undefined) {
-      items = items.filter(item => item.initPrice <= maxPriceNum);
+    if (maxPrice) {
+      const maxP = parseFloat(maxPrice);
+      if (!isNaN(maxP)) {
+        items = items.filter((item) => item.initPrice <= maxP);
+      }
     }
 
-    // Sort items
+    // Determine sort field and order
+    const fieldGetter = sortBy === "price"
+      ? (item: Item) => item.initPrice
+      : (item: Item) => new Date(item.endDate).getTime();
+
     items.sort((a, b) => {
-      let compareVal;
-      if (sortField === 'price') {
-        compareVal = a.initPrice - b.initPrice;
-      } else {
-        compareVal = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
-      }
-      return order === 'asc' ? compareVal : -compareVal;
+      const aField = fieldGetter(a);
+      const bField = fieldGetter(b);
+      if (aField < bField) return sortOrder === "desc" ? 1 : -1;
+      if (aField > bField) return sortOrder === "desc" ? -1 : 1;
+      return 0;
     });
 
-    // Return results
+    // bidding history
+
+    
     res.status(200).send({
       status: 200,
       message: "Success",
-      payload: updateURLs(items),
+      payload: items, 
     });
-
-  } catch (err) {
-    res.status(500).send({
+  } catch (err: any) {
+    console.error("Error in getRecentlySoldItems:", err);
+    res.status(500).send(<ErrorResponsePayload>{
       status: 500,
-      message: `Failed to retrieve recently sold items: ${err}`,
+      message: err.message || "Internal Server Error",
     });
   }
 }
