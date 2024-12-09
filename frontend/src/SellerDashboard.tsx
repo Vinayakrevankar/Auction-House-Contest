@@ -65,7 +65,7 @@ const SellerDashboard = () => {
     if (!response.data) {
       notifyError(`Error fetching funds: ${response.error.message}`);
     } else {
-      setFunds(response.data.payload.fund);
+      setFunds(response.data.payload.fund || 0);
     }
   }, [userInfo]);
 
