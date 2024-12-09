@@ -6,9 +6,9 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError } from "./components/Notification";
-import { userFund } from "./api"; // Adjust API functions as necessary
+import { Item, userFund } from "./api";
 import axios from "axios";
-
+import Papa from "papaparse"; // Import papaparse
 const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
@@ -61,6 +61,16 @@ const AdminDashboard = () => {
       </div>
     );
   };
+  const FrozenButtonComponent = ({ data }: { data: Item }) => (
+    data.isFrozen ? (
+      <button
+        // onClick={() => openBidModal(data.id)}
+        className="px-2 py-1 rounded bg-red-500 text-white hover:bg-blue-600"
+      >
+        Unfreeze Item
+      </button>
+    ) : null
+  );
   const columnDefs: any[] = [
     { field: "id", headerName: "ID", sortable: true, filter: true },
     { field: "name", headerName: "Name", sortable: true, filter: true },
@@ -75,6 +85,22 @@ const AdminDashboard = () => {
       headerName: "Initial Price ($)",
       sortable: true,
       filter: true,
+    },
+    {
+      field: "isFreezed",
+      headerName: "Item Freezed",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
+    },
+    {
+      field: "isFreezed",
+      headerName: "Request for Unfreeze",
+      sortable: true,
+      filter: true,
+      cellRenderer: FrozenButtonComponent,
+      getWidthOfColsInList: 100,
+      flex: 1,
     },
     {
       field: "lengthOfAuction",
@@ -190,9 +216,60 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchFunds();
     fetchBids();
-    fetchUsers();
+    // fetchUsers();
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
+
+  const downloadItemCSV = (data: any[], filename: string) => {
+    data = data.map(val=> {
+      let obj: Record<string, any> = {};
+      obj['id'] = val['id'] || '';
+      obj['Item Name'] = val['name'] || '';
+      obj['Description'] = val['description'] || '';
+      obj['Status'] = val['itemState'] || '';
+      obj['Item Available to Buy'] = val['isAvailableToBuy'] ? 'Yes' : 'No';
+      obj['Item Freezed'] = val['isFreezed'] ? 'Yes' : 'No';
+      obj['No Of Bids'] = val['pastBidIds'] ? val['pastBidIds'].length : 0;
+      obj['Length of Auction'] = `${Math.floor(val['lengthOfAuction'] / (24 * 60 * 60 * 1000))}d ${Math.floor((val['lengthOfAuction'] / (60 * 60 * 1000)) % 24)}h ${Math.floor((val['lengthOfAuction'] / (60 * 1000)) % 60)}m ${Math.floor((val['lengthOfAuction'] / 1000) % 60)}s`;
+      obj['List of Past Bids'] = val['pastBidIds'].join(',');
+      obj['Current Bid Id'] = val['currentBidId'] || '';
+      obj['Start Date'] = new Date(val['startDate'])
+      obj['End Date'] = new Date(val['endDate'])
+      obj['Initial Price'] = val['initPrice'] || 0;
+      obj['Seller Id'] = val['sellerId'] || '';
+      obj['Images Link'] = val['images'].map((v1: string) => `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`);
+     
+      return obj;
+    })
+    const csv = Papa.unparse(data); // Convert JSON to CSV
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const downloadBidsCSV = (data: any[], filename: string) => {
+    data = data.map(val=> {
+      let obj: Record<string, any> = {};
+      obj['id'] = val['id'] || '';
+      obj['Item Id'] = val['bidItemId'] || '';
+      obj['Bid Time'] = val['bidTime'] || '';
+      obj['Bid UserId'] = val['bidUserId'] || '';
+      obj['Bid Amount'] = val['bidAmount'] || '';
+      obj['Bid status'] = val['isActive'] ? 'Active' : 'InActive';
+      return obj;
+    })
+    const csv = Papa.unparse(data); // Convert JSON to CSV
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
@@ -219,7 +296,29 @@ const AdminDashboard = () => {
         </Button>
       </div>
 
-      {/* Bids */}
+      {/* Download Buttons */}
+      <div className="mb-4 flex gap-4">
+        <Button
+          className="bg-blue-500 text-white"
+          onClick={() => downloadItemCSV(items, "items.csv")}
+        >
+          Download Items as CSV
+        </Button>
+        <Button
+          className="bg-blue-500 text-white"
+          onClick={() => downloadBidsCSV(bids, "bids.csv")}
+        >
+          Download Bids as CSV
+        </Button>
+        <Button
+          className="bg-blue-500 text-white"
+          onClick={() => downloadBidsCSV(users, "users.csv")}
+        >
+          Download Users as CSV
+        </Button>
+      </div>
+
+      {/* AgGrid Table */}
       <div
         className="ag-theme-alpine rounded-lg shadow-lg"
         style={{ height: "80vh", width: "100%" }}
@@ -229,8 +328,8 @@ const AdminDashboard = () => {
           columnDefs={columnDefs}
           domLayout="autoHeight"
           defaultColDef={{
-            flex: 1, // Automatically distribute column width equally
-            minWidth: 100, // Minimum width for each column
+            flex: 1, // Take up all available space
+            minWidth: 120, // Minimum width for each column
             resizable: true, // Allow column resizing
             floatingFilter: true, // Enable floating filters
           }}
