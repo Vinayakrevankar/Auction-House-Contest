@@ -575,12 +575,11 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 }
 
 // working
-// Add this function to the same file as the other item functions
+
 export async function getRecentlySoldItems(req: Request, res: Response) {
   try {
     const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
 
-    // Convert query params to appropriate types
     const keywordsStr = typeof keywords === 'string' ? keywords.trim().toLowerCase() : undefined;
     const minPriceNum = minPrice ? Number(minPrice) : undefined;
     const maxPriceNum = maxPrice ? Number(maxPrice) : undefined;
@@ -591,9 +590,9 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
     // Determine the time window for "recently sold" (past 24 hours)
     const twentyFourHoursAgo = moment().subtract(24, 'hours').toISOString(true);
 
-    // Scan for items that have completed within the last 24 hours
+    // Scan the same table where items are stored
     const scanCmd = new ScanCommand({
-      TableName: TABLE_NAMES.ITEMS,
+      TableName: "dev-items3",
       FilterExpression: "itemState = :completed AND endDate >= :twentyFourHoursAgo",
       ExpressionAttributeValues: {
         ":completed": "completed",
@@ -604,7 +603,7 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
     const data = await dclient.send(scanCmd);
     let items = (data?.Items ?? []) as Item[];
 
-    // Filter by keywords in name or description if provided
+    // Filter by keywords
     if (keywordsStr) {
       items = items.filter(item =>
         (item.name && item.name.toLowerCase().includes(keywordsStr)) ||
@@ -612,7 +611,7 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
       );
     }
 
-    // Filter by price range if provided
+    // Filter by price range
     if (minPriceNum !== undefined) {
       items = items.filter(item => item.initPrice >= minPriceNum);
     }
@@ -621,25 +620,23 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
     }
 
     // Sort items
-    // If sortBy = price, sort by item.initPrice
-    // If sortBy = date, sort by item.endDate (since recently sold pertains to completion time)
     items.sort((a, b) => {
       let compareVal;
       if (sortField === 'price') {
         compareVal = a.initPrice - b.initPrice;
       } else {
-        // sort by endDate
         compareVal = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
       }
       return order === 'asc' ? compareVal : -compareVal;
     });
 
-    // Return the results
+    // Return results
     res.status(200).send({
       status: 200,
       message: "Success",
       payload: updateURLs(items),
     });
+
   } catch (err) {
     res.status(500).send({
       status: 500,
