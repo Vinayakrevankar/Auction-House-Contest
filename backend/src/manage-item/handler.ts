@@ -575,17 +575,17 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 }
 
 // working
-export async function getRecentlySoldItems(req: Request, res: Response) {
+
+export function getRecentlySoldItems(req: Request, res: Response) {
   const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
 
   // Parse query parameters
   const kw = keywords ? (keywords as string).toLowerCase() : null;
   const minP = minPrice ? parseFloat(minPrice as string) : null;
   const maxP = maxPrice ? parseFloat(maxPrice as string) : null;
-  
-  // Validate sort parameters
+
+  // Determine sort field
   let sortField: "endDate" | "initPrice" = "endDate"; 
-  // Default to sorting by date if not specified
   if (sortBy === "price") {
     sortField = "initPrice";
   } else if (sortBy === "date") {
@@ -593,11 +593,8 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
   }
 
   const order = sortOrder === "desc" ? -1 : 1;
-
-  // We'll filter items that ended in last 24 hours.
   const cutoffTime = moment().subtract(24, "hours");
 
-  // Fetch items that are completed or failed
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState IN (:a, :b)",
@@ -607,25 +604,32 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
     },
   });
 
-  try {
-    const data = await dclient.send(scanCmd);
-    let items = (data.Items ?? []) as Item[];
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err.toString(),
+      });
+      return;
+    }
 
-    // Filter items that have ended in the last 24 hours
+    let items = (data?.Items ?? []) as Item[];
+
+    // Filter items by recently sold (endDate within last 24 hours)
     items = items.filter(item => {
       const endDate = moment(item.endDate);
       return endDate.isAfter(cutoffTime);
     });
 
-    // Apply keywords filter (check in name or description)
+    // Keyword filter
     if (kw) {
-      items = items.filter(item => 
+      items = items.filter(item =>
         (item.name && item.name.toLowerCase().includes(kw)) ||
         (item.description && item.description.toLowerCase().includes(kw))
       );
     }
 
-    // Apply price filters
+    // Price filters
     if (minP !== null) {
       items = items.filter(item => item.initPrice >= minP);
     }
@@ -633,12 +637,11 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
       items = items.filter(item => item.initPrice <= maxP);
     }
 
-    // Sort items
+    // Sort items by chosen field
     items.sort((a, b) => {
       let valA: number | string = a[sortField];
       let valB: number | string = b[sortField];
 
-      // If sorting by date, convert to timestamps
       if (sortField === "endDate") {
         valA = new Date(valA as string).getTime();
         valB = new Date(valB as string).getTime();
@@ -654,10 +657,5 @@ export async function getRecentlySoldItems(req: Request, res: Response) {
       message: "Success",
       payload: items,
     });
-  } catch (err: any) {
-    res.status(500).send(<ErrorResponsePayload>{
-      status: 500,
-      message: err.toString(),
-    });
-  }
+  });
 }
