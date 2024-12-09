@@ -136,7 +136,7 @@ app.post(
     requestUnfreezeItem(req.params["sellerId"], req.params["itemId"], res)
 );
 //working
-app.get("/api/items/recently-sold",authFilterMiddleware,getRecentlySoldItems);
+app.get("/api/items/recently-sold",getRecentlySoldItems);
 app.get("/api/items/active", (_, res) => getActiveItems(res));
 app.get("/api/items/:itemId", (req, res) =>
   getItemDetails(req.params["itemId"], res)
