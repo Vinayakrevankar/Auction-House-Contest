@@ -665,18 +665,19 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState = :state",
     ExpressionAttributeValues: {
-      ":state": "completed",
+      ":state": "active",
     },
+    Limit: 50,
   });
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
       res.status(500).send(<ErrorResponsePayload>{
-        status: 500,
+        status: 400,
         message: err,
       });
     } else {
-      res.send({
+      res.status(200).send({
         status: 200,
         message: "Success",
         payload: updateURLs((data?.Items ?? []) as Item[]),
