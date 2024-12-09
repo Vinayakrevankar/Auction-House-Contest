@@ -5,8 +5,8 @@ import "ag-grid-community/styles/ag-grid.css";
 import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
-import { notifyError } from "./components/Notification";
-import { Item, userFund, adminUsers,adminBids,itemSearch } from "./api";
+import { notifyError, notifySuccess } from "./components/Notification";
+import { Item, userFund, adminUsers,adminBids,itemSearch, adminFreezeItem } from "./api";
 import Papa from "papaparse"; // Import papaparse
 
 const stateTextColors = {
@@ -81,12 +81,12 @@ const AdminDashboard = () => {
     );
   };
   const FrozenButtonComponent = ({ data }: { data: Item }) => (
-    data.isFrozen ? (
+    !data.isFrozen ? (
       <button
-        // onClick={() => openBidModal(data.id)}
+        onClick={() => handleFreezeItem(data.id)}
         className="px-2 py-1 rounded bg-red-500 text-white hover:bg-blue-600"
       >
-        Unfreeze Item
+        Click to Freeze Item
       </button>
     ) : null
   );
@@ -231,6 +231,33 @@ const AdminDashboard = () => {
       notifyError(`Error fetching users`);
     }
   }, [userInfo]);
+  
+  const handleFreezeItem = async (id: string) => {
+    if (!userInfo) return;
+
+    const confirmClose = window.confirm(
+      "Are you sure you want to freeze this item? This action cannot be undone."
+    );
+    if (!confirmClose) return;
+
+    try {
+      const response = await adminFreezeItem({
+        headers: { Authorization: (userInfo as any).token },
+        path: { itemId: id },
+      });
+
+      if (response.error) {
+        notifyError(
+          response.error.message || "An error occurred while freezing the item."
+        );
+      } else {
+        notifySuccess("Item is successfully frozen.");
+      }
+    } catch (error) {
+      console.error("Error freezing item:", error);
+      notifyError("Error: An error occurred while freezing the item.");
+    }
+  };
 
   const fetchItems = useCallback(async () => {
     try {
