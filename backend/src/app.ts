@@ -135,7 +135,8 @@ app.post(
   (req, res) =>
     requestUnfreezeItem(req.params["sellerId"], req.params["itemId"], res)
 );
-
+//working
+app.get("/api/items/recently-sold",authFilterMiddleware,getRecentlySoldItems);
 app.get("/api/items/active", (_, res) => getActiveItems(res));
 app.get("/api/items/:itemId", (req, res) =>
   getItemDetails(req.params["itemId"], res)
@@ -164,9 +165,6 @@ app.post("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
 app.get("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
   reviewActiveBids(req, res);
 });
-
-//working
-app.get("/api/items/recently-sold",authFilterMiddleware,getRecentlySoldItems);
 
 
 // Review purchases
