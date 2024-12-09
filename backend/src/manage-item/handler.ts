@@ -663,10 +663,6 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 export function getRecentlySoldItems(req: Request, res: Response) {
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
-    FilterExpression: "itemState = :state",
-    ExpressionAttributeValues: {
-      "state": "archived",
-    },
   });
 
   dclient.send(scanCmd, (err, data) => {
@@ -684,4 +680,3 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     }
   });
 }
-
