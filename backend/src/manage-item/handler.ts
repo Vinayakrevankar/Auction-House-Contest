@@ -576,25 +576,91 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 
 // working
 
+// export function getRecentlySoldItems(req: Request, res: Response) {
+//   const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
+
+//   // Parse query parameters
+//   const kw = keywords ? (keywords as string).toLowerCase() : null;
+//   const minP = minPrice ? parseFloat(minPrice as string) : null;
+//   const maxP = maxPrice ? parseFloat(maxPrice as string) : null;
+
+//   // Determine sort field
+//   let sortField: "endDate" | "initPrice" = "endDate"; 
+//   if (sortBy === "price") {
+//     sortField = "initPrice";
+//   } else if (sortBy === "date") {
+//     sortField = "endDate";
+//   }
+
+//   const order = sortOrder === "desc" ? -1 : 1;
+//   const cutoffTime = moment().subtract(24, "hours");
+
+//   const scanCmd = new ScanCommand({
+//     TableName: TABLE_NAMES.ITEMS,
+//     FilterExpression: "itemState IN (:a, :b)",
+//     ExpressionAttributeValues: {
+//       ":a": "completed",
+//       ":b": "failed",
+//     },
+//   });
+
+//   dclient.send(scanCmd, (err, data) => {
+//     if (err) {
+//       res.status(500).send(<ErrorResponsePayload>{
+//         status: 500,
+//         message: err.toString(),
+//       });
+//       return;
+//     }
+
+//     let items = (data?.Items ?? []) as Item[];
+
+//     // Filter items by recently sold (endDate within last 24 hours)
+//     items = items.filter(item => {
+//       const endDate = moment(item.endDate);
+//       return endDate.isAfter(cutoffTime);
+//     });
+
+//     // Keyword filter
+//     if (kw) {
+//       items = items.filter(item =>
+//         (item.name && item.name.toLowerCase().includes(kw)) ||
+//         (item.description && item.description.toLowerCase().includes(kw))
+//       );
+//     }
+
+//     // Price filters
+//     if (minP !== null) {
+//       items = items.filter(item => item.initPrice >= minP);
+//     }
+//     if (maxP !== null) {
+//       items = items.filter(item => item.initPrice <= maxP);
+//     }
+
+//     // Sort items by chosen field
+//     items.sort((a, b) => {
+//       let valA: number | string = a[sortField];
+//       let valB: number | string = b[sortField];
+
+//       if (sortField === "endDate") {
+//         valA = new Date(valA as string).getTime();
+//         valB = new Date(valB as string).getTime();
+//       }
+
+//       if (valA < valB) return -1 * order;
+//       if (valA > valB) return 1 * order;
+//       return 0;
+//     });
+
+//     res.status(200).send({
+//       status: 200,
+//       message: "Success",
+//       payload: items,
+//     });
+//   });
+// }
+
 export function getRecentlySoldItems(req: Request, res: Response) {
-  const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
-
-  // Parse query parameters
-  const kw = keywords ? (keywords as string).toLowerCase() : null;
-  const minP = minPrice ? parseFloat(minPrice as string) : null;
-  const maxP = maxPrice ? parseFloat(maxPrice as string) : null;
-
-  // Determine sort field
-  let sortField: "endDate" | "initPrice" = "endDate"; 
-  if (sortBy === "price") {
-    sortField = "initPrice";
-  } else if (sortBy === "date") {
-    sortField = "endDate";
-  }
-
-  const order = sortOrder === "desc" ? -1 : 1;
-  const cutoffTime = moment().subtract(24, "hours");
-
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState IN (:a, :b)",
@@ -606,52 +672,15 @@ export function getRecentlySoldItems(req: Request, res: Response) {
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
-      res.status(500).send(<ErrorResponsePayload>{
+      res.status(500).send({
         status: 500,
         message: err.toString(),
       });
       return;
     }
 
-    let items = (data?.Items ?? []) as Item[];
-
-    // Filter items by recently sold (endDate within last 24 hours)
-    items = items.filter(item => {
-      const endDate = moment(item.endDate);
-      return endDate.isAfter(cutoffTime);
-    });
-
-    // Keyword filter
-    if (kw) {
-      items = items.filter(item =>
-        (item.name && item.name.toLowerCase().includes(kw)) ||
-        (item.description && item.description.toLowerCase().includes(kw))
-      );
-    }
-
-    // Price filters
-    if (minP !== null) {
-      items = items.filter(item => item.initPrice >= minP);
-    }
-    if (maxP !== null) {
-      items = items.filter(item => item.initPrice <= maxP);
-    }
-
-    // Sort items by chosen field
-    items.sort((a, b) => {
-      let valA: number | string = a[sortField];
-      let valB: number | string = b[sortField];
-
-      if (sortField === "endDate") {
-        valA = new Date(valA as string).getTime();
-        valB = new Date(valB as string).getTime();
-      }
-
-      if (valA < valB) return -1 * order;
-      if (valA > valB) return 1 * order;
-      return 0;
-    });
-
+    const items = (data?.Items ?? []) as Item[];
+    // Just respond with what we have, no filtering
     res.status(200).send({
       status: 200,
       message: "Success",
@@ -659,3 +688,4 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     });
   });
 }
+
