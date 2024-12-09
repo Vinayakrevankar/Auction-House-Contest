@@ -293,21 +293,6 @@ const BuyerDashboard: React.FC = () => {
     { headerName: "Description", field: "itemDescription", sortable: true, filter: true },
     { headerName: "Initial Price", field: "itemInitPrice", sortable: true, filter: true },
     { headerName: "Item State", field: "itemState", sortable: true, filter: true },
-    {
-      headerName: "Images",
-      field: "itemImages",
-      cellRenderer: (params: any) => {
-        if (!params.value || params.value.length === 0) return "No images";
-        return params.value.map((imgKey: string, idx: number) => {
-          return `<img src="https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${imgKey}" 
-                    alt="Item image ${idx + 1}" style="width:50px;height:50px;object-fit:cover;margin-right:5px;" />`;
-        }).join("");
-      },
-      autoHeight: true,
-      cellRendererParams: {
-        suppressCount: true,
-      },
-    },
   ];
 
   const purchasesColumnDefs: any[] = [
