@@ -663,10 +663,9 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 export function getRecentlySoldItems(req: Request, res: Response) {
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
-    FilterExpression: "itemState IN (:a, :b)",
+    FilterExpression: "itemState = :state",
     ExpressionAttributeValues: {
-      ":a": "completed",
-      ":b": "failed",
+      ":state": "completed",
     },
   });
 
