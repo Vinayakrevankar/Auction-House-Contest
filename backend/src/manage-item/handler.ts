@@ -573,3 +573,37 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
     }
   }
 }
+
+export async function getRecentlySoldItems(res: Response) {
+  try {
+    const scanCmd = new ScanCommand({
+      TableName: "dev-items3",
+      FilterExpression: "itemState = :completed",
+      ExpressionAttributeValues: {
+        ":completed": "completed",
+      },
+    });
+    const data = await dclient.send(scanCmd);
+
+    const now = moment();
+    const twentyFourHoursAgo = moment().subtract(24, "hours");
+
+    const allItems = (data?.Items ?? []) as Item[];
+    // Filter items whose endDate is within the last 24 hours.
+    const recentItems = allItems.filter(item => {
+      const endDateMoment = moment(item.endDate);
+      return endDateMoment.isBetween(twentyFourHoursAgo, now);
+    });
+
+    res.send({
+      status: 200,
+      message: "Success",
+      payload: recentItems,
+    });
+  } catch (err: any) {
+    res.status(500).send(<ErrorResponsePayload>{
+      status: 500,
+      message: `Failed to get recently sold items: ${err}`,
+    });
+  }
+}

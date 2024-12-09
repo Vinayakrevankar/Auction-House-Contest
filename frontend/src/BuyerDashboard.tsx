@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { buyerBids, buyerPurchases, buyerClose, buyerAddFunds, Bid, Purchase, userFund } from "./api"; // Ensure buyerAddFunds is imported
+import {
+  buyerBids,
+  buyerPurchases,
+  buyerClose,
+  buyerAddFunds,
+  Bid,
+  Purchase,
+  userFund,
+  itemDetail, // Import itemDetail from your api
+} from "./api";
 import { useAuth } from "./AuthContext";
 import { notifyError, notifySuccess } from "./components/Notification";
 import { Button } from "flowbite-react";
@@ -22,21 +31,36 @@ function reformatBid(b: Bid): Bid {
   return bnew;
 }
 
+interface ItemDetail {
+  id: string;
+  name: string;
+  description: string;
+  initPrice: number;
+  currentBidId?: string;
+  lengthOfAuction?: number;
+  isAvailableToBuy?: boolean;
+  itemState?: string;
+}
+
+interface EnhancedBid extends Bid {
+  itemName?: string;
+  itemDescription?: string;
+  itemInitPrice?: number;
+  itemState?: string;
+}
+
 const BuyerDashboard: React.FC = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
-  const [activeBids, setActiveBids] = useState<Bid[]>([]);
+  const [activeBids, setActiveBids] = useState<EnhancedBid[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [funds, setFunds] = useState<number>(0);
   const [fundsOnHold, setFundsOnHold] = useState<number>(0);
-
   const [loading, setLoading] = useState(true);
 
-  const [showActiveBidsModal, setShowActiveBidsModal] = useState(false);
-  const [showPurchasesModal, setShowPurchasesModal] = useState(false);
-  const [showAddFundsModal, setShowAddFundsModal] = useState(false); // New state for Add Funds modal
+  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
 
-  // Fetch active bids
+  // Fetch active bids and then fetch item details for each bid item
   const fetchActiveBids = useCallback(async () => {
     if (!userInfo) return;
     try {
@@ -52,10 +76,33 @@ const BuyerDashboard: React.FC = () => {
           ),
         },
       });
-      console.log("Active bids response:", resp);
       if (resp.data) {
-        console.log("Setting active bids:", resp.data.payload);
-        setActiveBids(resp.data.payload.map(reformatBid));
+        let bids = resp.data.payload.map(reformatBid);
+
+        // Fetch item details for each bid
+        const detailedBids = await Promise.all(
+          bids.map(async (b) => {
+            try {
+              const detailResp = await itemDetail({ path: { itemId: b.bidItemId } });
+              if (detailResp.data && detailResp.data.payload) {
+                const item = detailResp.data.payload as ItemDetail;
+                return {
+                  ...b,
+                  itemName: item.name,
+                  itemDescription: item.description,
+                  itemInitPrice: item.initPrice,
+                  itemState: item.itemState,
+                };
+              }
+            } catch (error) {
+              console.error("Error fetching item detail:", error);
+            }
+            // If no details found, return bid as is
+            return b;
+          })
+        );
+
+        setActiveBids(detailedBids);
       } else if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
@@ -97,13 +144,12 @@ const BuyerDashboard: React.FC = () => {
     }
   }, [userInfo, setUserInfo, navigate]);
 
-  // Wrap fetchFunds in useCallback
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
     const response = await userFund({
       headers: {
-        "Authorization": `${userInfo.token}`,
-      }
+        Authorization: `${userInfo.token}`,
+      },
     });
     if (response.error) {
       notifyError(`Error fetching funds: ${response.error.message}`);
@@ -114,7 +160,6 @@ const BuyerDashboard: React.FC = () => {
   }, [userInfo]);
 
   useEffect(() => {
-
     fetchFunds();
     if (!userInfo) {
       navigate("/", { state: { openLoginModal: true } });
@@ -171,10 +216,7 @@ const BuyerDashboard: React.FC = () => {
       if (response.data) {
         notifySuccess("Funds added successfully.");
         setShowAddFundsModal(false);
-        fetchFunds(); // Fetch updated funds after adding
-        // Optionally, update userInfo with new balance if available
-        // For example:
-        // setUserInfo({ ...userInfo, balance: response.data.newBalance });
+        fetchFunds();
       } else if (response.error && response.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
@@ -188,97 +230,11 @@ const BuyerDashboard: React.FC = () => {
     }
   };
 
-  // ActiveBidsModal Component
-  const ActiveBidsModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const columnDefs: any[] = [
-      {
-        headerName: "Item ID",
-        field: "bidItemId",
-        sortable: true,
-        filter: true,
-      },
-      {
-        headerName: "Bid Amount",
-        field: "bidAmount",
-        sortable: true,
-        filter: true,
-      },
-      {
-        headerName: "Bid Time",
-        field: "bidTime",
-        sortable: true,
-        filter: true,
-      },
-    ];
-
-    return (
-      <div className="modal">
-        <h2 className="text-xl font-semibold mb-4">Active Bids</h2>
-        <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
-          <AgGridReact
-            rowData={activeBids}
-            columnDefs={columnDefs}
-            pagination={true}
-            paginationPageSize={10}
-          />
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-4 p-2 bg-blue-500 text-white rounded"
-        >
-          Close
-        </button>
-      </div>
-    );
-  };
-
-  // PurchasesModal Component
-  const PurchasesModal: React.FC<{ onClose: () => void }> = ({ onClose }) => {
-    const columnDefs: any[] = [
-      {
-        headerName: "Item Name",
-        field: "itemName",
-        sortable: true,
-        filter: true,
-      },
-      { headerName: "Price", field: "price", sortable: true, filter: true },
-      {
-        headerName: "Sold Time",
-        field: "soldTime",
-        sortable: true,
-        filter: true,
-      },
-      {
-        headerName: "Fulfill Time",
-        field: "fulfillTime",
-        sortable: true,
-        filter: true,
-      },
-    ];
-
-    return (
-      <div className="modal">
-        <h2 className="text-xl font-semibold mb-4">Purchases</h2>
-        <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
-          <AgGridReact
-            rowData={purchases}
-            columnDefs={columnDefs}
-            pagination={true}
-            paginationPageSize={10}
-          />
-        </div>
-        <button
-          onClick={onClose}
-          className="mt-4 p-2 bg-blue-500 text-white rounded"
-        >
-          Close
-        </button>
-      </div>
-    );
-  };
-
   // AddFundsModal Component
-  const AddFundsModal: React.FC<{ onClose: () => void; onAddFunds: (amount: number) => void }> = ({ onClose, onAddFunds }) => {
+  const AddFundsModal: React.FC<{
+    onClose: () => void;
+    onAddFunds: (amount: number) => void;
+  }> = ({ onClose, onAddFunds }) => {
     const [amount, setAmount] = useState<number | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -287,9 +243,8 @@ const BuyerDashboard: React.FC = () => {
         notifyError("Please enter a valid amount.");
         return;
       }
-      onAddFunds(Number(amount)); // Ensure `amount` is a number before passing
-      setAmount(null); // Clear the input field after successful submission
-
+      onAddFunds(Number(amount));
+      setAmount(null);
     };
 
     return (
@@ -299,8 +254,10 @@ const BuyerDashboard: React.FC = () => {
           <label className="mb-2">Amount to Add:</label>
           <input
             type="number"
-            value={amount !== null ? amount : ''}
-            onChange={(e) => setAmount(e.target.value ? parseFloat(e.target.value) : null)}
+            value={amount !== null ? amount : ""}
+            onChange={(e) =>
+              setAmount(e.target.value ? parseFloat(e.target.value) : null)
+            }
             className="p-2 mb-4 border rounded text-black bg-white"
             pattern="[0-9]+([\.][0-9]+)?"
             required
@@ -327,6 +284,39 @@ const BuyerDashboard: React.FC = () => {
 
   if (loading) return <div>Loading...</div>;
 
+  // Add columns for item details
+  const activeBidsColumnDefs: any[] = [
+    { headerName: "Item ID", field: "bidItemId", sortable: true, filter: true },
+    { headerName: "Bid Amount", field: "bidAmount", sortable: true, filter: true },
+    { headerName: "Bid Time", field: "bidTime", sortable: true, filter: true },
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    { headerName: "Description", field: "itemDescription", sortable: true, filter: true },
+    { headerName: "Initial Price", field: "itemInitPrice", sortable: true, filter: true },
+    { headerName: "Item State", field: "itemState", sortable: true, filter: true },
+    {
+      headerName: "Images",
+      field: "itemImages",
+      cellRenderer: (params: any) => {
+        if (!params.value || params.value.length === 0) return "No images";
+        return params.value.map((imgKey: string, idx: number) => {
+          return `<img src="https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${imgKey}" 
+                    alt="Item image ${idx + 1}" style="width:50px;height:50px;object-fit:cover;margin-right:5px;" />`;
+        }).join("");
+      },
+      autoHeight: true,
+      cellRendererParams: {
+        suppressCount: true,
+      },
+    },
+  ];
+
+  const purchasesColumnDefs: any[] = [
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    { headerName: "Price", field: "price", sortable: true, filter: true },
+    { headerName: "Sold Time", field: "soldTime", sortable: true, filter: true },
+    { headerName: "Fulfill Time", field: "fulfillTime", sortable: true, filter: true },
+  ];
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -335,9 +325,7 @@ const BuyerDashboard: React.FC = () => {
         {userInfo && (
           <div className="flex items-center gap-4">
             <p className="text-lg font-bold">Welcome, {userInfo.username}</p>
-            <Button
-              className="p-2 bg-green-500 text-white rounded"
-            >
+            <Button className="p-2 bg-green-500 text-white rounded">
               Available Funds: ${funds}
             </Button>
             <Button className="p-2 bg-yellow-500 text-white rounded">
@@ -364,20 +352,35 @@ const BuyerDashboard: React.FC = () => {
         )}
       </div>
 
-      {/* Buttons to open modals */}
-      <div className="mb-8 flex space-x-4">
-        <button
-          onClick={() => setShowActiveBidsModal(true)}
-          className="p-2 bg-green-500 text-white rounded"
-        >
-          Review Active Bids
-        </button>
-        <button
-          onClick={() => setShowPurchasesModal(true)}
-          className="p-2 bg-yellow-500 text-white rounded"
-        >
-          Review Purchases
-        </button>
+      {/* Active Bids Table */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Active Bids</h2>
+        <div className="ag-theme-alpine" style={{ width: "100%" }}>
+          <AgGridReact
+            rowData={activeBids}
+            columnDefs={activeBidsColumnDefs}
+            pagination={true}
+            paginationPageSize={10}
+            domLayout="autoHeight"
+          />
+        </div>
+      </div>
+
+      {/* Purchases Table */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Purchases</h2>
+        <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+          <AgGridReact
+            rowData={purchases}
+            columnDefs={purchasesColumnDefs}
+            pagination={true}
+            paginationPageSize={10}
+          />
+        </div>
+      </div>
+
+      {/* Add Funds Button */}
+      <div className="mb-8">
         <button
           onClick={() => setShowAddFundsModal(true)}
           className="p-2 bg-blue-500 text-white rounded"
@@ -386,13 +389,7 @@ const BuyerDashboard: React.FC = () => {
         </button>
       </div>
 
-      {/* Modals */}
-      {showActiveBidsModal && (
-        <ActiveBidsModal onClose={() => setShowActiveBidsModal(false)} />
-      )}
-      {showPurchasesModal && (
-        <PurchasesModal onClose={() => setShowPurchasesModal(false)} />
-      )}
+      {/* Add Funds Modal */}
       {showAddFundsModal && (
         <AddFundsModal
           onClose={() => setShowAddFundsModal(false)}

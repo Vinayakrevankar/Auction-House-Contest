@@ -13,6 +13,7 @@ import {
   checkExpirationStatus,
   editItem,
   removeInactiveItem,
+  getRecentlySoldItems,
 } from "./manage-item/handler";
 import {
   registerHandler,
@@ -163,6 +164,10 @@ app.post("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
 app.get("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
   reviewActiveBids(req, res);
 });
+
+app.get("/api/items/recently-sold", authFilterMiddleware, (req, res) =>
+  getRecentlySoldItems(res)
+);
 
 // Review purchases
 app.get("/api/buyers/:buyerId/purchases", authFilterMiddleware, (req, res) => {
