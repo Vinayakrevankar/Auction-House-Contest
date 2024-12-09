@@ -162,6 +162,13 @@ const SellerDashboard = () => {
       sortable: true,
       filter: true,
     },
+    {
+      field: "isFreezed",
+      headerName: "Item Freezed",
+      valueFormatter: (p: { value: boolean }) => p.value ? "Yes" : "No",  
+      getWidthOfColsInList: 100,
+      flex: 1,
+    },
     { headerName: "Action", cellRenderer: EditButtonComponent, flex: 1 },
     {
       headerName: "View Bids",
@@ -391,8 +398,8 @@ const SellerDashboard = () => {
         fetchItems();
       }
     } catch (err) {
-      console.error("Error unpublishing item:", err);
-      notifyError("Error unpublishing item");
+      console.error("Error unfreezing item:", err);
+      notifyError("Error in unfreeze item");
     }
   }
 
