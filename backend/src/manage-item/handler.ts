@@ -574,36 +574,81 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
   }
 }
 
-export async function getRecentlySoldItems(res: Response) {
+export async function getRecentlySoldItems(req: Request, res: Response) {
+  const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query as any;
+
   try {
+    // Find completed items
     const scanCmd = new ScanCommand({
-      TableName: "dev-items3",
+      TableName: TABLE_NAMES.ITEMS,
       FilterExpression: "itemState = :completed",
       ExpressionAttributeValues: {
         ":completed": "completed",
       },
     });
     const data = await dclient.send(scanCmd);
+    let items = (data?.Items ?? []) as Item[];
 
     const now = moment();
     const twentyFourHoursAgo = moment().subtract(24, "hours");
-
-    const allItems = (data?.Items ?? []) as Item[];
-    // Filter items whose endDate is within the last 24 hours.
-    const recentItems = allItems.filter(item => {
+    items = items.filter((item) => {
       const endDateMoment = moment(item.endDate);
       return endDateMoment.isBetween(twentyFourHoursAgo, now);
     });
 
+    // Apply filters
+    if (keywords) {
+      const kw = keywords.toLowerCase();
+      items = items.filter(
+        (item) =>
+          item.name.toLowerCase().includes(kw) ||
+          item.description.toLowerCase().includes(kw)
+      );
+    }
+
+    if (minPrice !== undefined) {
+      const minVal = parseFloat(minPrice as unknown as string);
+      if (!isNaN(minVal)) {
+        items = items.filter((item) => item.initPrice >= minVal);
+      }
+    }
+
+    if (maxPrice !== undefined) {
+      const maxVal = parseFloat(maxPrice as unknown as string);
+      if (!isNaN(maxVal)) {
+        items = items.filter((item) => item.initPrice <= maxVal);
+      }
+    }
+
+    // Sort by price or date
+    if (sortBy) {
+      items.sort((a, b) => {
+        let valA: number;
+        let valB: number;
+        if (sortBy === "price") {
+          valA = a.initPrice;
+          valB = b.initPrice;
+        } else {
+          // sortBy date
+          valA = new Date(a.endDate).getTime();
+          valB = new Date(b.endDate).getTime();
+        }
+        if (valA < valB) return sortOrder === "desc" ? 1 : -1;
+        if (valA > valB) return sortOrder === "desc" ? -1 : 1;
+        return 0;
+      });
+    }
+
     res.send({
       status: 200,
       message: "Success",
-      payload: recentItems,
+      payload: updateURLs(items),
     });
   } catch (err: any) {
+    console.error(err);
     res.status(500).send(<ErrorResponsePayload>{
       status: 500,
-      message: `Failed to get recently sold items: ${err}`,
+      message: err.message || "Internal Server Error",
     });
   }
 }
