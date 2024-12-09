@@ -6,9 +6,9 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError } from "./components/Notification";
-import { Item, userFund } from "./api";
-import axios from "axios";
+import { Item, userFund, adminUsers,adminBids,itemSearch } from "./api";
 import Papa from "papaparse"; // Import papaparse
+
 const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
@@ -21,9 +21,28 @@ const AdminDashboard = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const [funds, setFunds] = useState<number>(0);
-  const [bids, setBids] = useState([]);
-  const [users, setUsers] = useState([]);
-  const [items, setItems] = useState([]);
+  interface Bid {
+    id: string;
+    bidItemId: string;
+    bidTime: string;
+    bidUserId: string;
+    bidAmount: number;
+    isActive: boolean;
+  }
+  const [bids, setBids] = useState<Bid[]>([]);
+  interface User {
+    userId: string;
+    id: string;
+    username: string;
+    firstName: string;
+    lastName: string;
+    userType: string;
+    role: string;
+    isActive: boolean;
+  }
+  
+  const [users, setUsers] = useState<User[]>([]);
+  const [items, setItems] = useState<Item[]>([]);
 
   const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
     const colorClass = stateTextColors[value] || "bg-red-500 text-white";
@@ -179,11 +198,10 @@ const AdminDashboard = () => {
   
   const fetchBids = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/admin/bids",
+      const response = await adminBids(
         { headers: { Authorization: `${userInfo?.token}` } }
       );
-      setBids(response.data.payload || []);
+      setBids(response?.data?.payload || []);
     } catch (err) {
       notifyError(`Error fetching bids`);
     }
@@ -191,11 +209,24 @@ const AdminDashboard = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/admin/users",
+      const response = await adminUsers(
         { headers: { Authorization: `${userInfo?.token}` } }
       );
-      setUsers(response.data.payload || []);
+      if (response.data && response.data.payload) {
+        const usersData: User[] = response.data.payload.map((user: any) => ({
+          userId: user.userId,
+          id: user.id,
+          username: user.username,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          userType: user.userType,
+          role: user.role,
+          isActive: user.isActive,
+        }));
+        setUsers(usersData);
+      } else {
+        setUsers([]);
+      }
     } catch (err) {
       notifyError(`Error fetching users`);
     }
@@ -203,11 +234,10 @@ const AdminDashboard = () => {
 
   const fetchItems = useCallback(async () => {
     try {
-      const response = await axios.get(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/items",
+      const response = await itemSearch(
         { headers: { Authorization: `${userInfo?.token}` } }
       );
-      setItems(response.data.payload || []);
+      setItems(Array.isArray(response?.data?.payload) ? response.data.payload : []);
     } catch (err) {
       notifyError(`Error fetching items`);
     }
@@ -216,7 +246,7 @@ const AdminDashboard = () => {
   useEffect(() => {
     fetchFunds();
     fetchBids();
-    // fetchUsers();
+    fetchUsers();
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
 
@@ -270,7 +300,30 @@ const AdminDashboard = () => {
     link.click();
     document.body.removeChild(link);
   };
+  const downloadUserCSV  = (data: any[], filename: string) => {
 
+    data = data.map(val=> {
+      let obj: Record<string, any> = {};
+      obj['User Id'] = val['userId'] || '';
+      obj['Email Address'] = val['id'] || '';
+      obj['username'] = val['username'] || '';
+      obj['Firstname'] = val['firstName'] || '';
+      obj['Lastname'] = val['lastName'] || '';
+      obj['User Type'] = val['userType'] || '';
+      obj['Role'] = val['role'] || '';
+      obj['Account status'] = val['isActive'] ? 'Active' : 'Closed';
+      return obj;
+    })
+
+    const csv = Papa.unparse(data); // Convert JSON to CSV
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -312,7 +365,7 @@ const AdminDashboard = () => {
         </Button>
         <Button
           className="bg-blue-500 text-white"
-          onClick={() => downloadBidsCSV(users, "users.csv")}
+          onClick={() => downloadUserCSV(users, "users.csv")}
         >
           Download Users as CSV
         </Button>

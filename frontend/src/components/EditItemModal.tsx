@@ -409,7 +409,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed"}
+                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed" || itemToEdit.isFrozen }
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
@@ -436,13 +436,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="relative group">
               <Button
                 type="submit"
-                disabled={currentItemState === "active" || currentItemState === "achived"} // Disable submit button if item is active
+                disabled={currentItemState !== "active" } // Disable submit button if item is active
                 className={`${currentItemState === "active" ? "cursor-not-allowed" : ""
                   }`}
               >
                 Save Changes
               </Button>
-              {currentItemState === "active" && (
+              {currentItemState !== "inactive" && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                   Cannot save changes while the item is active
                 </div>
