@@ -574,81 +574,76 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
   }
 }
 
+// working
+// Add this function to the same file as the other item functions
 export async function getRecentlySoldItems(req: Request, res: Response) {
-  const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query as any;
-
   try {
-    // Find completed items
+    const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
+
+    // Convert query params to appropriate types
+    const keywordsStr = typeof keywords === 'string' ? keywords.trim().toLowerCase() : undefined;
+    const minPriceNum = minPrice ? Number(minPrice) : undefined;
+    const maxPriceNum = maxPrice ? Number(maxPrice) : undefined;
+    const validSortFields = ['price', 'date'];
+    const sortField = validSortFields.includes(String(sortBy)) ? String(sortBy) : 'date';
+    const order = (sortOrder === 'asc' || sortOrder === 'desc') ? sortOrder : 'asc';
+
+    // Determine the time window for "recently sold" (past 24 hours)
+    const twentyFourHoursAgo = moment().subtract(24, 'hours').toISOString(true);
+
+    // Scan for items that have completed within the last 24 hours
     const scanCmd = new ScanCommand({
       TableName: TABLE_NAMES.ITEMS,
-      FilterExpression: "itemState = :completed",
+      FilterExpression: "itemState = :completed AND endDate >= :twentyFourHoursAgo",
       ExpressionAttributeValues: {
         ":completed": "completed",
+        ":twentyFourHoursAgo": twentyFourHoursAgo,
       },
     });
+
     const data = await dclient.send(scanCmd);
     let items = (data?.Items ?? []) as Item[];
 
-    const now = moment();
-    const twentyFourHoursAgo = moment().subtract(24, "hours");
-    items = items.filter((item) => {
-      const endDateMoment = moment(item.endDate);
-      return endDateMoment.isBetween(twentyFourHoursAgo, now);
-    });
-
-    // Apply filters
-    if (keywords) {
-      const kw = keywords.toLowerCase();
-      items = items.filter(
-        (item) =>
-          item.name.toLowerCase().includes(kw) ||
-          item.description.toLowerCase().includes(kw)
+    // Filter by keywords in name or description if provided
+    if (keywordsStr) {
+      items = items.filter(item =>
+        (item.name && item.name.toLowerCase().includes(keywordsStr)) ||
+        (item.description && item.description.toLowerCase().includes(keywordsStr))
       );
     }
 
-    if (minPrice !== undefined) {
-      const minVal = parseFloat(minPrice as unknown as string);
-      if (!isNaN(minVal)) {
-        items = items.filter((item) => item.initPrice >= minVal);
+    // Filter by price range if provided
+    if (minPriceNum !== undefined) {
+      items = items.filter(item => item.initPrice >= minPriceNum);
+    }
+    if (maxPriceNum !== undefined) {
+      items = items.filter(item => item.initPrice <= maxPriceNum);
+    }
+
+    // Sort items
+    // If sortBy = price, sort by item.initPrice
+    // If sortBy = date, sort by item.endDate (since recently sold pertains to completion time)
+    items.sort((a, b) => {
+      let compareVal;
+      if (sortField === 'price') {
+        compareVal = a.initPrice - b.initPrice;
+      } else {
+        // sort by endDate
+        compareVal = new Date(a.endDate).getTime() - new Date(b.endDate).getTime();
       }
-    }
+      return order === 'asc' ? compareVal : -compareVal;
+    });
 
-    if (maxPrice !== undefined) {
-      const maxVal = parseFloat(maxPrice as unknown as string);
-      if (!isNaN(maxVal)) {
-        items = items.filter((item) => item.initPrice <= maxVal);
-      }
-    }
-
-    // Sort by price or date
-    if (sortBy) {
-      items.sort((a, b) => {
-        let valA: number;
-        let valB: number;
-        if (sortBy === "price") {
-          valA = a.initPrice;
-          valB = b.initPrice;
-        } else {
-          // sortBy date
-          valA = new Date(a.endDate).getTime();
-          valB = new Date(b.endDate).getTime();
-        }
-        if (valA < valB) return sortOrder === "desc" ? 1 : -1;
-        if (valA > valB) return sortOrder === "desc" ? -1 : 1;
-        return 0;
-      });
-    }
-
-    res.send({
+    // Return the results
+    res.status(200).send({
       status: 200,
       message: "Success",
       payload: updateURLs(items),
     });
-  } catch (err: any) {
-    console.error(err);
-    res.status(500).send(<ErrorResponsePayload>{
+  } catch (err) {
+    res.status(500).send({
       status: 500,
-      message: err.message || "Internal Server Error",
+      message: `Failed to retrieve recently sold items: ${err}`,
     });
   }
 }
