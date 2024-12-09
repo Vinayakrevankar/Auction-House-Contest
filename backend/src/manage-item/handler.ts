@@ -411,7 +411,7 @@ export function getAllItems(req: Request, res: Response) {
     } else {
       res.send({
         status: 200,
-        message: "Success",
+        message: "Success getAllItems",
         payload: updateURLs((data?.Items ?? []) as Item[]),
       });
     }
@@ -679,7 +679,7 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     } else {
       res.status(200).send({
         status: 200,
-        message: "Success",
+        message: "Success getRecentlySoldItems",
         payload: updateURLs((data?.Items ?? []) as Item[]),
       });
     }
