@@ -14,6 +14,13 @@ import {
   editItem,
   removeInactiveItem,
   getRecentlySoldItems,
+  getActiveItems,
+  getItemBids,
+  getItemDetails,
+  publishItem,
+  reviewItems,
+  unpublishItem,
+  getAllItems
 } from "./manage-item/handler";
 import {
   registerHandler,
@@ -23,15 +30,6 @@ import {
   getProfileFund,
   getAllUsers
 } from "./manage-user/handler";
-import {
-  getActiveItems,
-  getItemBids,
-  getItemDetails,
-  publishItem,
-  reviewItems,
-  unpublishItem,
-  getAllItems
-} from "./manage-item/handler";
 import {
   placeBid,
   addFunds,
