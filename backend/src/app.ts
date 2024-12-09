@@ -166,9 +166,7 @@ app.get("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
 });
 
 //working
-app.get("/api/items/recently-sold",authFilterMiddleware, (req, res) =>{
-  getRecentlySoldItems(req, res);
-});
+app.get("/api/items/recently-sold",authFilterMiddleware,getRecentlySoldItems);
 
 
 // Review purchases

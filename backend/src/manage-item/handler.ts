@@ -665,26 +665,23 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState = :state",
     ExpressionAttributeValues: {
-      "state": "completed",
+      "state": "archived",
     },
   });
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
-      res.status(500).send({
+      res.status(500).send(<ErrorResponsePayload>{
         status: 500,
-        message: err.toString(),
+        message: err,
       });
-      return;
+    } else {
+      res.send({
+        status: 200,
+        message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
     }
-
-    const items = (data?.Items ?? []) as Item[];
-    // Just respond with what we have, no filtering
-    res.status(200).send({
-      status: 200,
-      message: "Success",
-      payload: items,
-    });
   });
 }
 
