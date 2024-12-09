@@ -431,9 +431,6 @@ const SellerDashboard = () => {
             <Button className="p-2 bg-green-500 text-white rounded">
               Available Funds: ${funds}
             </Button>
-            <Button className="p-2 bg-yellow-500 text-white rounded">
-              Available Funds on Hold: ${"IMPLEMENTATION NEEDED"}
-            </Button>
             <Button
               color="blue"
               onClick={() => {

@@ -106,6 +106,17 @@ export async function placeBid(req: Request, res: Response) {
           },
         },
       },
+      {
+        Update: {
+          TableName: "dev-users3",
+          Key: { id: buyerEmail },
+          UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+          ExpressionAttributeValues: {
+            ":bidAmount": bidAmount,
+            ":zero": 0,
+          },
+        },
+      }
     ];
 
     const transactCmd = new TransactWriteCommand({
@@ -217,6 +228,18 @@ export async function placeBid(req: Request, res: Response) {
         ":bidId": bidId,
         ":bidIdList": [bidId],
         ":empty_list": [],
+      },
+    },
+  });
+
+  transactItems.push({
+    Update: {
+      TableName: "dev-users3",
+      Key: { id: buyerEmail },
+      UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+      ExpressionAttributeValues: {
+        ":bidAmount": bidAmount,
+        ":zero": 0,
       },
     },
   });

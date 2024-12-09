@@ -291,7 +291,7 @@ export type UserList = {
     /**
      * User fund on hold
      */
-    fundOnHold?: number;
+    fundsOnHold?: number;
     /**
      * Is user active
      */

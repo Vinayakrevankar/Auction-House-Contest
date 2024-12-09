@@ -28,6 +28,7 @@ const BuyerDashboard: React.FC = () => {
   const [activeBids, setActiveBids] = useState<Bid[]>([]);
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [funds, setFunds] = useState<number>(0);
+  const [fundsOnHold, setFundsOnHold] = useState<number>(0);
 
   const [loading, setLoading] = useState(true);
 
@@ -107,8 +108,8 @@ const BuyerDashboard: React.FC = () => {
     if (response.error) {
       notifyError(`Error fetching funds: ${response.error.message}`);
     } else {
-      console.log(`fund = ${response.data.payload.fund}`);
       setFunds(response.data.payload.fund);
+      setFundsOnHold(response.data.payload.fundsOnHold);
     }
   }, [userInfo]);
 
@@ -340,7 +341,7 @@ const BuyerDashboard: React.FC = () => {
               Available Funds: ${funds}
             </Button>
             <Button className="p-2 bg-yellow-500 text-white rounded">
-              Available Funds on Hold: ${"IMPLEMENTATION NEEDED"}
+              Available Funds on Hold: ${fundsOnHold}
             </Button>
             <Button
               color="blue"

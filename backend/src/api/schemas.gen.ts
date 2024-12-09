@@ -387,7 +387,7 @@ export const UserListSchema = {
             type: 'number',
             description: 'User fund'
         },
-        fundOnHold: {
+        fundsOnHold: {
             type: 'number',
             description: 'User fund on hold'
         },

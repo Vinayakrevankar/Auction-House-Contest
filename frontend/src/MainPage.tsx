@@ -191,7 +191,6 @@ const handleFreezeItem = async () => {
     setMinutes(Math.floor((end / (1000 * 60)) % 60));
     return () => clearInterval(interval);
   }, [end]);
-
   return (
     <>
       <Card
@@ -230,19 +229,27 @@ const handleFreezeItem = async () => {
                 <p className="text-xl font-bold text-gray-900">
                   Ending in: {days} days {hours} hr {minutes} mins
                 </p>
-                { userInfo && userInfo.role !== "admin" ?  (<BidField
-                  itemId={item.id}
-                  bidAmount={bidAmount}
-                  currentPrice={currentPrice}
-                  setBidAmount={setBidAmount}
-                  setRefresh={setRefresh}
-                  itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
-                />): <button
-                onClick={() => handleFreezeItem()}
-                className="p-2 bg-red-500 text-white rounded"
-              >
-                Freeze Item
-              </button>}
+                {userInfo ? (
+                  userInfo.role !== "admin" ? (
+                  <BidField
+                    itemId={item.id}
+                    bidAmount={bidAmount}
+                    currentPrice={currentPrice}
+                    setBidAmount={setBidAmount}
+                    setRefresh={setRefresh}
+                    itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
+                  />
+                  ) : (
+                  <button
+                    onClick={() => handleFreezeItem()}
+                    className="p-2 bg-red-500 text-white rounded"
+                  >
+                    Freeze Item
+                  </button>
+                  )
+                ) : <p style={{ color: "red" }}>
+                Please login to bid on this item.
+              </p>}
               </div>
             </div>
           </div>
