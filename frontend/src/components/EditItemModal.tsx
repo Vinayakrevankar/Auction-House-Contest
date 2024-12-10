@@ -3,6 +3,7 @@ import { Modal, Button } from "flowbite-react";
 import { ItemSimple } from "../models/ItemSimple";
 import { itemCheckExpired, uploadImage } from "../api";
 import { itemDetail } from "./../api";
+import { la2ts, LengthOfAuction } from "../models/LeengthOfAuction";
 
 interface EditItemModalProps {
   show: boolean;
@@ -29,12 +30,19 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onFulfill,
   refreshItems,
   onArchive,
-  onRequestUnfreeze,
+  onRequestUnfreeze
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
-  const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState("");
+  const [newIsAvailableToBuy, setIsAvailableToBuy] = useState(false);
+  const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState<LengthOfAuction>({
+    day: -1,
+    hour: -1,
+    min: -1,
+    sec: -1,
+  });
+  
   const [buttonFulfill, setButtonFulfill] = useState(false);
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
@@ -50,12 +58,26 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       if (itemToEditRef.current) {
         const resp = await itemDetail({ path: { itemId: itemToEditRef.current.id } }); // Get item details
         if (resp.data) {
-          itemToEditRef.current = resp.data.payload; // Assign data to ref
+          itemToEditRef.current = {
+            ...resp.data.payload,
+            isAvailableToBuy: resp.data.payload.isAvailableToBuy ?? false,
+            currentBidId: resp.data.payload.currentBidId ?? "", // Ensure currentBidId is a string
+          }; // Assign data to ref
         }
-        setEditItemName(itemToEditRef.current.name);
+        if (itemToEditRef.current) {
+          setEditItemName(itemToEditRef.current.name);
+        }
         setEditItemDescription(itemToEditRef.current.description);
         setEditItemInitPrice(itemToEditRef.current.initPrice.toString());
-        setEditItemLengthOfAuction(itemToEditRef.current.lengthOfAuction.toString());
+        setIsAvailableToBuy(itemToEditRef.current.isAvailableToBuy);
+        if (itemToEditRef.current) {
+          setEditItemLengthOfAuction({
+            day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
+            hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000) % 24),
+            min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000) % 60),
+            sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000 % 60),
+          });
+        }
         setEditItemImages(null);
         setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
         const response = await itemCheckExpired({ path: { itemId: itemToEditRef.current.id } });
@@ -111,7 +133,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       !editItemName.trim() ||
       !editItemDescription.trim() ||
       !editItemInitPrice.trim() ||
-      !editItemLengthOfAuction.trim()
+      (editItemLengthOfAuction.day === -1
+        || editItemLengthOfAuction.hour === -1
+        || editItemLengthOfAuction.min === -1
+        || editItemLengthOfAuction.sec === -1)
     ) {
       return;
     }
@@ -160,7 +185,8 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       name: editItemName,
       description: editItemDescription,
       initPrice: parseFloat(editItemInitPrice),
-      lengthOfAuction: parseInt(editItemLengthOfAuction, 10),
+      lengthOfAuction: la2ts(editItemLengthOfAuction),
+      isAvailableToBuy: newIsAvailableToBuy,
       images,
     };
 
@@ -170,7 +196,12 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
     setEditItemName("");
     setEditItemDescription("");
     setEditItemInitPrice("");
-    setEditItemLengthOfAuction("");
+    setEditItemLengthOfAuction({
+      day: -1,
+      hour: -1,
+      min: -1,
+      sec: -1,
+    });
     setEditItemImages(null);
     onClose();
   };
@@ -189,7 +220,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">Item Name</label>
               <input
                 type="text"
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 value={editItemName}
                 onChange={(e) => setEditItemName(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
@@ -201,7 +232,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <input
                 type="number"
                 value={editItemInitPrice}
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => setEditItemInitPrice(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
                 required
@@ -211,7 +242,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               <label className="block text-sm font-medium text-gray-700">Description</label>
               <textarea
                 value={editItemDescription}
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => setEditItemDescription(e.target.value)}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
                 rows={4}
@@ -229,19 +260,76 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">Auction Length (days)</label>
-              <input
-                type="number"
-                disabled={currentItemState === "active"}
-                value={editItemLengthOfAuction}
-                onChange={(e) => setEditItemLengthOfAuction(e.target.value)}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring focus:ring-blue-300"
-                required
-              />
+              <label className="block text-sm font-medium text-gray-700">Auction Length</label>
+              <div className='flex flex-row space-x-3'>
+                <input
+                  type="number"
+                  min="0"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
+                  value={editItemLengthOfAuction.day === -1 ? '' : editItemLengthOfAuction.day}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: parseInt(e.target.value),
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='Days'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="23"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
+                  value={editItemLengthOfAuction.hour === -1 ? '' : editItemLengthOfAuction.hour}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: parseInt(e.target.value),
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='H'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
+                  value={editItemLengthOfAuction.min === -1 ? '' : editItemLengthOfAuction.min}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: parseInt(e.target.value),
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='M'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+                <input
+                  type="number"
+                  min="0"
+                  max="59"
+                  disabled={currentItemState?.toLowerCase() !== "inactive"}
+                  value={editItemLengthOfAuction.sec === -1 ? '' : editItemLengthOfAuction.sec}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: parseInt(e.target.value),
+                  })}
+                  placeholder='S'
+                  className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
+                  required
+                />
+              </div>
             </div>
             <div>
               <h3 className="text-lg font-semibold">Images</h3>
-              <div className="flex flex-wrap gap-4 mt-4">
+              <div className="flex flex-wrap gap-3 mt-4">
                 {itemToEdit && itemToEdit.images?.map((image, index) => (
                   <div
                     key={index}
@@ -255,14 +343,25 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   </div>
                 ))}
               </div>
+              <label className="block text-sm font-medium text-gray-700 ml-3 mt-2">
+                <input
+                  type="checkbox"
+                  disabled={itemToEditRef.current?.currentBidId.length > 0 || currentItemState !== "inactive"}
+                  checked={newIsAvailableToBuy}
+                  onChange={(e) => setIsAvailableToBuy(e.target.checked)}
+                  className="mr-3">
+                </input>
+                Available to buy immediately
+                  </label>
             </div>
+           
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Upload Image
               </label>
               <input
                 type="file"
-                disabled={currentItemState === "active"}
+                disabled={currentItemState?.toLowerCase() !== "inactive"}
                 onChange={(e) => {
                   if (e.target.files && e.target.files.length > 0) {
                     setEditItemImages(e.target.files); // Store the single selected file
@@ -271,8 +370,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 className="mt-1 block w-full"
                 accept="image/*" // Optional: Restrict to image files only
               />
-            </div>
 
+            </div>
+            
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
@@ -309,7 +409,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled = {!buttonFulfill || itemToEdit?.itemState !== "completed"}
+                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed" || itemToEdit.isFrozen }
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >
@@ -336,13 +436,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="relative group">
               <Button
                 type="submit"
-                disabled={currentItemState === "active" || currentItemState === "achived"} // Disable submit button if item is active
+                disabled={currentItemState !== "active" } // Disable submit button if item is active
                 className={`${currentItemState === "active" ? "cursor-not-allowed" : ""
                   }`}
               >
                 Save Changes
               </Button>
-              {currentItemState === "active" && (
+              {currentItemState !== "inactive" && (
                 <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 w-max bg-gray-800 text-white text-xs rounded px-2 py-1 shadow-lg opacity-0 group-hover:opacity-100 transition-opacity">
                   Cannot save changes while the item is active
                 </div>

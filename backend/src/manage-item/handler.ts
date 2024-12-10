@@ -1,9 +1,11 @@
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { PutCommand, UpdateCommand, DeleteCommand, GetCommand, ScanCommand } from "@aws-sdk/lib-dynamodb";
-import { Response } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import { TABLE_NAMES } from "./constants";
 import { ErrorResponsePayload, Item, ItemRequestPayload, PlainSuccessResponsePayload } from "../api";
+import moment from "moment";
+import { Request, Response } from "express";
+
 // import { S3_BUCKET_URL } from "./../constants";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
@@ -45,7 +47,7 @@ export async function addItem(
 
   // Calculate startDate and endDate based on lengthOfAuction
   const startDate = new Date(); // Auction starts now
-  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const endDate = new Date(startDate.getTime() + itemData.lengthOfAuction);
 
   const item: Item = {
     id: itemId,
@@ -55,8 +57,8 @@ export async function addItem(
     images: itemData.images,
     initPrice: itemData.initPrice,
     lengthOfAuction: itemData.lengthOfAuction,
-    startDate: startDate.toISOString(),
-    endDate: endDate.toISOString(),
+    startDate: moment(startDate).toISOString(true),
+    endDate: moment(endDate).toISOString(true),
     itemState: "inactive", // Initial state is inactive
     isFrozen: false,
     createAt: createAt,
@@ -64,6 +66,7 @@ export async function addItem(
     currentBidId: undefined,
     pastBidIds: [],
     soldBidId: undefined,
+    isAvailableToBuy: itemData.isAvailableToBuy ?? false,
   };
 
   const cmd = new PutCommand({
@@ -138,6 +141,10 @@ export async function editItem(
     if (itemData.description) {
       updateExpression += ", description = :description";
       expressionAttributeValues[":description"] = itemData.description;
+    }
+    if (itemData.isAvailableToBuy) {
+      updateExpression += ", isAvailableToBuy = :isAvailableToBuy";
+      expressionAttributeValues[":isAvailableToBuy"] = itemData.isAvailableToBuy;
     }
 
     if (itemData.images) {
@@ -284,7 +291,7 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
   }
   const item = resp.Item as Item;
   const sdate = new Date();
-  const edate = new Date(sdate.getTime() + item.lengthOfAuction * 24 * 60 * 60 * 1000);
+  const edate = new Date(sdate.getTime() + item.lengthOfAuction);
   const updateCmd = new UpdateCommand({
     TableName: TABLE_NAMES.ITEMS,
     Key: {
@@ -294,8 +301,8 @@ export async function publishItem(sellerId: string, itemId: string, res: Respons
     ConditionExpression: "itemState = :old AND sellerId = :sid",
     ExpressionAttributeValues: {
       ":new": "active",
-      ":sdate": sdate.toString(),
-      ":edate": edate.toString(),
+      ":sdate": moment(sdate).toISOString(true),
+      ":edate": moment(edate).toISOString(true),
       ":old": "inactive",
       ":sid": sellerId,
     },
@@ -383,6 +390,28 @@ export function reviewItems(
       res.send({
         status: 200,
         message: "Success",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
+    }
+  });
+}
+
+//Get all item
+export function getAllItems(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 500,
+        message: err,
+      });
+    } else {
+      res.send({
+        status: 200,
+        message: "Success getAllItems",
         payload: updateURLs((data?.Items ?? []) as Item[]),
       });
     }
@@ -543,4 +572,116 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
       });
     }
   }
+}
+
+// working
+
+// export function getRecentlySoldItems(req: Request, res: Response) {
+//   const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
+
+//   // Parse query parameters
+//   const kw = keywords ? (keywords as string).toLowerCase() : null;
+//   const minP = minPrice ? parseFloat(minPrice as string) : null;
+//   const maxP = maxPrice ? parseFloat(maxPrice as string) : null;
+
+//   // Determine sort field
+//   let sortField: "endDate" | "initPrice" = "endDate"; 
+//   if (sortBy === "price") {
+//     sortField = "initPrice";
+//   } else if (sortBy === "date") {
+//     sortField = "endDate";
+//   }
+
+//   const order = sortOrder === "desc" ? -1 : 1;
+//   const cutoffTime = moment().subtract(24, "hours");
+
+//   const scanCmd = new ScanCommand({
+//     TableName: TABLE_NAMES.ITEMS,
+//     FilterExpression: "itemState IN (:a, :b)",
+//     ExpressionAttributeValues: {
+//       ":a": "completed",
+//       ":b": "failed",
+//     },
+//   });
+
+//   dclient.send(scanCmd, (err, data) => {
+//     if (err) {
+//       res.status(500).send(<ErrorResponsePayload>{
+//         status: 500,
+//         message: err.toString(),
+//       });
+//       return;
+//     }
+
+//     let items = (data?.Items ?? []) as Item[];
+
+//     // Filter items by recently sold (endDate within last 24 hours)
+//     items = items.filter(item => {
+//       const endDate = moment(item.endDate);
+//       return endDate.isAfter(cutoffTime);
+//     });
+
+//     // Keyword filter
+//     if (kw) {
+//       items = items.filter(item =>
+//         (item.name && item.name.toLowerCase().includes(kw)) ||
+//         (item.description && item.description.toLowerCase().includes(kw))
+//       );
+//     }
+
+//     // Price filters
+//     if (minP !== null) {
+//       items = items.filter(item => item.initPrice >= minP);
+//     }
+//     if (maxP !== null) {
+//       items = items.filter(item => item.initPrice <= maxP);
+//     }
+
+//     // Sort items by chosen field
+//     items.sort((a, b) => {
+//       let valA: number | string = a[sortField];
+//       let valB: number | string = b[sortField];
+
+//       if (sortField === "endDate") {
+//         valA = new Date(valA as string).getTime();
+//         valB = new Date(valB as string).getTime();
+//       }
+
+//       if (valA < valB) return -1 * order;
+//       if (valA > valB) return 1 * order;
+//       return 0;
+//     });
+
+//     res.status(200).send({
+//       status: 200,
+//       message: "Success",
+//       payload: items,
+//     });
+//   });
+// }
+
+export function getRecentlySoldItems(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: TABLE_NAMES.ITEMS,
+    FilterExpression: "itemState IN (:complete, :archived)",
+    ExpressionAttributeValues: {
+      ":complete": "complete",
+      ":archived": "archived",
+    },
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 400,
+        message: err,
+      });
+    } else {
+      res.status(200).send({
+        status: 200,
+        message: "Success getRecentlySoldItems",
+        payload: updateURLs((data?.Items ?? []) as Item[]),
+      });
+    }
+  });
 }

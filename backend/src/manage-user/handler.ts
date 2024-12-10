@@ -1,7 +1,6 @@
-import { GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
+import { GetCommand, PutCommand, ScanCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
 import {
   DynamoDBClient,
-  DynamoDBServiceException,
 } from "@aws-sdk/client-dynamodb";
 import bcrypt from "bcryptjs";
 import { Request, Response } from "express";
@@ -15,6 +14,7 @@ import {
   getAccessDenied,
   getNotFound,
 } from "../util/httpUtil"; // Import response utilities
+import { ErrorResponsePayload } from "../api";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 const JWT_SECRET = "JqaXPsfAMN4omyJWj9c8o9nbEQStbsiJ";
@@ -167,7 +167,7 @@ export async function loginHandler(req: Request, res: Response) {
         userId: user.userId,
       },
       JWT_SECRET,
-      { expiresIn: "1h" }
+      { expiresIn: "5h" }
     );
 
     return res.status(200).json(
@@ -251,16 +251,16 @@ export async function editProfileHandler(req: Request, res: Response) {
     return res.status(400).json(getBadRequest([null, "No fields to update."]));
   }
 
-  try {
-    const updateCommand = new UpdateCommand({
-      TableName: USER_DB,
-      Key: { id: emailAddress },
-      UpdateExpression: `SET ${updateExpressions.join(", ")}`,
-      ExpressionAttributeNames: expressionAttributeNames,
-      ExpressionAttributeValues: expressionAttributeValues,
-      ReturnValues: "ALL_NEW",
-    });
+  const updateCommand = new UpdateCommand({
+    TableName: USER_DB,
+    Key: { id: emailAddress },
+    UpdateExpression: `SET ${updateExpressions.join(", ")}`,
+    ExpressionAttributeNames: expressionAttributeNames,
+    ExpressionAttributeValues: expressionAttributeValues,
+    ReturnValues: "ALL_NEW",
+  });
 
+  try {
     const updatedUser = await dclient.send(updateCommand);
 
     return res
@@ -332,39 +332,66 @@ export async function closeAccountHandler(req: Request, res: Response) {
 }
 
 
-export async function getProfileFund(req: Request, res: Response) {    
+export async function getProfileFund(req: Request, res: Response) {
   const emailId = res.locals.id; // User's email address from authentication middleware
 
-  try {
-    const getUserCommand = new GetCommand({
-      TableName: USER_DB,
-      Key: { id: emailId },
+  const getUserCommand = new GetCommand({
+    TableName: USER_DB,
+    Key: {
+      "id": emailId,
+    },
+  });
+  const userResult = await dclient.send(getUserCommand).catch(err => {
+    console.error("Error retrieving funds:", err);
+    res.status(500).json({ status: 500, message: `${err}` });
+  });
+  if (!userResult) {
+    return
+  }
+
+  if (!userResult.Item) {
+    return res.status(404).json({ status: 404, message: "User not found." });
+  }
+
+  if (userResult.Item.id !== emailId) {
+    return res.status(403).json({
+      status: 403,
+      message: "You are not authorized to view this account's funds.",
     });
-    const userResult = await dclient.send(getUserCommand);
+  }
 
-    if (!userResult.Item) {
-      return res.status(404).json({ status: 404, message: "User not found." });
-    }
+  const fund = userResult.Item.fund;
 
-    if (userResult.Item.id !== emailId) {
-      return res.status(403).json({
-        status: 403,
-        message: "You are not authorized to view this account's funds.",
+  return res.status(200).json({
+    status: 200,
+    message: "Funds retrieved successfully.",
+    payload: {
+      userId: emailId,
+      fund: fund,
+      fundsOnHold: userResult.Item.fundsOnHold
+    },
+  });
+}
+
+export function getAllUsers(req: Request, res: Response) {
+  const scanCmd = new ScanCommand({
+    TableName: USER_DB,
+    Limit: 100,
+  });
+
+  dclient.send(scanCmd, (err, data) => {
+    if (err) {
+      res.status(500).send(<ErrorResponsePayload>{
+        status: 400,
+        message: err,
+      });
+    } else {
+      console.log("Scan data:", data);
+      res.status(200).send({
+        status: 200,
+        message: "Success",
+        payload: data?.Items,
       });
     }
-
-    const fund = userResult.Item.fund;
-
-    return res.status(200).json({
-      status: 200,
-      message: "Funds retrieved successfully.",
-      payload: {
-        userId: emailId,
-        fund: fund,
-      },
-    });
-  } catch (error) {
-    console.error("Error retrieving funds:", error);
-    return res.status(500).json({ status: 500, message: `${error}` });
-  }
+  });
 }

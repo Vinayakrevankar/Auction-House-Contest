@@ -13,22 +13,23 @@ import {
   checkExpirationStatus,
   editItem,
   removeInactiveItem,
-} from "./manage-item/handler";
-import {
-  registerHandler,
-  loginHandler,
-  editProfileHandler,
-  closeAccountHandler,
-  getProfileFund
-} from "./manage-user/handler";
-import {
+  getRecentlySoldItems,
   getActiveItems,
   getItemBids,
   getItemDetails,
   publishItem,
   reviewItems,
   unpublishItem,
+  getAllItems
 } from "./manage-item/handler";
+import {
+  registerHandler,
+  loginHandler,
+  editProfileHandler,
+  closeAccountHandler,
+  getProfileFund,
+  getAllUsers
+} from "./manage-user/handler";
 import {
   placeBid,
   addFunds,
@@ -47,6 +48,10 @@ const s3Client = new S3Client({ region: "us-east-1" });
 import multer from "multer";
 import { v4 as uuidv4 } from "uuid";
 import { ErrorResponsePayload, PlainSuccessResponsePayload } from "./api";
+import {
+  getAllBids,
+} from "./manage-admin/handler";
+
 
 // Initialize multer for file uploads
 const upload = multer({
@@ -128,7 +133,8 @@ app.post(
   (req, res) =>
     requestUnfreezeItem(req.params["sellerId"], req.params["itemId"], res)
 );
-
+//working
+app.get("/api/items/recently-sold",getRecentlySoldItems);
 app.get("/api/items/active", (_, res) => getActiveItems(res));
 app.get("/api/items/:itemId", (req, res) =>
   getItemDetails(req.params["itemId"], res)
@@ -143,7 +149,8 @@ app.post("/api/items/:itemId/check-expired", (req, res) =>
 // login and register
 app.post("/api/register", registerHandler);
 app.post("/api/login", loginHandler);
-app.put("/api/profile/update", editProfileHandler);
+app.get("/api/profile/fund", authFilterMiddleware, getProfileFund);
+app.put("/api/profile/update", authFilterMiddleware, editProfileHandler);
 // Upload endpoint to handle file upload to S3
 
 // Buyer use cases
@@ -156,6 +163,7 @@ app.post("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
 app.get("/api/buyers/:buyerId/bids", authFilterMiddleware, (req, res) => {
   reviewActiveBids(req, res);
 });
+
 
 // Review purchases
 app.get("/api/buyers/:buyerId/purchases", authFilterMiddleware, (req, res) => {
@@ -179,7 +187,10 @@ app.post(
   closeAccountHandler
 );
 
-app.get("/api/profile/fund", authFilterMiddleware, getProfileFund);
+app.get("/api/get-user-funds", authFilterMiddleware, getProfileFund);
+app.get("/api/items", authFilterMiddleware, getAllItems);
+app.get("/api/admin/users", authFilterMiddleware, getAllUsers);
+app.get("/api/admin/bids", authFilterMiddleware, getAllBids);
 
 
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {

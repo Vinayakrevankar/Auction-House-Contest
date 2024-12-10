@@ -73,6 +73,10 @@ export type Item = {
      */
     lengthOfAuction: number;
     /**
+     * Is item available to buy immediately
+     */
+    isAvailableToBuy?: boolean;
+    /**
      * Current state of item
      */
     itemState: 'active' | 'archived' | 'completed' | 'failed' | 'inactive';
@@ -205,6 +209,10 @@ export type ItemRequestPayload = {
      */
     lengthOfAuction: number;
     /**
+     * Is item available to buy immediately
+     */
+    isAvailableToBuy?: boolean;
+    /**
      * S3 object keys for the images
      */
     images: Array<(string)>;
@@ -242,6 +250,60 @@ export type PlainSuccessResponsePayload = {
      * Response message
      */
     message: string;
+};
+
+/**
+ * User info
+ */
+export type UserList = {
+    /**
+     * Username
+     */
+    username: string;
+    /**
+     * User email
+     */
+    emailAddress: string;
+    /**
+     * User ID
+     */
+    userId: string;
+    /**
+     * User creation time
+     */
+    createdAt: number;
+    /**
+     * User type, one of [seller, buyer]
+     */
+    userType: 'seller' | 'buyer';
+    /**
+     * User role, one of [admin, user]
+     */
+    role: 'admin' | 'user';
+    /**
+     * List of purchases
+     */
+    purchases?: Array<Purchase>;
+    /**
+     * User fund
+     */
+    fund?: number;
+    /**
+     * User fund on hold
+     */
+    fundsOnHold?: number;
+    /**
+     * Is user active
+     */
+    isActive: boolean;
+    /**
+     * User first name
+     */
+    firstName: string;
+    /**
+     * User last name
+     */
+    lastName: string;
 };
 
 export type ParameterSellerID = string;
@@ -559,6 +621,10 @@ export type BuyerBidsPlaceData = {
          * Bid amount
          */
         bidAmount: number;
+        /**
+         * Is item available to buy immediately
+         */
+        isAvailableToBuy?: boolean;
     };
     path: {
         buyerId: string;
@@ -624,6 +690,10 @@ export type ItemSearchData = {
          * Sort order
          */
         sortOrder?: 'asc' | 'desc';
+        /**
+         * get all item if userRole is admin
+         */
+        userRole?: string;
     };
 };
 
@@ -836,3 +906,64 @@ export type ItemCheckExpiredResponse = ({
 });
 
 export type ItemCheckExpiredError = (ErrorResponsePayload);
+
+export type UserFundResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    payload: {
+        /**
+         * User fund
+         */
+        fund: number;
+        /**
+         * User email ID
+         */
+        userId: string;
+        /**
+         * User fund being hold for previous bids
+         */
+        fundsOnHold: number;
+    };
+});
+
+export type UserFundError = (ErrorResponsePayload);
+
+export type AdminUsersResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<UserList>;
+});
+
+export type AdminUsersError = (ErrorResponsePayload);
+
+export type AdminBidsResponse = ({
+    /**
+     * Response HTTP status
+     */
+    status: number;
+    /**
+     * Response message
+     */
+    message: string;
+    /**
+     * Response Payload
+     */
+    payload: Array<Bid>;
+});
+
+export type AdminBidsError = (ErrorResponsePayload);

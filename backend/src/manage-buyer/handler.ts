@@ -12,14 +12,15 @@ import {
   AddFundsResponsePayload,
   ErrorResponsePayload,
 } from "../api";
+import moment from "moment";
 
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 const ADMIN_ROLE = "admin";
 const USER_DB = "dev-users3";
 export async function placeBid(req: Request, res: Response) {
-  const buyerId = res.locals.userId;  // User's unique ID (e.g., 'RIWA81973509')
-  const buyerEmail = res.locals.id;   // User's email address, which is the 'id' in DynamoDB
-  const { itemId, bidAmount } = req.body;
+  const buyerId = res.locals.userId; // User's unique ID (e.g., 'RIWA81973509')
+  const buyerEmail = res.locals.id;  // User's email address, which is the 'id' in DynamoDB
+  const { itemId, bidAmount, isAvailableToBuy = false } = req.body;
 
   const getItemCmd = new GetCommand({
     TableName: "dev-items3",
@@ -48,7 +49,96 @@ export async function placeBid(req: Request, res: Response) {
       .send({ status: 400, message: "Item bidding time has expired." });
     return;
   }
+  const bidId = `${buyerId}#${Date.now()}`;
+  const bidTime = new Date().toISOString();
+  if (isAvailableToBuy) {
+    // If item is being directly purchased
+    const sellerPrice = item.initPrice;
 
+    const getBuyerCmd = new GetCommand({
+      TableName: "dev-users3",
+      Key: { id: buyerEmail },
+    });
+    const getBuyerResp = await dclient.send(getBuyerCmd).catch((err) => {
+      res.status(500).send({ status: 500, message: `${err}` });
+      return;
+    });
+    if (!getBuyerResp) return;
+    if (!getBuyerResp.Item) {
+      res.status(404).send({ status: 404, message: "Buyer not found." });
+      return;
+    }
+    const buyer = getBuyerResp.Item;
+    const buyerFunds = buyer.fund ?? 0;
+
+    if (buyerFunds < sellerPrice) {
+      res
+        .status(400)
+        .send({ status: 400, message: "Insufficient funds to buy the item." });
+      return;
+    }
+
+    const transactItems: any[] = [
+      {
+        Put: {
+          TableName: "dev-bids3",
+          Item: {
+            id: bidId,
+            bidItemId: itemId,
+            bidUserId: buyerEmail,
+            bidAmount: sellerPrice,
+            bidTime: bidTime,
+            createAt: Date.now(),
+            isActive: true,
+          },
+        },
+      },
+      {
+        Update: {
+          TableName: "dev-items3",
+          Key: { id: itemId },
+          UpdateExpression: "SET currentBidId = :bidId, pastBidIds = list_append(if_not_exists(pastBidIds, :empty_list), :bidIdList), itemState = :completed",
+          ExpressionAttributeValues: {
+            ":completed": "completed",
+            ":bidId": bidId,
+            ":bidIdList": [bidId],
+            ":empty_list": [],
+          },
+        },
+      },
+      {
+        Update: {
+          TableName: "dev-users3",
+          Key: { id: buyerEmail },
+          UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+          ExpressionAttributeValues: {
+            ":bidAmount": bidAmount,
+            ":zero": 0,
+          },
+        },
+      }
+    ];
+
+    const transactCmd = new TransactWriteCommand({
+      TransactItems: transactItems,
+    });
+
+    await dclient
+      .send(transactCmd)
+      .then(() => {
+        res.status(202).send({
+          status: 202,
+          message: "Item placed successfully.",
+        });
+      })
+      .catch((err) => {
+        res.status(500).send({ status: 500, message: `${err}` });
+      });
+
+    return;
+  }
+
+  // Existing bidding logic starts here
   let currentBidAmount = item.initPrice;
   const transactItems: any[] = [];
 
@@ -111,9 +201,6 @@ export async function placeBid(req: Request, res: Response) {
     return;
   }
 
-  const bidId = `${buyerId}#${Date.now()}`;
-  const bidTime = new Date().toISOString();
-
   const newBid: Bid = {
     id: bidId,
     bidItemId: itemId,
@@ -141,6 +228,18 @@ export async function placeBid(req: Request, res: Response) {
         ":bidId": bidId,
         ":bidIdList": [bidId],
         ":empty_list": [],
+      },
+    },
+  });
+
+  transactItems.push({
+    Update: {
+      TableName: "dev-users3",
+      Key: { id: buyerEmail },
+      UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+      ExpressionAttributeValues: {
+        ":bidAmount": bidAmount,
+        ":zero": 0,
       },
     },
   });
@@ -286,18 +385,18 @@ export async function closeAccountHandler(req: Request, res: Response) {
         ":true": true,
       },
     });
-  
+
     const scanBidsResp = await dclient.send(scanBidsCmd).catch((err) => {
       res.status(500).send({ status: 500, message: `${err}` });
       return;
     });
-  
+
     const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
-    if(activeBids.length > 0) {
+    if (activeBids.length > 0) {
       return res
-      .status(400)
-      .send({ status: 400, message: "Could not close account since there are active bids" });
+        .status(400)
+        .send({ status: 400, message: "Could not close account since there are active bids" });
     }
 
     if (userResult.Item.id !== buyerEmail) {

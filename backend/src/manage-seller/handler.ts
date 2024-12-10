@@ -15,6 +15,7 @@ import {
   ItemFulfillResponsePayload,
 } from "../api";
 import { ADMIN_ID } from "../constants";
+import moment from "moment";
 const dclient = new DynamoDBClient({ region: "us-east-1" });
 
 export function archiveItem(sellerId: string, itemId: string, res: Response) {
@@ -101,7 +102,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
     return;
   }
   const bid = getBidResp.Item as Bid;
-
+  let fivePercent = bid.bidAmount * 0.05;
   const batchUpdateTransactionCmd = new TransactWriteCommand({
     TransactItems: [
       {
@@ -110,8 +111,8 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           Key: {
             "id": bid.bidUserId,
           },
-          UpdateExpression: "set fund = fund - :amount, purchases = list_append(if_not_exists(purchases, :empty), :new_purchase)",
-          ConditionExpression: "fund >= :amount",
+          UpdateExpression: "set fundsOnHold = fundsOnHold - :amount, purchases = list_append(if_not_exists(purchases, :empty), :new_purchase)",
+          ConditionExpression: "fundsOnHold >= :amount",
           ExpressionAttributeValues: {
             ":amount": bid.bidAmount,
             ":new_purchase": <Purchase[]>[{
@@ -119,7 +120,7 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
               itemName: item.name,
               price: bid.bidAmount,
               soldTime: bid.bidTime,
-              fulfillTime: new Date().toISOString(),
+              fulfillTime: moment().toISOString(true),
             }],
             ":empty": [],
           },
@@ -133,7 +134,20 @@ export async function fulfillItem(sellerId: string, itemId: string, res: Respons
           },
           UpdateExpression: "set fund = if_not_exists(fund, :zero) + :amount",
           ExpressionAttributeValues: {
-            ":amount": bid.bidAmount,
+            ":amount": bid.bidAmount - fivePercent,
+            ":zero": 0,
+          },
+        }
+      },
+      {
+        Update: {
+          TableName: "dev-users3",
+          Key: {
+            "id": "vinsuperadmin@gmail.com",
+          },
+          UpdateExpression: "set fund = if_not_exists(fund, :zero) + :amount",
+          ExpressionAttributeValues: {
+            ":amount": fivePercent,
             ":zero": 0,
           },
         }

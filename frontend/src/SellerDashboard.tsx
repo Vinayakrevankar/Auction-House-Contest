@@ -15,6 +15,7 @@ import {
   sellerItemUnpublish,
   sellerReviewItem,
   sellerUpdateItem,
+  userFund,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { ItemSimple, itemToSimple } from "./models/ItemSimple";
@@ -29,6 +30,7 @@ const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
   archived: "text-gray-500",
+  completed: "bg-green-500 text-white",
 };
 
 const SellerDashboard = () => {
@@ -55,20 +57,15 @@ const SellerDashboard = () => {
 
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
-    try {
-      const response = await fetch(
-        "https://1j7ezifj2f.execute-api.us-east-1.amazonaws.com/api/profile/fund",
-        {
-          method: "GET",
-          headers: {
-            Authorization: `${userInfo?.token}`,
-          },
-        }
-      );
-      const data = await response.json();
-      setFunds(data.payload?.fund || 0);
-    } catch (error) {
-      console.error("Error fetching funds:", error);
+    const response = await userFund({
+      headers: {
+        "Authorization": `${userInfo.token}`,
+      }
+    });
+    if (!response.data) {
+      notifyError(`Error fetching funds: ${response.error.message}`);
+    } else {
+      setFunds(response.data.payload.fund || 0);
     }
   }, [userInfo]);
 
@@ -119,7 +116,7 @@ const SellerDashboard = () => {
       notifyError("An error occurred while closing your account.");
     }
 
-    };
+  };
   const EyeButtonComponent = ({ data }: { data: Item }) => (
     <button
       onClick={() => openBidModal(data.id)}
@@ -149,6 +146,13 @@ const SellerDashboard = () => {
       headerName: "Length of Auction",
       sortable: true,
       filter: true,
+      valueFormatter: (p: { value: number }) => {
+        const day = Math.floor(p.value / (24 * 60 * 60 * 1000));
+        const hour = Math.floor(p.value / (60 * 60 * 1000) % 24);
+        const min = Math.floor(p.value / (60 * 1000) % 60);
+        const sec = Math.floor(p.value / 1000 % 60);
+        return `${day}d ${hour}h ${min}m ${sec}s`;
+      },
     },
     {
       field: "itemState",
@@ -157,6 +161,13 @@ const SellerDashboard = () => {
       cellRenderer: CustomColor,
       sortable: true,
       filter: true,
+    },
+    {
+      field: "isFreezed",
+      headerName: "Item Freezed",
+      valueFormatter: (p: { value: boolean }) => p.value ? "Yes" : "No",  
+      getWidthOfColsInList: 100,
+      flex: 1,
     },
     { headerName: "Action", cellRenderer: EditButtonComponent, flex: 1 },
     {
@@ -196,7 +207,7 @@ const SellerDashboard = () => {
       setLoading(false);
       fetchItems();
     }
-  }, [userInfo,fetchFunds, navigate, fetchItems]);
+  }, [userInfo, fetchFunds, navigate, fetchItems]);
 
   // Open modals
   const openAddModal = () => setShowAddModal(true);
@@ -225,6 +236,7 @@ const SellerDashboard = () => {
           description: newItem.description,
           initPrice: newItem.initPrice,
           lengthOfAuction: newItem.lengthOfAuction,
+          isAvailableToBuy: newItem.isAvailableToBuy,
           images: newItem.images,
         },
       });
@@ -260,6 +272,7 @@ const SellerDashboard = () => {
           initPrice: updatedItem.initPrice,
           lengthOfAuction: updatedItem.lengthOfAuction,
           images: updatedItem.images,
+          isAvailableToBuy: updatedItem.isAvailableToBuy,
         },
       });
       if (resp.error && resp.error.status === 401) {
@@ -379,14 +392,14 @@ const SellerDashboard = () => {
         notifyError("Unauthorized Access");
         setUserInfo(null);
       } else if (resp.error) {
-        notifyError("Failed to unpublish item");
+        notifyError(`Failed to request unfreeze item: ${resp.error.message}`);
       } else {
         notifySuccess("Request unfreeze item successfully");
         fetchItems();
       }
     } catch (err) {
-      console.error("Error unpublishing item:", err);
-      notifyError("Error unpublishing item");
+      console.error("Error unfreezing item:", err);
+      notifyError("Error in unfreeze item");
     }
   }
 
@@ -478,6 +491,7 @@ const SellerDashboard = () => {
           onFulfill={handlefulfill}
           refreshItems={fetchItems}
           onArchive={handleArchive}
+
         />
       )}
 
