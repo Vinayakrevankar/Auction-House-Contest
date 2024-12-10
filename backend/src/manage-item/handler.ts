@@ -576,31 +576,54 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 
 // working
 export function getRecentlySoldItems(req: Request, res: Response) {
-  const cutoffTime = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const now = Date.now(); // Current timestamp in milliseconds
+  const cutoffTimestamp = now - 24 * 60 * 60 * 1000; // 24 hours ago in milliseconds
+
+  console.log(`Current timestamp: ${now}`);
+  console.log(`Cutoff timestamp (24 hours ago): ${cutoffTimestamp}`);
 
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
-    FilterExpression: "itemState IN (:complete, :archived) AND endDate > :cutoff",
+    FilterExpression: "itemState IN (:complete, :archived)",
     ExpressionAttributeValues: {
       ":complete": "completed",
       ":archived": "archived",
-      // ":cutoff": cutoffTime,
-      ":cutoff": "2024-12-11T12:00:00.000Z"
     },
   });
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
+      console.error(`Error fetching data: ${err}`);
       res.status(500).send(<ErrorResponsePayload>{
         status: 400,
         message: err,
       });
     } else {
+      const debugLogs: string[] = []; // Collect debug logs for response
+
+      const filteredItems = (data?.Items ?? []).filter((item) => {
+        const endDate = item.endDate; // Example: "2024-12-09T15:53:46.241+00:00"
+        const endDateTimestamp = new Date(endDate).getTime(); // Convert to timestamp
+        const isWithinRange = endDateTimestamp > cutoffTimestamp; // Compare with cutoff timestamp
+
+        // Add debug log for each item
+        debugLogs.push(
+          `Item ID: ${item.id}, endDate: ${endDate}, endDateTimestamp: ${endDateTimestamp}, isWithinRange: ${isWithinRange}`
+        );
+
+        return isWithinRange;
+      });
+
+      // Include debug logs in the response for easier verification
       res.status(200).send({
         status: 200,
         message: "Success getRecentlySoldItems",
-        payload: updateURLs((data?.Items ?? []) as Item[]),
+        payload: updateURLs(filteredItems as Item[]),
+        debugLogs,
       });
+
+      // Print debug logs to console for server-side debugging
+      debugLogs.forEach((log) => console.log(log));
     }
   });
 }
