@@ -585,7 +585,7 @@ export function getRecentlySoldItems(req: Request, res: Response) {
       ":complete": "completed",
       ":archived": "archived",
       // ":cutoff": cutoffTime,
-      ":cutoff": "2024-12-10T12:00:00.000Z"
+      ":cutoff": "2024-12-08T12:00:00.000Z"
     },
   });
 
