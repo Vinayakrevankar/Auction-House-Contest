@@ -584,7 +584,8 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     ExpressionAttributeValues: {
       ":complete": "completed",
       ":archived": "archived",
-      ":cutoff": cutoffTime,
+      // ":cutoff": cutoffTime,
+      ":cutoff": "2024-12-11T12:00:00.000Z"
     },
   });
 
