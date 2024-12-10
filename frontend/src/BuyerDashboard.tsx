@@ -83,7 +83,9 @@ const BuyerDashboard: React.FC = () => {
         const detailedBids = await Promise.all(
           bids.map(async (b) => {
             try {
-              const detailResp = await itemDetail({ path: { itemId: b.bidItemId } });
+              const detailResp = await itemDetail({
+                path: { itemId: b.bidItemId },
+              });
               if (detailResp.data && detailResp.data.payload) {
                 const item = detailResp.data.payload as ItemDetail;
                 return {
@@ -154,8 +156,8 @@ const BuyerDashboard: React.FC = () => {
     if (response.error) {
       notifyError(`Error fetching funds: ${response.error.message}`);
     } else {
-      setFunds(response.data.payload.fund);
-      setFundsOnHold(response.data.payload.fundsOnHold);
+      setFunds(response.data.payload.fund || 0);
+      setFundsOnHold(response.data.payload.fundsOnHold || 0);
     }
   }, [userInfo]);
 
@@ -230,56 +232,16 @@ const BuyerDashboard: React.FC = () => {
     }
   };
 
-  // AddFundsModal Component
-  const AddFundsModal: React.FC<{
-    onClose: () => void;
-    onAddFunds: (amount: number) => void;
-  }> = ({ onClose, onAddFunds }) => {
-    const [amount, setAmount] = useState<number | null>(null);
+  const [amount, setAmount] = useState<number | null>(null);
 
-    const handleSubmit = async (e: React.FormEvent) => {
-      e.preventDefault();
-      if (amount === null || amount <= 0) {
-        notifyError("Please enter a valid amount.");
-        return;
-      }
-      onAddFunds(Number(amount));
-      setAmount(null);
-    };
-
-    return (
-      <div className="modal">
-        <h2 className="text-xl font-semibold mb-4">Add Funds</h2>
-        <form onSubmit={handleSubmit} className="flex flex-col">
-          <label className="mb-2">Amount to Add:</label>
-          <input
-            type="number"
-            value={amount !== null ? amount : ""}
-            onChange={(e) =>
-              setAmount(e.target.value ? parseFloat(e.target.value) : null)
-            }
-            className="p-2 mb-4 border rounded text-black bg-white"
-            pattern="[0-9]+([\.][0-9]+)?"
-            required
-          />
-          <div className="flex space-x-4">
-            <button
-              type="submit"
-              className="p-2 bg-green-500 text-white rounded"
-            >
-              Add Funds
-            </button>
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 bg-gray-500 text-white rounded"
-            >
-              Cancel
-            </button>
-          </div>
-        </form>
-      </div>
-    );
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (amount === null || amount <= 0) {
+      notifyError("Please enter a valid amount.");
+      return;
+    }
+    await handleAddFunds(Number(amount));
+    setAmount(null);
   };
 
   if (loading) return <div>Loading...</div>;
@@ -287,19 +249,59 @@ const BuyerDashboard: React.FC = () => {
   // Add columns for item details
   const activeBidsColumnDefs: any[] = [
     { headerName: "Item ID", field: "bidItemId", sortable: true, filter: true },
-    { headerName: "Bid Amount", field: "bidAmount", sortable: true, filter: true },
+    {
+      headerName: "Bid Amount",
+      field: "bidAmount",
+      sortable: true,
+      filter: true,
+    },
     { headerName: "Bid Time", field: "bidTime", sortable: true, filter: true },
-    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
-    { headerName: "Description", field: "itemDescription", sortable: true, filter: true },
-    { headerName: "Initial Price", field: "itemInitPrice", sortable: true, filter: true },
-    { headerName: "Item State", field: "itemState", sortable: true, filter: true },
+    {
+      headerName: "Item Name",
+      field: "itemName",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Description",
+      field: "itemDescription",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Initial Price",
+      field: "itemInitPrice",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Item State",
+      field: "itemState",
+      sortable: true,
+      filter: true,
+    },
   ];
 
   const purchasesColumnDefs: any[] = [
-    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    {
+      headerName: "Item Name",
+      field: "itemName",
+      sortable: true,
+      filter: true,
+    },
     { headerName: "Price", field: "price", sortable: true, filter: true },
-    { headerName: "Sold Time", field: "soldTime", sortable: true, filter: true },
-    { headerName: "Fulfill Time", field: "fulfillTime", sortable: true, filter: true },
+    {
+      headerName: "Sold Time",
+      field: "soldTime",
+      sortable: true,
+      filter: true,
+    },
+    {
+      headerName: "Fulfill Time",
+      field: "fulfillTime",
+      sortable: true,
+      filter: true,
+    },
   ];
 
   return (
@@ -336,9 +338,31 @@ const BuyerDashboard: React.FC = () => {
           </div>
         )}
       </div>
-
+      <div style={{ float: "right" }} className="m">
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <div className="flex items-center">
+        <input
+          type="number"
+          value={amount !== null ? amount : ""}
+          onChange={(e) =>
+            setAmount(e.target.value ? parseFloat(e.target.value) : null)
+          }
+          className="p-2 border rounded-l text-black bg-white"
+          placeholder="Enter amount"
+          pattern="[0-9]+([\\.][0-9]+)?"
+          required
+        />
+        <button
+          type="submit"
+          className="p-2 bg-green-500 text-white rounded-r"
+        >
+          Add Funds
+        </button>
+          </div>
+        </form>
+      </div>
       {/* Active Bids Table */}
-      <div className="mb-8">
+      <div className="mb-8 mt-10">
         <h2 className="text-xl font-semibold mb-4">Active Bids</h2>
         <div className="ag-theme-alpine" style={{ width: "100%" }}>
           <AgGridReact
@@ -363,24 +387,6 @@ const BuyerDashboard: React.FC = () => {
           />
         </div>
       </div>
-
-      {/* Add Funds Button */}
-      <div className="mb-8">
-        <button
-          onClick={() => setShowAddFundsModal(true)}
-          className="p-2 bg-blue-500 text-white rounded"
-        >
-          Add Funds
-        </button>
-      </div>
-
-      {/* Add Funds Modal */}
-      {showAddFundsModal && (
-        <AddFundsModal
-          onClose={() => setShowAddFundsModal(false)}
-          onAddFunds={handleAddFunds}
-        />
-      )}
     </div>
   );
 };
