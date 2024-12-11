@@ -6,10 +6,21 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "./components/Notification";
-import { Item, Bid, userFund, adminUsers, adminBids, itemSearch, adminFreezeItem } from "./api";
-import Papa from "papaparse"; // Import papaparse
+
+import {
+  Item,
+  Bid,
+  userFund,
+  adminUsers,
+  adminBids,
+  itemSearch,
+  adminFreezeItem,
+} from "./api";
 import { User } from "./models/User";
 import { createForensicsReport } from "./helpers/forensicHelper";
+// import Papa from "papaparse"; // Import papaparse
+import * as XLSX from "xlsx";
+import { FaDownload } from "react-icons/fa";
 
 const stateTextColors = {
   active: "text-green-500",
@@ -17,7 +28,6 @@ const stateTextColors = {
   archived: "text-gray-500",
   completed: "bg-green-500 text-white",
 };
-
 
 const AdminDashboard = () => {
   const { userInfo, setUserInfo } = useAuth();
@@ -54,25 +64,120 @@ const AdminDashboard = () => {
       notifyError(`Error fetching funds`);
     }
   }, [userInfo, setUserInfo]);
+  
+  const downloadExcelFile = (
+    itemsData: any[],
+    bidsData: any[],
+    usersData: any[],
+    filename: string
+  ) => {
+    // Map the items data
+    const itemsSheetData = itemsData.map((val) => {
+      let obj: Record<string, any> = {};
+      obj["id"] = val["id"] || "";
+      obj["Item Name"] = val["name"] || "";
+      obj["Description"] = val["description"] || "";
+      obj["Status"] = val["itemState"] || "";
+      obj["Item Available to Buy"] = val["isAvailableToBuy"] ? "Yes" : "No";
+      obj["Item Freezed"] = val["isFreezed"] ? "Yes" : "No";
+      obj["No Of Bids"] = val["pastBidIds"] ? val["pastBidIds"].length : 0;
+      obj["Length of Auction"] =
+        `${Math.floor(val["lengthOfAuction"] / (24 * 60 * 60 * 1000))}d ${Math.floor((val["lengthOfAuction"] / (60 * 60 * 1000)) % 24)}h ${Math.floor((val["lengthOfAuction"] / (60 * 1000)) % 60)}m ${Math.floor((val["lengthOfAuction"] / 1000) % 60)}s`;
+      obj["List of Past Bids"] = val["pastBidIds"].join(",");
+      obj["Current Bid Id"] = val["currentBidId"] || "";
+      obj["Start Date"] = new Date(val["startDate"]);
+      obj["End Date"] = new Date(val["endDate"]);
+      obj["Initial Price"] = val["initPrice"] || 0;
+      obj["Seller Id"] = val["sellerId"] || "";
+      obj["Images Link"] = val["images"].map(
+        (v1: string) =>
+          `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`
+      );
+      return obj;
+    });
 
-  const Customlink = ({ value }: { value: string }) => {
-    let link = "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/" + value;
+    // Map the bids data
+    const bidsSheetData = bidsData.map((val) => {
+      let obj: Record<string, any> = {};
+      obj["id"] = val["id"] || "";
+      obj["Item Id"] = val["bidItemId"] || "";
+      obj["Bid Time"] = val["bidTime"] || "";
+      obj["Bid UserId"] = val["bidUserId"] || "";
+      obj["Bid Amount"] = val["bidAmount"] || "";
+      obj["Bid status"] = val["isActive"] ? "Active" : "InActive";
+      return obj;
+    });
+
+    // Map the users data
+    const usersSheetData = usersData.map((val) => {
+      let obj: Record<string, any> = {};
+      obj["User Id"] = val["userId"] || "";
+      obj["Email Address"] = val["id"] || "";
+      obj["username"] = val["username"] || "";
+      obj["Firstname"] = val["firstName"] || "";
+      obj["Lastname"] = val["lastName"] || "";
+      obj["User Type"] = val["userType"] || "";
+      obj["Role"] = val["role"] || "";
+      obj["Account status"] = val["isActive"] ? "Active" : "Closed";
+      return obj;
+    });
+
+    // Convert to worksheets
+    const itemsSheet = XLSX.utils.json_to_sheet(itemsSheetData);
+    const bidsSheet = XLSX.utils.json_to_sheet(bidsSheetData);
+    const usersSheet = XLSX.utils.json_to_sheet(usersSheetData);
+
+    // Create a workbook and append sheets
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, itemsSheet, "Items");
+    XLSX.utils.book_append_sheet(workbook, bidsSheet, "Bids");
+    XLSX.utils.book_append_sheet(workbook, usersSheet, "Users");
+
+    // Write the file
+    XLSX.writeFile(workbook, `${filename}.xlsx`);
+  };
+  const CustomLink = ({ value }: { value: string }) => {
+    const link =
+      "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/" +
+      value;
+
+    const downloadFile = async (
+      fileUrl: string,
+      fileName: string,
+      fileExtension: string
+    ) => {
+      try {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const blob = await response.blob();
+        const downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = `${fileName}.${fileExtension}`;
+        downloadLink.click();
+        URL.revokeObjectURL(downloadLink.href);
+      } catch (error) {
+        console.error("Error downloading the file:", error);
+      }
+    };
+
     return (
-      <div className={`px-2 py-1 font-bold rounded`}>
-        <a href={link}> Link </a>
+      <div className="px-2 py-1 font-bold rounded">
+        <button onClick={() => downloadFile(link, value, "png")}> Link </button>
       </div>
     );
   };
-  const FrozenButtonComponent = ({ data }: { data: Item }) => (
-    !data.isFrozen ? (
+
+  const FrozenButtonComponent = ({ data }: { data: Item }) =>
+    !data.isFrozen && data.itemState === "active" ? (
       <button
         onClick={() => handleFreezeItem(data.id)}
         className="px-2 py-1 rounded bg-red-500 text-white hover:bg-blue-600"
       >
         Click to Freeze Item
       </button>
-    ) : null
-  );
+    ) : null;
   const columnDefs: any[] = [
     { field: "id", headerName: "ID", sortable: true, filter: true },
     { field: "name", headerName: "Name", sortable: true, filter: true },
@@ -97,7 +202,7 @@ const AdminDashboard = () => {
     },
     {
       field: "isFreezed",
-      headerName: "Request for Unfreeze",
+      headerName: "Freeze Item",
       sortable: true,
       filter: true,
       cellRenderer: FrozenButtonComponent,
@@ -146,8 +251,7 @@ const AdminDashboard = () => {
       headerName: "Available to Buy?",
       sortable: true,
       filter: true,
-      valueFormatter: (p: { value: boolean }) =>
-        p.value ? "Yes" : "No",
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
     },
     {
       field: "sellerId",
@@ -168,22 +272,22 @@ const AdminDashboard = () => {
       filter: false,
       cellRenderer: (p: { value: string[] }) => {
         return <span>{p.value ? p.value.length : 0}</span>;
-      }
+      },
     },
     {
       field: "images",
       headerName: "Image Link",
       sortable: false,
       filter: false,
-      cellRenderer: Customlink
-    }
+      cellRenderer: CustomLink,
+    },
   ];
 
   const fetchBids = useCallback(async () => {
     try {
-      const response = await adminBids(
-        { headers: { Authorization: `${userInfo?.token}` } }
-      );
+      const response = await adminBids({
+        headers: { Authorization: `${userInfo?.token}` },
+      });
       setBids(response?.data?.payload || []);
     } catch (err) {
       notifyError(`Error fetching bids`);
@@ -192,9 +296,9 @@ const AdminDashboard = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await adminUsers(
-        { headers: { Authorization: `${userInfo?.token}` } }
-      );
+      const response = await adminUsers({
+        headers: { Authorization: `${userInfo?.token}` },
+      });
       if (response.data && response.data.payload) {
         const usersData: User[] = response.data.payload.map((user: any) => ({
           userId: user.userId,
@@ -244,10 +348,12 @@ const AdminDashboard = () => {
 
   const fetchItems = useCallback(async () => {
     try {
-      const response = await itemSearch(
-        { headers: { Authorization: `${userInfo?.token}` } }
+      const response = await itemSearch({
+        headers: { Authorization: `${userInfo?.token}` },
+      });
+      setItems(
+        Array.isArray(response?.data?.payload) ? response.data.payload : []
       );
-      setItems(Array.isArray(response?.data?.payload) ? response.data.payload : []);
     } catch (err) {
       notifyError(`Error fetching items`);
     }
@@ -260,79 +366,6 @@ const AdminDashboard = () => {
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
 
-  const downloadItemCSV = (data: Item[], filename: string) => {
-    const data_rec = data.map(val => {
-      let obj: Record<string, any> = {};
-      obj['id'] = val['id'] || '';
-      obj['Item Name'] = val['name'] || '';
-      obj['Description'] = val['description'] || '';
-      obj['Status'] = val['itemState'] || '';
-      obj['Item Available to Buy'] = val['isAvailableToBuy'] ? 'Yes' : 'No';
-      obj['Item Freezed'] = val['isFrozen'] ? 'Yes' : 'No';
-      obj['No Of Bids'] = val['pastBidIds'] ? val['pastBidIds'].length : 0;
-      obj['Length of Auction'] = `${Math.floor(val['lengthOfAuction'] / (24 * 60 * 60 * 1000))}d ${Math.floor((val['lengthOfAuction'] / (60 * 60 * 1000)) % 24)}h ${Math.floor((val['lengthOfAuction'] / (60 * 1000)) % 60)}m ${Math.floor((val['lengthOfAuction'] / 1000) % 60)}s`;
-      obj['List of Past Bids'] = (val['pastBidIds'] || []).join(',');
-      obj['Current Bid Id'] = val['currentBidId'] || '';
-      obj['Start Date'] = new Date(val['startDate'])
-      obj['End Date'] = new Date(val['endDate'])
-      obj['Initial Price'] = val['initPrice'] || 0;
-      obj['Seller Id'] = val['sellerId'] || '';
-      obj['Images Link'] = val['images'].map((v1: string) => `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`);
-
-      return obj;
-    })
-    const csv = Papa.unparse(data_rec); // Convert JSON to CSV
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  const downloadBidsCSV = (data: any[], filename: string) => {
-    data = data.map(val => {
-      let obj: Record<string, any> = {};
-      obj['id'] = val['id'] || '';
-      obj['Item Id'] = val['bidItemId'] || '';
-      obj['Bid Time'] = val['bidTime'] || '';
-      obj['Bid UserId'] = val['bidUserId'] || '';
-      obj['Bid Amount'] = val['bidAmount'] || '';
-      obj['Bid status'] = val['isActive'] ? 'Active' : 'InActive';
-      return obj;
-    })
-    const csv = Papa.unparse(data); // Convert JSON to CSV
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  const downloadUserCSV = (data: any[], filename: string) => {
-    data = data.map(val => {
-      let obj: Record<string, any> = {};
-      obj['User Id'] = val['userId'] || '';
-      obj['Email Address'] = val['id'] || '';
-      obj['username'] = val['username'] || '';
-      obj['Firstname'] = val['firstName'] || '';
-      obj['Lastname'] = val['lastName'] || '';
-      obj['User Type'] = val['userType'] || '';
-      obj['Role'] = val['role'] || '';
-      obj['Account status'] = val['isActive'] ? 'Active' : 'Closed';
-      return obj;
-    })
-
-    const csv = Papa.unparse(data); // Convert JSON to CSV
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
   const downloadForensics = (us: User[], is: Item[], bs: Bid[]) => {
     const filename = `forensics.json`;
     const json = JSON.stringify(createForensicsReport(us, is, bs));
@@ -344,6 +377,7 @@ const AdminDashboard = () => {
     link.click();
     document.body.removeChild(link);
   };
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -372,12 +406,13 @@ const AdminDashboard = () => {
       {/* Download Buttons */}
       <div className="mb-4 flex gap-4">
         <Button
-          className="bg-blue-500 text-white"
-          onClick={() => downloadItemCSV(items, "items.csv")}
+          className="bg-green-800 text-white flex items-center rounded"
+          onClick={() => downloadExcelFile(items, bids, users, "AuctionReport")}
         >
-          Download Items as CSV
+          <FaDownload className="mr-2" />
+          <span>Download Auction Report</span>
         </Button>
-        <Button
+        {/* <Button
           className="bg-blue-500 text-white"
           onClick={() => downloadBidsCSV(bids, "bids.csv")}
         >
