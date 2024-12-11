@@ -2,7 +2,7 @@ import { Bid, Item } from "../api";
 import { max, mean, median, mode, standardDeviation } from "simple-statistics";
 import { User } from "../models/User";
 
-export interface Statistic {
+interface Statistic {
   max: number,
   mean: number,
   median: number,
@@ -10,7 +10,7 @@ export interface Statistic {
   standardDerivation: number,
 }
 
-export interface ItemStatistics {
+interface ItemStatistics {
   total: number,
   frozenItems: number,
   itemCountByState: {
@@ -20,14 +20,13 @@ export interface ItemStatistics {
     failed: number,
     inactive: number,
   },
-  mostBidItem?: Item,
   itemBidCount: Statistic,
   itemInitialPrice: Statistic,
   itemSoldPrice: Statistic,
   itemAuctionLength: Statistic,
 }
 
-export interface UserStatistics {
+interface UserStatistics {
   total: number,
   sellers: number,
   buyers: number,
@@ -43,14 +42,18 @@ function createStatistics(x: number[]): Statistic {
   }
 }
 
-export function itemStatistics(items: Item[], bids: Bid[]): ItemStatistics {
+function camelToUnderscore(key: string) {
+  var result = key.replace(/([A-Z])/g, " $1");
+  return result.split(' ').join('_').toLowerCase();
+}
+
+function itemStatistics(items: Item[], bids: Bid[]): ItemStatistics {
   const bidRecord: Record<string, Bid> = {};
   bids.forEach(b => {
     bidRecord[b.id] = b;
   });
 
   let total = items.length;
-  let mostBidItem = items.sort((a, b) => (b.pastBidIds?.length || 0) - (a.pastBidIds?.length || 0)).at(0);
 
   const frozenItems = items.reduce((acc, e) => e.isFrozen ? acc + 1 : acc, 0);
 
@@ -69,7 +72,6 @@ export function itemStatistics(items: Item[], bids: Bid[]): ItemStatistics {
       failed: items.reduce((acc, e) => e.itemState === "failed" ? acc + 1 : acc, 0),
       inactive: items.reduce((acc, e) => e.itemState === "inactive" ? acc + 1 : acc, 0),
     },
-    mostBidItem,
     itemBidCount: createStatistics(itemBidCounts),
     itemInitialPrice: createStatistics(itemInitialPrices),
     itemSoldPrice: createStatistics(itemSoldPrices),
@@ -77,8 +79,8 @@ export function itemStatistics(items: Item[], bids: Bid[]): ItemStatistics {
   }
 }
 
-export function userStatistics(user: User[]): UserStatistics {
-  const filtUsers = user.filter(e => e.role !== "admin");
+function userStatistics(users: User[]): UserStatistics {
+  const filtUsers = users.filter(e => e.role !== "admin");
 
   const total = filtUsers.length;
   const sellers = filtUsers.filter(e => e.userType === "seller").length;
@@ -89,4 +91,33 @@ export function userStatistics(user: User[]): UserStatistics {
     sellers,
     buyers,
   };
+}
+
+function flattenObject(ob: Record<string, any>): Record<string, any> {
+  let toReturn: Record<string, any> = {};
+
+  for (let i in ob) {
+    if (!ob.hasOwnProperty(i)) continue;
+
+    if ((typeof ob[i]) == 'object' && ob[i] !== null) {
+      let flatObject = flattenObject(ob[i]);
+      for (let x in flatObject) {
+        if (!flatObject.hasOwnProperty(x)) continue;
+
+        toReturn[camelToUnderscore(i) + '.' + camelToUnderscore(x)] = flatObject[x];
+      }
+    } else {
+      toReturn[camelToUnderscore(i)] = ob[i];
+    }
+  }
+  return toReturn;
+}
+
+export function createForensicsReport(users: User[], items: Item[], bids: Bid[]) {
+  const ustat = userStatistics(users);
+  const istat = itemStatistics(items, bids);
+  return flattenObject({
+    "user": ustat,
+    "item": istat,
+  });
 }
