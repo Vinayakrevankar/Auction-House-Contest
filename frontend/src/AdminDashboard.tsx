@@ -72,16 +72,36 @@ const AdminDashboard = () => {
     }
   }, [userInfo, setUserInfo]);
   
-  const Customlink = ({ value }: { value: string }) => {    
-    let link = "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/"+value;
+  const CustomLink = ({ value }: { value: string }) => {
+    const link = "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/" + value;
+  
+    const downloadFile = async (fileUrl: string, fileName: string, fileExtension: string) => {
+      try {
+        const response = await fetch(fileUrl);
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const blob = await response.blob();
+        const downloadLink = document.createElement("a");
+        downloadLink.href = URL.createObjectURL(blob);
+        downloadLink.download = `${fileName}.${fileExtension}`;
+        downloadLink.click();
+        URL.revokeObjectURL(downloadLink.href);
+      } catch (error) {
+        console.error("Error downloading the file:", error);
+      }
+    };
+  
     return (
-      <div className={`px-2 py-1 font-bold rounded`}>
-        <a href={link}> Link </a>
+      <div className="px-2 py-1 font-bold rounded">
+        <button onClick={() => downloadFile(link, value, 'png')}> Link </button>
       </div>
     );
   };
+  
+  
   const FrozenButtonComponent = ({ data }: { data: Item }) => (
-    !data.isFrozen ? (
+    !data.isFrozen && data.itemState === "active" ? (
       <button
         onClick={() => handleFreezeItem(data.id)}
         className="px-2 py-1 rounded bg-red-500 text-white hover:bg-blue-600"
@@ -114,7 +134,7 @@ const AdminDashboard = () => {
     },
     {
       field: "isFreezed",
-      headerName: "Request for Unfreeze",
+      headerName: "Freeze Item",
       sortable: true,
       filter: true,
       cellRenderer: FrozenButtonComponent,
@@ -192,7 +212,7 @@ const AdminDashboard = () => {
       headerName: "Image Link",
       sortable: false,
       filter: false,
-      cellRenderer: Customlink
+      cellRenderer: CustomLink
     }
   ];
   
