@@ -341,23 +341,23 @@ const BuyerDashboard: React.FC = () => {
       <div style={{ float: "right" }} className="m">
         <form onSubmit={handleSubmit} className="flex flex-col">
           <div className="flex items-center">
-        <input
-          type="number"
-          value={amount !== null ? amount : ""}
-          onChange={(e) =>
-            setAmount(e.target.value ? parseFloat(e.target.value) : null)
-          }
-          className="p-2 border rounded-l text-black bg-white"
-          placeholder="Enter amount"
-          pattern="[0-9]+([\\.][0-9]+)?"
-          required
-        />
-        <button
-          type="submit"
-          className="p-2 bg-green-500 text-white rounded-r"
-        >
-          Add Funds
-        </button>
+            <input
+              type="number"
+              value={amount !== null ? amount : ""}
+              onChange={(e) =>
+                setAmount(e.target.value ? parseFloat(e.target.value) : null)
+              }
+              className="p-2 border rounded-l text-black bg-white"
+              placeholder="Enter amount"
+              pattern="[0-9]+([\\.][0-9]+)?"
+              required
+            />
+            <button
+              type="submit"
+              className="p-2 bg-green-500 text-white rounded-r"
+            >
+              Add Funds
+            </button>
           </div>
         </form>
       </div>

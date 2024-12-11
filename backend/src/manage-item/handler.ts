@@ -544,6 +544,9 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
       if (!item.currentBidId || !item.pastBidIds || item.pastBidIds.length === 0) {
         new_state = "failed";
       }
+      if (item.isFrozen) {
+        new_state = "completed";
+      }
       const updateCmd = new UpdateCommand({
         TableName: "dev-items3",
         Key: {

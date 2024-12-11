@@ -6,8 +6,9 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "./components/Notification";
-import { Item, userFund, adminUsers,adminBids,itemSearch, adminFreezeItem } from "./api";
+import { Item, userFund, adminUsers, adminBids, itemSearch, adminFreezeItem } from "./api";
 import Papa from "papaparse"; // Import papaparse
+import { User } from "./models/User";
 
 const stateTextColors = {
   active: "text-green-500",
@@ -30,17 +31,6 @@ const AdminDashboard = () => {
     isActive: boolean;
   }
   const [bids, setBids] = useState<Bid[]>([]);
-  interface User {
-    userId: string;
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    userType: string;
-    role: string;
-    isActive: boolean;
-  }
-  
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<Item[]>([]);
 
@@ -71,9 +61,9 @@ const AdminDashboard = () => {
       notifyError(`Error fetching funds`);
     }
   }, [userInfo, setUserInfo]);
-  
-  const Customlink = ({ value }: { value: string }) => {    
-    let link = "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/"+value;
+
+  const Customlink = ({ value }: { value: string }) => {
+    let link = "https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/" + value;
     return (
       <div className={`px-2 py-1 font-bold rounded`}>
         <a href={link}> Link </a>
@@ -195,7 +185,7 @@ const AdminDashboard = () => {
       cellRenderer: Customlink
     }
   ];
-  
+
   const fetchBids = useCallback(async () => {
     try {
       const response = await adminBids(
@@ -231,7 +221,7 @@ const AdminDashboard = () => {
       notifyError(`Error fetching users`);
     }
   }, [userInfo]);
-  
+
   const handleFreezeItem = async (id: string) => {
     if (!userInfo) return;
 
@@ -277,28 +267,28 @@ const AdminDashboard = () => {
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
 
-  const downloadItemCSV = (data: any[], filename: string) => {
-    data = data.map(val=> {
+  const downloadItemCSV = (data: Item[], filename: string) => {
+    const data_rec = data.map(val => {
       let obj: Record<string, any> = {};
       obj['id'] = val['id'] || '';
       obj['Item Name'] = val['name'] || '';
       obj['Description'] = val['description'] || '';
       obj['Status'] = val['itemState'] || '';
       obj['Item Available to Buy'] = val['isAvailableToBuy'] ? 'Yes' : 'No';
-      obj['Item Freezed'] = val['isFreezed'] ? 'Yes' : 'No';
+      obj['Item Freezed'] = val['isFrozen'] ? 'Yes' : 'No';
       obj['No Of Bids'] = val['pastBidIds'] ? val['pastBidIds'].length : 0;
       obj['Length of Auction'] = `${Math.floor(val['lengthOfAuction'] / (24 * 60 * 60 * 1000))}d ${Math.floor((val['lengthOfAuction'] / (60 * 60 * 1000)) % 24)}h ${Math.floor((val['lengthOfAuction'] / (60 * 1000)) % 60)}m ${Math.floor((val['lengthOfAuction'] / 1000) % 60)}s`;
-      obj['List of Past Bids'] = val['pastBidIds'].join(',');
+      obj['List of Past Bids'] = (val['pastBidIds'] || []).join(',');
       obj['Current Bid Id'] = val['currentBidId'] || '';
       obj['Start Date'] = new Date(val['startDate'])
       obj['End Date'] = new Date(val['endDate'])
       obj['Initial Price'] = val['initPrice'] || 0;
       obj['Seller Id'] = val['sellerId'] || '';
       obj['Images Link'] = val['images'].map((v1: string) => `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`);
-     
+
       return obj;
     })
-    const csv = Papa.unparse(data); // Convert JSON to CSV
+    const csv = Papa.unparse(data_rec); // Convert JSON to CSV
     const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
@@ -308,7 +298,7 @@ const AdminDashboard = () => {
     document.body.removeChild(link);
   };
   const downloadBidsCSV = (data: any[], filename: string) => {
-    data = data.map(val=> {
+    data = data.map(val => {
       let obj: Record<string, any> = {};
       obj['id'] = val['id'] || '';
       obj['Item Id'] = val['bidItemId'] || '';
@@ -327,9 +317,8 @@ const AdminDashboard = () => {
     link.click();
     document.body.removeChild(link);
   };
-  const downloadUserCSV  = (data: any[], filename: string) => {
-
-    data = data.map(val=> {
+  const downloadUserCSV = (data: any[], filename: string) => {
+    data = data.map(val => {
       let obj: Record<string, any> = {};
       obj['User Id'] = val['userId'] || '';
       obj['Email Address'] = val['id'] || '';
