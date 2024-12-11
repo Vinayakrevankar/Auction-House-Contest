@@ -263,19 +263,20 @@ export async function placeBid(req: Request, res: Response) {
       },
     },
   });
-
-  transactItems.push({
-    Update: {
-      TableName: "dev-users3",
-      Key: { id: buyerEmail },
-      UpdateExpression:
-        "SET fund = fund + :previousBidAmount, fundsOnHold - :previousBidAmount ",
-      ExpressionAttributeValues: {
-        ":previousBidAmount": previousBidAmount,
-        ":zero": 0,
+  if (previousBidUserId) {
+    transactItems.push({
+      Update: {
+        TableName: "dev-users3",
+        Key: { id: buyerEmail },
+        UpdateExpression:
+          "SET fund = fund + :previousBidAmount, fundsOnHold = fundsOnHold - :previousBidAmount ",
+        ExpressionAttributeValues: {
+          ":previousBidAmount": previousBidAmount,
+          ":zero": 0,
+        },
       },
-    },
-  });
+    });
+  }
 
   const transactCmd = new TransactWriteCommand({
     TransactItems: transactItems,
@@ -428,12 +429,10 @@ export async function closeAccountHandler(req: Request, res: Response) {
       scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
     if (activeBids.length > 0) {
-      return res
-        .status(400)
-        .send({
-          status: 400,
-          message: "Could not close account since there are active bids",
-        });
+      return res.status(400).send({
+        status: 400,
+        message: "Could not close account since there are active bids",
+      });
     }
 
     if (userResult.Item.id !== buyerEmail) {
