@@ -8,7 +8,8 @@ import {
   Bid,
   Purchase,
   userFund,
-  itemDetail, // Import itemDetail from your api
+  itemDetail,
+  itemRecentlySold,
 } from "./api";
 import { useAuth } from "./AuthContext";
 import { notifyError, notifySuccess } from "./components/Notification";
@@ -42,6 +43,16 @@ interface ItemDetail {
   itemState?: string;
 }
 
+interface RecentlySoldItem {
+  id: string;
+  name: string;
+  description: string;
+  initPrice: number;
+  startDate: string;
+  endDate: string;
+  // ... add other
+}
+
 interface EnhancedBid extends Bid {
   itemName?: string;
   itemDescription?: string;
@@ -57,7 +68,7 @@ const BuyerDashboard: React.FC = () => {
   const [funds, setFunds] = useState<number>(0);
   const [fundsOnHold, setFundsOnHold] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-
+  const [recentlySoldItems, setRecentlySoldItems] = useState<any[]>([]);
   const [showAddFundsModal, setShowAddFundsModal] = useState(false);
 
   // Fetch active bids and then fetch item details for each bid item
@@ -145,6 +156,40 @@ const BuyerDashboard: React.FC = () => {
       notifyError("Error fetching purchases");
     }
   }, [userInfo, setUserInfo, navigate]);
+
+// Fetch recently sold items
+const fetchRecentlySoldItems = useCallback(async () => {
+  if (!userInfo) return;
+  try {
+    const resp = await itemRecentlySold({
+      headers: { Authorization: userInfo.token },
+    });
+
+    if (resp.data && resp.data.payload) {
+      // Filter items from the past 24 hours
+      const now = new Date();
+      const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+      const filteredItems = resp.data.payload.filter(
+        (item: any) => new Date(item.endDate) >= past24Hours
+      );
+      setRecentlySoldItems(filteredItems);
+    } else if (resp.error && resp.error.status === 401) {
+      notifyError("Unauthorized Access");
+      setUserInfo(null);
+      navigate("/");
+    } else {
+      notifyError("Failed to fetch recently sold items");
+    }
+  } catch (err) {
+    console.error("Error fetching recently sold items:", err);
+    notifyError("Error fetching recently sold items");
+  }
+}, [userInfo, setUserInfo, navigate]);
+
+useEffect(() => {
+  fetchRecentlySoldItems();
+}, [fetchRecentlySoldItems]);
+
 
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
@@ -304,6 +349,24 @@ const BuyerDashboard: React.FC = () => {
     },
   ];
 
+  const recentlySoldItemsColumnDefs: any[] = [
+    { headerName: "Item Name", field: "name", sortable: true, filter: true },
+    { headerName: "Initial Price", field: "initPrice", sortable: true, filter: true },
+    { headerName: "Sold Time", field: "endDate", sortable: true, filter: true },
+    { headerName: "Description", field: "description", sortable: true, filter: true },
+    { headerName: "Item State", field: "itemState", sortable: true, filter: true },
+    {
+      headerName: "Bidding History",
+      field: "pastBidIds",
+      cellRenderer: (params: any) =>
+        params.value && Array.isArray(params.value)
+          ? params.value.join(", ")
+          : "No bids",
+      sortable: false,
+      filter: false,
+    },
+  ];
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -387,7 +450,21 @@ const BuyerDashboard: React.FC = () => {
           />
         </div>
       </div>
+
+    <div className="mb-8">
+      <h2 className="text-xl font-semibold mb-4">Recently Sold Items</h2>
+      <div className="ag-theme-alpine" style={{ width: "100%" }}>
+        <AgGridReact
+          rowData={recentlySoldItems}
+          columnDefs={recentlySoldItemsColumnDefs}
+          pagination={true}
+          paginationPageSize={10}
+          domLayout="autoHeight"
+        />
+      </div>
     </div>
+    </div>
+    
   );
 };
 

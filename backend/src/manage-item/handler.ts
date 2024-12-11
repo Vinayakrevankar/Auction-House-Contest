@@ -574,10 +574,9 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
   }
 }
 
-// working
 export function getRecentlySoldItems(req: Request, res: Response) {
-  const now = Date.now(); // Current timestamp in milliseconds
-  const cutoffTimestamp = now - 24 * 60 * 60 * 1000; // 24 hours ago in milliseconds
+  const now = Date.now();
+  const cutoffTimestamp = now - 24 * 60 * 60 * 1000; 
 
   console.log(`Current timestamp: ${now}`);
   console.log(`Cutoff timestamp (24 hours ago): ${cutoffTimestamp}`);
@@ -599,12 +598,12 @@ export function getRecentlySoldItems(req: Request, res: Response) {
         message: err,
       });
     } else {
-      const debugLogs: string[] = []; // Collect debug logs for response
+      const debugLogs: string[] = [];
 
       const filteredItems = (data?.Items ?? []).filter((item) => {
-        const endDate = item.endDate; // Example: "2024-12-09T15:53:46.241+00:00"
-        const endDateTimestamp = new Date(endDate).getTime(); // Convert to timestamp
-        const isWithinRange = endDateTimestamp > cutoffTimestamp; // Compare with cutoff timestamp
+        const endDate = item.endDate; 
+        const endDateTimestamp = new Date(endDate).getTime(); 
+        const isWithinRange = endDateTimestamp > cutoffTimestamp;
 
         // Add debug log for each item
         debugLogs.push(
@@ -614,15 +613,12 @@ export function getRecentlySoldItems(req: Request, res: Response) {
         return isWithinRange;
       });
 
-      // Include debug logs in the response for easier verification
       res.status(200).send({
         status: 200,
         message: "Success getRecentlySoldItems",
         payload: updateURLs(filteredItems as Item[]),
         debugLogs,
       });
-
-      // Print debug logs to console for server-side debugging
       debugLogs.forEach((log) => console.log(log));
     }
   });
