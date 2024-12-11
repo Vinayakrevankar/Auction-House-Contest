@@ -412,26 +412,14 @@ const AdminDashboard = () => {
           <FaDownload className="mr-2" />
           <span>Download Auction Report</span>
         </Button>
-        {/* <Button
-          className="bg-blue-500 text-white"
-          onClick={() => downloadBidsCSV(bids, "bids.csv")}
-        >
-          Download Bids as CSV
-        </Button>
         <Button
-          className="bg-blue-500 text-white"
-          onClick={() => downloadUserCSV(users, "users.csv")}
-        >
-          Download Users as CSV
-        </Button>
-        <Button
-          className="bg-blue-500 text-white"
+             className="bg-green-800 text-white flex items-center rounded"
           onClick={() => downloadForensics(users, items, bids)}
-        >
-          Download Forensics
+        ><FaDownload className="mr-2" />
+          <span>
+          Download Forensics</span>
         </Button>
-      </div>
-
+        </div>
       {/* AgGrid Table */}
       <div
         className="ag-theme-alpine rounded-lg shadow-lg"
