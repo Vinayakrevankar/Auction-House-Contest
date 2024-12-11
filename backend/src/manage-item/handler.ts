@@ -588,7 +588,6 @@ export function getRecentlySoldItems(req: Request, res: Response) {
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState IN (:complete, :archived)",
     ExpressionAttributeValues: {
-      ":complete": "completed",
       ":archived": "archived",
     },
   });

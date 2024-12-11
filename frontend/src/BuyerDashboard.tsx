@@ -43,15 +43,6 @@ interface ItemDetail {
   itemState?: string;
 }
 
-interface RecentlySoldItem {
-  id: string;
-  name: string;
-  description: string;
-  initPrice: number;
-  startDate: string;
-  endDate: string;
-  // ... add other
-}
 
 interface EnhancedBid extends Bid {
   itemName?: string;
@@ -69,7 +60,6 @@ const BuyerDashboard: React.FC = () => {
   const [fundsOnHold, setFundsOnHold] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [recentlySoldItems, setRecentlySoldItems] = useState<any[]>([]);
-  const [showAddFundsModal, setShowAddFundsModal] = useState(false);
 
   // Fetch active bids and then fetch item details for each bid item
   const fetchActiveBids = useCallback(async () => {
@@ -262,7 +252,6 @@ useEffect(() => {
 
       if (response.data) {
         notifySuccess("Funds added successfully.");
-        setShowAddFundsModal(false);
         fetchFunds();
       } else if (response.error && response.error.status === 401) {
         notifyError("Unauthorized Access");
