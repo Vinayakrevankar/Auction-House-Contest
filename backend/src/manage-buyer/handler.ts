@@ -19,7 +19,7 @@ const ADMIN_ROLE = "admin";
 const USER_DB = "dev-users3";
 export async function placeBid(req: Request, res: Response) {
   const buyerId = res.locals.userId; // User's unique ID (e.g., 'RIWA81973509')
-  const buyerEmail = res.locals.id;  // User's email address, which is the 'id' in DynamoDB
+  const buyerEmail = res.locals.id; // User's email address, which is the 'id' in DynamoDB
   const { itemId, bidAmount, isAvailableToBuy = false } = req.body;
 
   const getItemCmd = new GetCommand({
@@ -97,7 +97,8 @@ export async function placeBid(req: Request, res: Response) {
         Update: {
           TableName: "dev-items3",
           Key: { id: itemId },
-          UpdateExpression: "SET currentBidId = :bidId, pastBidIds = list_append(if_not_exists(pastBidIds, :empty_list), :bidIdList), itemState = :completed",
+          UpdateExpression:
+            "SET currentBidId = :bidId, pastBidIds = list_append(if_not_exists(pastBidIds, :empty_list), :bidIdList), itemState = :completed",
           ExpressionAttributeValues: {
             ":completed": "completed",
             ":bidId": bidId,
@@ -110,13 +111,14 @@ export async function placeBid(req: Request, res: Response) {
         Update: {
           TableName: "dev-users3",
           Key: { id: buyerEmail },
-          UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+          UpdateExpression:
+            "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
           ExpressionAttributeValues: {
             ":bidAmount": bidAmount,
             ":zero": 0,
           },
         },
-      }
+      },
     ];
 
     const transactCmd = new TransactWriteCommand({
@@ -210,6 +212,23 @@ export async function placeBid(req: Request, res: Response) {
     createAt: Date.now(),
     isActive: true,
   };
+  let previousBidUserId = null;
+  let previousBidAmount = null;
+  if (item.pastBidIds && item.pastBidIds.length > 0) {
+    const getBidDetails = new GetCommand({
+      TableName: "dev-bids3",
+      Key: { id: item.pastBidIds[item.pastBidIds?.length - 1] },
+    });
+    const getBidResp = await dclient.send(getBidDetails).catch((err) => {
+      res.status(500).send({ status: 500, message: `${err}` });
+      return;
+    });
+
+    if (getBidResp && getBidResp.Item) {
+      previousBidUserId = getBidResp.Item.bidUserId;
+      previousBidAmount = getBidResp.Item.bidAmount;
+    }
+  }
 
   transactItems.push({
     Put: {
@@ -236,9 +255,23 @@ export async function placeBid(req: Request, res: Response) {
     Update: {
       TableName: "dev-users3",
       Key: { id: buyerEmail },
-      UpdateExpression: "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
+      UpdateExpression:
+        "SET fund = fund - :bidAmount, fundsOnHold = if_not_exists(fundsOnHold, :zero) + :bidAmount",
       ExpressionAttributeValues: {
         ":bidAmount": bidAmount,
+        ":zero": 0,
+      },
+    },
+  });
+
+  transactItems.push({
+    Update: {
+      TableName: "dev-users3",
+      Key: { id: buyerEmail },
+      UpdateExpression:
+        "SET fund = fund + :previousBidAmount, fundsOnHold - :previousBidAmount ",
+      ExpressionAttributeValues: {
+        ":previousBidAmount": previousBidAmount,
         ":zero": 0,
       },
     },
@@ -287,7 +320,8 @@ export async function reviewActiveBids(req: Request, res: Response) {
   });
   if (!scanBidsResp) return;
 
-  const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
+  const activeBids =
+    scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
   res.status(200).send({
     status: 200,
@@ -330,9 +364,8 @@ export async function reviewPurchases(req: Request, res: Response) {
   });
 }
 
-
 export async function addFunds(req: Request, res: Response) {
-  const buyerEmail = res.locals.id;  // Use email address as the key
+  const buyerEmail = res.locals.id; // Use email address as the key
   const { amount } = req.body;
 
   const updateCmd = new UpdateCommand({
@@ -391,12 +424,16 @@ export async function closeAccountHandler(req: Request, res: Response) {
       return;
     });
 
-    const activeBids = scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
+    const activeBids =
+      scanBidsResp && scanBidsResp.Items ? (scanBidsResp.Items as Bid[]) : [];
 
     if (activeBids.length > 0) {
       return res
         .status(400)
-        .send({ status: 400, message: "Could not close account since there are active bids" });
+        .send({
+          status: 400,
+          message: "Could not close account since there are active bids",
+        });
     }
 
     if (userResult.Item.id !== buyerEmail) {
