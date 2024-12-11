@@ -586,7 +586,7 @@ export function getRecentlySoldItems(req: Request, res: Response) {
 
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
-    FilterExpression: "itemState IN (:complete, :archived)",
+    FilterExpression: "itemState IN (:archived)",
     ExpressionAttributeValues: {
       ":archived": "archived",
     },
