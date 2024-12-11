@@ -6,17 +6,22 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "./components/Notification";
+
 import {
   Item,
+  Bid,
   userFund,
   adminUsers,
   adminBids,
   itemSearch,
   adminFreezeItem,
 } from "./api";
+import { User } from "./models/User";
+import { createForensicsReport } from "./helpers/forensicHelper";
 // import Papa from "papaparse"; // Import papaparse
 import * as XLSX from "xlsx";
 import { FaDownload } from "react-icons/fa";
+
 const stateTextColors = {
   active: "text-green-500",
   inactive: "text-yellow-500",
@@ -28,26 +33,7 @@ const AdminDashboard = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const [funds, setFunds] = useState<number>(0);
-  interface Bid {
-    id: string;
-    bidItemId: string;
-    bidTime: string;
-    bidUserId: string;
-    bidAmount: number;
-    isActive: boolean;
-  }
   const [bids, setBids] = useState<Bid[]>([]);
-  interface User {
-    userId: string;
-    id: string;
-    username: string;
-    firstName: string;
-    lastName: string;
-    userType: string;
-    role: string;
-    isActive: boolean;
-  }
-
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<Item[]>([]);
 
@@ -380,6 +366,18 @@ const AdminDashboard = () => {
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
 
+  const downloadForensics = (us: User[], is: Item[], bs: Bid[]) => {
+    const filename = `forensics.json`;
+    const json = JSON.stringify(createForensicsReport(us, is, bs));
+    const blob = new Blob([json], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -425,7 +423,13 @@ const AdminDashboard = () => {
           onClick={() => downloadUserCSV(users, "users.csv")}
         >
           Download Users as CSV
-        </Button> */}
+        </Button>
+        <Button
+          className="bg-blue-500 text-white"
+          onClick={() => downloadForensics(users, items, bids)}
+        >
+          Download Forensics
+        </Button>
       </div>
 
       {/* AgGrid Table */}

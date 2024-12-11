@@ -544,6 +544,9 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
       if (!item.currentBidId || !item.pastBidIds || item.pastBidIds.length === 0) {
         new_state = "failed";
       }
+      if (item.isFrozen) {
+        new_state = "completed";
+      }
       const updateCmd = new UpdateCommand({
         TableName: "dev-items3",
         Key: {
@@ -574,114 +577,52 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
   }
 }
 
-// working
-
-// export function getRecentlySoldItems(req: Request, res: Response) {
-//   const { keywords, minPrice, maxPrice, sortBy, sortOrder } = req.query;
-
-//   // Parse query parameters
-//   const kw = keywords ? (keywords as string).toLowerCase() : null;
-//   const minP = minPrice ? parseFloat(minPrice as string) : null;
-//   const maxP = maxPrice ? parseFloat(maxPrice as string) : null;
-
-//   // Determine sort field
-//   let sortField: "endDate" | "initPrice" = "endDate"; 
-//   if (sortBy === "price") {
-//     sortField = "initPrice";
-//   } else if (sortBy === "date") {
-//     sortField = "endDate";
-//   }
-
-//   const order = sortOrder === "desc" ? -1 : 1;
-//   const cutoffTime = moment().subtract(24, "hours");
-
-//   const scanCmd = new ScanCommand({
-//     TableName: TABLE_NAMES.ITEMS,
-//     FilterExpression: "itemState IN (:a, :b)",
-//     ExpressionAttributeValues: {
-//       ":a": "completed",
-//       ":b": "failed",
-//     },
-//   });
-
-//   dclient.send(scanCmd, (err, data) => {
-//     if (err) {
-//       res.status(500).send(<ErrorResponsePayload>{
-//         status: 500,
-//         message: err.toString(),
-//       });
-//       return;
-//     }
-
-//     let items = (data?.Items ?? []) as Item[];
-
-//     // Filter items by recently sold (endDate within last 24 hours)
-//     items = items.filter(item => {
-//       const endDate = moment(item.endDate);
-//       return endDate.isAfter(cutoffTime);
-//     });
-
-//     // Keyword filter
-//     if (kw) {
-//       items = items.filter(item =>
-//         (item.name && item.name.toLowerCase().includes(kw)) ||
-//         (item.description && item.description.toLowerCase().includes(kw))
-//       );
-//     }
-
-//     // Price filters
-//     if (minP !== null) {
-//       items = items.filter(item => item.initPrice >= minP);
-//     }
-//     if (maxP !== null) {
-//       items = items.filter(item => item.initPrice <= maxP);
-//     }
-
-//     // Sort items by chosen field
-//     items.sort((a, b) => {
-//       let valA: number | string = a[sortField];
-//       let valB: number | string = b[sortField];
-
-//       if (sortField === "endDate") {
-//         valA = new Date(valA as string).getTime();
-//         valB = new Date(valB as string).getTime();
-//       }
-
-//       if (valA < valB) return -1 * order;
-//       if (valA > valB) return 1 * order;
-//       return 0;
-//     });
-
-//     res.status(200).send({
-//       status: 200,
-//       message: "Success",
-//       payload: items,
-//     });
-//   });
-// }
-
 export function getRecentlySoldItems(req: Request, res: Response) {
+  const now = Date.now();
+  const cutoffTimestamp = now - 24 * 60 * 60 * 1000; 
+
+  console.log(`Current timestamp: ${now}`);
+  console.log(`Cutoff timestamp (24 hours ago): ${cutoffTimestamp}`);
+
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
     FilterExpression: "itemState IN (:complete, :archived)",
     ExpressionAttributeValues: {
-      ":complete": "complete",
+      ":complete": "completed",
       ":archived": "archived",
     },
   });
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
+      console.error(`Error fetching data: ${err}`);
       res.status(500).send(<ErrorResponsePayload>{
         status: 400,
         message: err,
       });
     } else {
+      const debugLogs: string[] = [];
+
+      const filteredItems = (data?.Items ?? []).filter((item) => {
+        const endDate = item.endDate; 
+        const endDateTimestamp = new Date(endDate).getTime(); 
+        const isWithinRange = endDateTimestamp > cutoffTimestamp;
+
+        // Add debug log for each item
+        debugLogs.push(
+          `Item ID: ${item.id}, endDate: ${endDate}, endDateTimestamp: ${endDateTimestamp}, isWithinRange: ${isWithinRange}`
+        );
+
+        return isWithinRange;
+      });
+
       res.status(200).send({
         status: 200,
         message: "Success getRecentlySoldItems",
-        payload: updateURLs((data?.Items ?? []) as Item[]),
+        payload: updateURLs(filteredItems as Item[]),
+        debugLogs,
       });
+      debugLogs.forEach((log) => console.log(log));
     }
   });
 }
