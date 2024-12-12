@@ -215,15 +215,15 @@ function ItemCard({ item, setRefresh }: { item: ItemWithCurrentBid, setRefresh: 
                 </p>
                 {userInfo ? (
                   userInfo.role !== "admin" ? (
-                  <BidField
-                    itemId={item.id}
-                    bidAmount={bidAmount}
-                    currentPrice={item.currentBidPrice}
-                    setBidAmount={setBidAmount}
-                    setRefresh={(v) => {}}
-                    itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
-                  />
-                  ) : item.isFrozen ? (<p style={{ color: "red" }}>Item is Frozen.</p>) : (
+                    <BidField
+                      itemId={item.id}
+                      bidAmount={bidAmount}
+                      currentPrice={item.currentBidPrice}
+                      setBidAmount={setBidAmount}
+                      setRefresh={setRefresh}
+                      itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
+                    />
+                  ) : (
                   <button
                     onClick={() => handleFreezeItem(item.id, "freeze")}
                     className="p-2 bg-red-500 text-white rounded"
@@ -232,8 +232,8 @@ function ItemCard({ item, setRefresh }: { item: ItemWithCurrentBid, setRefresh: 
                   </button>
                   )
                 ) : <p style={{ color: "red" }}>
-                Please login to bid on this item.
-              </p>}
+                  Please login to bid on this item.
+                </p>}
               </div>
             </div>
           </div>
