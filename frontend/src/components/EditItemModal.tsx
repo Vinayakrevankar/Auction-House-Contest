@@ -57,7 +57,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       if (itemToEditRef.current) {
-        const resp = await itemDetail({ path: { itemId: itemToEditRef.current.id } }); // Get item details
+        const resp = await itemDetail({
+          path: { itemId: itemToEditRef.current.id },
+        }); // Get item details
         if (resp.data) {
           itemToEditRef.current = {
             ...resp.data.payload,
@@ -373,7 +375,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 accept="image/*" // Optional: Restrict to image files only
               />
             </div>
-            
+
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
