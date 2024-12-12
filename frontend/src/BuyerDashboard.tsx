@@ -41,8 +41,13 @@ interface ItemDetail {
   lengthOfAuction?: number;
   isAvailableToBuy?: boolean;
   itemState?: string;
+  sellerId?: string;
+  startDate?: string;
+  endDate?: string;
+  soldBidId?: string;
+  images?: string[];
+  pastBidIds?: string[];
 }
-
 
 interface EnhancedBid extends Bid {
   itemName?: string;
@@ -51,15 +56,24 @@ interface EnhancedBid extends Bid {
   itemState?: string;
 }
 
+type EnhancedPurchase = Purchase & {
+  itemName?: string;
+  itemDescription?: string;
+  itemInitPrice?: number;
+  itemState?: string;
+};
+
+
 const BuyerDashboard: React.FC = () => {
   const { userInfo, setUserInfo } = useAuth();
   const navigate = useNavigate();
   const [activeBids, setActiveBids] = useState<EnhancedBid[]>([]);
-  const [purchases, setPurchases] = useState<Purchase[]>([]);
+  const [purchases, setPurchases] = useState<EnhancedPurchase[]>([]);
   const [funds, setFunds] = useState<number>(0);
   const [fundsOnHold, setFundsOnHold] = useState<number>(0);
   const [loading, setLoading] = useState(true);
-  const [recentlySoldItems, setRecentlySoldItems] = useState<any[]>([]);
+  const [recentlySoldItems, setRecentlySoldItems] = useState<ItemDetail[]>([]);
+  const [amount, setAmount] = useState<number | null>(null);
 
   // Fetch active bids and then fetch item details for each bid item
   const fetchActiveBids = useCallback(async () => {
@@ -119,7 +133,7 @@ const BuyerDashboard: React.FC = () => {
     }
   }, [userInfo, setUserInfo, navigate]);
 
-  // Fetch purchases
+  // Fetch purchases and then fetch item details for each purchased item
   const fetchPurchases = useCallback(async () => {
     if (!userInfo) return;
     try {
@@ -133,7 +147,33 @@ const BuyerDashboard: React.FC = () => {
       });
 
       if (resp.data) {
-        setPurchases(resp.data.payload.map(reformatPurchase));
+        const rawPurchases = resp.data.payload.map(reformatPurchase);
+
+        // Fetch item details for each purchased item
+        const detailedPurchases = await Promise.all(
+          rawPurchases.map(async (p) => {
+            try {
+              const detailResp = await itemDetail({
+                path: { itemId: p.itemId },
+              });
+              if (detailResp.data && detailResp.data.payload) {
+                const item = detailResp.data.payload as ItemDetail;
+                return {
+                  ...p,
+                  itemName: item.name,
+                  itemDescription: item.description,
+                  itemInitPrice: item.initPrice,
+                  itemState: item.itemState,
+                };
+              }
+            } catch (error) {
+              console.error("Error fetching purchase item detail:", error);
+            }
+            return p;
+          })
+        );
+
+        setPurchases(detailedPurchases);
       } else if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
@@ -147,39 +187,38 @@ const BuyerDashboard: React.FC = () => {
     }
   }, [userInfo, setUserInfo, navigate]);
 
-// Fetch recently sold items
-const fetchRecentlySoldItems = useCallback(async () => {
-  if (!userInfo) return;
-  try {
-    const resp = await itemRecentlySold({
-      headers: { Authorization: userInfo.token },
-    });
+  // Fetch recently sold items
+  const fetchRecentlySoldItems = useCallback(async () => {
+    if (!userInfo) return;
+    try {
+      const resp = await itemRecentlySold({
+        headers: { Authorization: userInfo.token },
+      });
 
-    if (resp.data && resp.data.payload) {
-      // Filter items from the past 24 hours
-      const now = new Date();
-      const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-      const filteredItems = resp.data.payload.filter(
-        (item: any) => new Date(item.endDate) >= past24Hours
-      );
-      setRecentlySoldItems(filteredItems);
-    } else if (resp.error && resp.error.status === 401) {
-      notifyError("Unauthorized Access");
-      setUserInfo(null);
-      navigate("/");
-    } else {
-      notifyError("Failed to fetch recently sold items");
+      if (resp.data && resp.data.payload) {
+        // Filter items from the past 24 hours
+        const now = new Date();
+        const past24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+        const filteredItems = resp.data.payload.filter(
+          (item: any) => new Date(item.endDate) >= past24Hours
+        );
+        setRecentlySoldItems(filteredItems);
+      } else if (resp.error && resp.error.status === 401) {
+        notifyError("Unauthorized Access");
+        setUserInfo(null);
+        navigate("/");
+      } else {
+        notifyError("Failed to fetch recently sold items");
+      }
+    } catch (err) {
+      console.error("Error fetching recently sold items:", err);
+      notifyError("Error fetching recently sold items");
     }
-  } catch (err) {
-    console.error("Error fetching recently sold items:", err);
-    notifyError("Error fetching recently sold items");
-  }
-}, [userInfo, setUserInfo, navigate]);
+  }, [userInfo, setUserInfo, navigate]);
 
-useEffect(() => {
-  fetchRecentlySoldItems();
-}, [fetchRecentlySoldItems]);
-
+  useEffect(() => {
+    fetchRecentlySoldItems();
+  }, [fetchRecentlySoldItems]);
 
   const fetchFunds = useCallback(async () => {
     if (!userInfo) return;
@@ -266,8 +305,6 @@ useEffect(() => {
     }
   };
 
-  const [amount, setAmount] = useState<number | null>(null);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (amount === null || amount <= 0) {
@@ -283,67 +320,45 @@ useEffect(() => {
   // Add columns for item details
   const activeBidsColumnDefs: any[] = [
     { headerName: "Item ID", field: "bidItemId", sortable: true, filter: true },
-    {
-      headerName: "Bid Amount",
-      field: "bidAmount",
-      sortable: true,
-      filter: true,
-    },
+    { headerName: "Bid Amount", field: "bidAmount", sortable: true, filter: true },
     { headerName: "Bid Time", field: "bidTime", sortable: true, filter: true },
-    {
-      headerName: "Item Name",
-      field: "itemName",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Description",
-      field: "itemDescription",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Initial Price",
-      field: "itemInitPrice",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Item State",
-      field: "itemState",
-      sortable: true,
-      filter: true,
-    },
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
+    { headerName: "Description", field: "itemDescription", sortable: true, filter: true },
+    { headerName: "Initial Price", field: "itemInitPrice", sortable: true, filter: true },
+    { headerName: "Item State", field: "itemState", sortable: true, filter: true },
   ];
 
   const purchasesColumnDefs: any[] = [
-    {
-      headerName: "Item Name",
-      field: "itemName",
-      sortable: true,
-      filter: true,
-    },
+    { headerName: "Item Name", field: "itemName", sortable: true, filter: true },
     { headerName: "Price", field: "price", sortable: true, filter: true },
-    {
-      headerName: "Sold Time",
-      field: "soldTime",
-      sortable: true,
-      filter: true,
-    },
-    {
-      headerName: "Fulfill Time",
-      field: "fulfillTime",
-      sortable: true,
-      filter: true,
-    },
+    { headerName: "Sold Time", field: "soldTime", sortable: true, filter: true },
+    { headerName: "Fulfill Time", field: "fulfillTime", sortable: true, filter: true },
+    // Newly added columns
+    { headerName: "Description", field: "itemDescription", sortable: true, filter: true },
+    { headerName: "Initial Price", field: "itemInitPrice", sortable: true, filter: true },
+    { headerName: "Item State", field: "itemState", sortable: true, filter: true },
   ];
 
   const recentlySoldItemsColumnDefs: any[] = [
+    { headerName: "ID", field: "id", sortable: true, filter: true },
     { headerName: "Item Name", field: "name", sortable: true, filter: true },
     { headerName: "Initial Price", field: "initPrice", sortable: true, filter: true },
     { headerName: "Sold Time", field: "endDate", sortable: true, filter: true },
     { headerName: "Description", field: "description", sortable: true, filter: true },
     { headerName: "Item State", field: "itemState", sortable: true, filter: true },
+    { headerName: "Seller ID", field: "sellerId", sortable: true, filter: true },
+    { headerName: "Start Date", field: "startDate", sortable: true, filter: true },
+    { headerName: "Sold Bid ID", field: "soldBidId", sortable: true, filter: true },
+    {
+      headerName: "Images",
+      field: "images",
+      cellRenderer: (params: any) =>
+        params.value && Array.isArray(params.value)
+          ? params.value.join(", ")
+          : "No images",
+      sortable: false,
+      filter: false,
+    },
     {
       headerName: "Bidding History",
       field: "pastBidIds",
@@ -430,30 +445,31 @@ useEffect(() => {
       {/* Purchases Table */}
       <div className="mb-8">
         <h2 className="text-xl font-semibold mb-4">Purchases</h2>
-        <div className="ag-theme-alpine" style={{ height: 400, width: "100%" }}>
+        <div className="ag-theme-alpine" style={{ width: "100%" }}>
           <AgGridReact
             rowData={purchases}
             columnDefs={purchasesColumnDefs}
             pagination={true}
             paginationPageSize={10}
+            domLayout="autoHeight"
           />
         </div>
       </div>
 
-    <div className="mb-8">
-      <h2 className="text-xl font-semibold mb-4">Recently Sold Items</h2>
-      <div className="ag-theme-alpine" style={{ width: "100%" }}>
-        <AgGridReact
-          rowData={recentlySoldItems}
-          columnDefs={recentlySoldItemsColumnDefs}
-          pagination={true}
-          paginationPageSize={10}
-          domLayout="autoHeight"
-        />
+      {/* Recently Sold Items Table */}
+      <div className="mb-8">
+        <h2 className="text-xl font-semibold mb-4">Recently Sold Items</h2>
+        <div className="ag-theme-alpine" style={{ width: "100%" }}>
+          <AgGridReact
+            rowData={recentlySoldItems}
+            columnDefs={recentlySoldItemsColumnDefs}
+            pagination={true}
+            paginationPageSize={10}
+            domLayout="autoHeight"
+          />
+        </div>
       </div>
     </div>
-    </div>
-    
   );
 };
 
