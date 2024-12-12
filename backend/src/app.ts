@@ -193,7 +193,7 @@ app.get("/api/items", authFilterMiddleware, getAllItems);
 app.get("/api/admin/users", authFilterMiddleware, getAllUsers);
 app.get("/api/admin/bids", authFilterMiddleware, getAllBids);
 
-app.post("/api/admin/items/{itemId}/freeze", authFilterMiddleware, freezeItem)
+app.post("/api/admin/items/:itemId/freeze", authFilterMiddleware, freezeItem)
 
 app.post("/api/upload-image", upload.single("image"), async (req, res) => {
   if (!req.file) {

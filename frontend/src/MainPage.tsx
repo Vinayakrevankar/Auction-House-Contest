@@ -227,7 +227,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
                     setRefresh={(v) => {}}
                     itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
                   />
-                  ) : (
+                  ) : item.isFrozen ? (<p style={{ color: "red" }}>Item is Frozen.</p>) : (
                   <button
                     onClick={() => handleFreezeItem()}
                     className="p-2 bg-red-500 text-white rounded"
