@@ -331,6 +331,7 @@ const AdminDashboard = () => {
       const response = await adminFreezeItem({
         headers: { Authorization: (userInfo as any).token },
         path: { itemId: id },
+        body: { action: "freeze" },
       });
 
       if (response.error) {
@@ -436,30 +437,6 @@ const AdminDashboard = () => {
             floatingFilter: true, // Enable floating filters
           }}
         />
-      </div>
-
-      {/* Users */}
-      <div className="mb-8">
-        <h2 className="text-xl font-bold">Users</h2>
-        <ul>
-          {users.map((user: any) => (
-            <li key={user.userId}>
-              {user.firstName} {user.lastName} - {user.userType} ({user.role})
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* Items */}
-      <div>
-        <h2 className="text-xl font-bold">Auction Items</h2>
-        <ul>
-          {items.map((item: any) => (
-            <li key={item.id}>
-              {item.name} - ${item.initPrice} ({item.itemState})
-            </li>
-          ))}
-        </ul>
       </div>
     </div>
   );

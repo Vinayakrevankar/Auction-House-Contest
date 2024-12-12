@@ -157,6 +157,7 @@ function ItemCard({ item, setRefresh }: { item: ItemWithCurrentBid, setRefresh: 
       const response = await adminFreezeItem({
         headers: { Authorization: (userInfo as any).token },
         path: { itemId: item.id },
+        body: { action: "freeze" },
       });
 
       if (response.error) {
