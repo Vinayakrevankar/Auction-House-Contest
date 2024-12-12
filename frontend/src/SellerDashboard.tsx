@@ -148,11 +148,19 @@ const SellerDashboard = () => {
       filter: true,
       valueFormatter: (p: { value: number }) => {
         const day = Math.floor(p.value / (24 * 60 * 60 * 1000));
-        const hour = Math.floor(p.value / (60 * 60 * 1000) % 24);
-        const min = Math.floor(p.value / (60 * 1000) % 60);
-        const sec = Math.floor(p.value / 1000 % 60);
+        const hour = Math.floor((p.value / (60 * 60 * 1000)) % 24);
+        const min = Math.floor((p.value / (60 * 1000)) % 60);
+        const sec = Math.floor((p.value / 1000) % 60);
         return `${day}d ${hour}h ${min}m ${sec}s`;
       },
+    },
+    {
+      field: "startDate",
+      headerName: "Start Time",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: string }) =>
+        p.value ? new Date(p.value).toLocaleString() : "",
     },
     {
       field: "itemState",
@@ -165,7 +173,7 @@ const SellerDashboard = () => {
     {
       field: "isFreezed",
       headerName: "Item Freezed",
-      valueFormatter: (p: { value: boolean }) => p.value ? "Yes" : "No",  
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
       getWidthOfColsInList: 100,
       flex: 1,
     },
@@ -177,6 +185,7 @@ const SellerDashboard = () => {
       field: "view",
     },
   ];
+  
 
   const fetchItems = useCallback(async () => {
     if (!userInfo) return;
