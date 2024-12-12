@@ -233,19 +233,28 @@ export async function requestUnfreezeItem(
       id: ADMIN_ID,
     },
     UpdateExpression:
-      "set itemUnfreezeRequests = list_append(itemUnfreezeRequests, :req)",
-    ConditionExpression: "attribute_exists(itemUnfreezeRequests)",
+      "set itemUnfreezeRequests = list_append(if_not_exists(itemUnfreezeRequests, :emptyList), :req)",
+    ConditionExpression: "not contains(itemUnfreezeRequests, :newItemId)",
     ExpressionAttributeValues: {
-      ":req": [item.id],
+      ":emptyList": [], // Initialize with an empty list if it doesn't exist
+      ":req": [item.id], // Append the new request
+      ":newItemId": item.id, // Used in the ConditionExpression
     },
   });
   dclient.send(updateAdminCmd, (err, _) => {
     if (err) {
-      res.status(500).send({ error: err });
+      if (err.name === "ConditionalCheckFailedException") {
+        res.status(200).send({
+          status: 400,
+          message: "Item already requested for unfreeze.",
+        });
+      } else {
+        res.status(500).send({ error: err });
+      }
     } else {
       res.status(200).send(<PlainSuccessResponsePayload>{
         status: 200,
-        message: "Success",
+        message: "Item Unfreeze request sent.",
       });
     }
   });

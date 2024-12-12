@@ -392,10 +392,10 @@ const SellerDashboard = () => {
       if (resp.error && resp.error.status === 401) {
         notifyError("Unauthorized Access");
         setUserInfo(null);
-      } else if (resp.error) {
-        notifyError(`Failed to request unfreeze item: ${resp.error.message}`);
       } else {
-        notifySuccess("Request unfreeze item successfully");
+        if(resp.data?.message){
+          notifySuccess(resp.data.message);
+        }
         fetchItems();
       }
     } catch (err) {
