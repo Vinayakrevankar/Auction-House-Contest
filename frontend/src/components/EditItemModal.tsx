@@ -443,9 +443,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="relative group">
               <Button
                 type="submit"
-                disabled={currentItemState !== "inactive" } // Disable submit button if item is active
-                className={`${currentItemState === "active" ? "cursor-not-allowed" : ""
-                  }`}
+                disabled={currentItemState !== "inactive"} // Disable submit button if item is active
+                className={`${
+                  currentItemState === "active" ? "cursor-not-allowed" : ""
+                }`}
               >
                 Save Changes
               </Button>
