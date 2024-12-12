@@ -307,6 +307,7 @@ const SellerDashboard = () => {
       } else {
         notifySuccess("Item deleted successfully");
         setItems(items.filter((item) => item.id !== id));
+        setShowEditModal(false);
       }
     } catch (err) {
       console.error("Error deleting item:", err);
