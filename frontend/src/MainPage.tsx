@@ -142,7 +142,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
   const [hours, setHours] = useState(0);
   const [minutes, setMinutes] = useState(0);
 
-  const handleFreezeItem = async () => {
+  const handleFreezeItem = async (id: string, action: "freeze" | "unfreeze") => {
     if (!userInfo) return;
 
     const confirmClose = window.confirm(
@@ -154,7 +154,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
       const response = await adminFreezeItem({
         headers: { Authorization: (userInfo as any).token },
         path: { itemId: item.id },
-        body: { action: "freeze" },
+        body: { action },
       });
 
       if (response.error) {
@@ -162,7 +162,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
           response.error.message || "An error occurred while freezing the item."
         );
       } else {
-        notifySuccess("Item is successfully frozen.");
+        notifySuccess(`Item is successfully ${action}.`);
       }
     } catch (error) {
       console.error("Error freezing item:", error);
@@ -229,7 +229,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
                   />
                   ) : item.isFrozen ? (<p style={{ color: "red" }}>Item is Frozen.</p>) : (
                   <button
-                    onClick={() => handleFreezeItem()}
+                    onClick={() => handleFreezeItem(item.id, "freeze")}
                     className="p-2 bg-red-500 text-white rounded"
                   >
                     Freeze Item

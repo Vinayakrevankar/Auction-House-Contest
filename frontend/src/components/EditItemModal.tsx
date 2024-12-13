@@ -387,9 +387,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={handleArchiveClick}
-                disabled={currentItemState === "archived" || currentItemState === "archived" || currentItemState === "completed"}
+                disabled={currentItemState?.toLowerCase() === "active" || currentItemState?.toLowerCase() === "archived" || currentItemState?.toLowerCase() === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${currentItemState === "archived"
+                className={`text-xs px-3 py-1 m-2 ${currentItemState?.toLowerCase() === "archived"
                   ? "bg-gray-400 text-gray-700 cursor-not-allowed"
                   : "bg-orange-500 hover:bg-orange-600 text-white"
                   }`}
