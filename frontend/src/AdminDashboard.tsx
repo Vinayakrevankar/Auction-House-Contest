@@ -6,7 +6,8 @@ import "ag-grid-community/styles/ag-theme-alpine.css";
 import { Button } from "flowbite-react";
 import { useNavigate } from "react-router-dom";
 import { notifyError, notifySuccess } from "./components/Notification";
-
+import { Bar, Pie, Line, Scatter } from 'react-chartjs-2';
+import 'chart.js/auto';
 import {
   Item,
   Bid,
@@ -64,7 +65,7 @@ const AdminDashboard = () => {
       notifyError(`Error fetching funds`);
     }
   }, [userInfo, setUserInfo]);
-  
+
   const downloadExcelFile = (
     itemsData: any[],
     bidsData: any[],
@@ -89,10 +90,9 @@ const AdminDashboard = () => {
       obj["End Date"] = new Date(val["endDate"]);
       obj["Initial Price"] = val["initPrice"] || 0;
       obj["Seller Id"] = val["sellerId"] || "";
-      obj["Images Link"] = val["images"].map(
-        (v1: string) =>
-          `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`
-      );
+      obj["Images Link"] = val["images"]
+        .map((v1: string) => `https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${v1}`)
+        .toString();
       return obj;
     });
 
@@ -170,12 +170,19 @@ const AdminDashboard = () => {
   };
 
   const FrozenButtonComponent = ({ data }: { data: Item }) =>
-    !data.isFrozen && data.itemState === "active" ? (
+    data.isFrozen && data.itemState === "active" ? (
       <button
-        onClick={() => handleFreezeItem(data.id)}
-        className="px-2 py-1 rounded bg-red-500 text-white hover:bg-blue-600"
+        onClick={() => handleFreezeItem(data.id, "unfreeze")}
+        className="px-2 py-1 rounded bg-yellow-800 text-white hover:bg-blue-600"
       >
-        Click to Freeze Item
+        Unfreeze Item
+      </button>
+    ) : !data.isFrozen && data.itemState === "active" ? (
+      <button
+        onClick={() => handleFreezeItem(data.id, "freeze")}
+        className="px-2 py-1 rounded bg-yellow-500 text-white hover:bg-blue-600"
+      >
+        Freeze Item
       </button>
     ) : null;
   const columnDefs: any[] = [
@@ -319,7 +326,7 @@ const AdminDashboard = () => {
     }
   }, [userInfo]);
 
-  const handleFreezeItem = async (id: string) => {
+  const handleFreezeItem = async (id: string, action: "freeze" | "unfreeze") => {
     if (!userInfo) return;
 
     const confirmClose = window.confirm(
@@ -331,7 +338,7 @@ const AdminDashboard = () => {
       const response = await adminFreezeItem({
         headers: { Authorization: (userInfo as any).token },
         path: { itemId: id },
-        body: { action: "freeze" },
+        body: { action },
       });
 
       if (response.error) {
@@ -339,7 +346,8 @@ const AdminDashboard = () => {
           response.error.message || "An error occurred while freezing the item."
         );
       } else {
-        notifySuccess("Item is successfully frozen.");
+        notifySuccess(`${action==="freeze" ? 'Item has been frozen successfully.': 'Item has been unfrozen successfully.'}.`);
+        fetchItems();
       }
     } catch (error) {
       console.error("Error freezing item:", error);
@@ -365,20 +373,13 @@ const AdminDashboard = () => {
     fetchBids();
     fetchUsers();
     fetchItems();
-  }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);
-
-  const downloadForensics = (us: User[], is: Item[], bs: Bid[]) => {
-    const filename = `forensics.json`;
-    const json = JSON.stringify(createForensicsReport(us, is, bs));
-    const blob = new Blob([json], { type: "application/json" });
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(blob);
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-
+  }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);  
+    const [showModal, setShowModal] = useState(false);
+  
+    const toggleModal = () => setShowModal(!showModal);
+  
+    //  };
+  
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
       {/* Header */}
@@ -397,15 +398,37 @@ const AdminDashboard = () => {
         )}
       </div>
 
-      {/* Fund Display */}
-      <div className="mb-8 flex space-x-4">
-        <Button className="p-2 bg-green-500 text-white rounded">
-          Total Commission: ${funds}
-        </Button>
+      {/* Card View */}
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+        <div className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-lg font-semibold">Total Commission</h3>
+          <p className="text-2xl font-bold">${funds}</p>
+        </div>
+        <div className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-lg font-semibold">Total Bids</h3>
+          <p className="text-2xl font-bold">{bids.length}</p>
+        </div>
+        <div className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-lg font-semibold">Total Buyers</h3>
+          <p className="text-2xl font-bold">
+            {users.filter((user) => user.userType === "buyer").length}
+          </p>
+        </div>
+        <div className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-lg font-semibold">Total Sellers</h3>
+          <p className="text-2xl font-bold">
+            {users.filter((user) => user.userType === "seller").length}
+          </p>
+        </div>
+        <div className="bg-white text-black p-4 rounded-lg shadow-md flex flex-col items-center">
+          <h3 className="text-lg font-semibold">Total Items</h3>
+          <p className="text-2xl font-bold">{items.length}</p>
+        </div>
+
       </div>
 
-      {/* Download Buttons */}
-      <div className="mb-4 flex gap-4">
+      {/* Fund Display */}
+      <div className="mb-1 flex space-x-2">
         <Button
           className="bg-green-800 text-white flex items-center rounded"
           onClick={() => downloadExcelFile(items, bids, users, "AuctionReport")}
@@ -414,14 +437,48 @@ const AdminDashboard = () => {
           <span>Download Auction Report</span>
         </Button>
         <Button
-             className="bg-green-800 text-white flex items-center rounded"
-          onClick={() => downloadForensics(users, items, bids)}
-        ><FaDownload className="mr-2" />
-          <span>
-          Download Forensics</span>
+          className="bg-green-800 text-white flex items-center rounded"
+          onClick={() => toggleModal()}
+        >
+          <span>Forensics Report</span>
         </Button>
-        </div>
+      </div>
+      {showModal && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 1000,
+          }}>
+            <div style={{
+              width: '90%',
+              maxHeight: '90%',
+              backgroundColor: '#fff',
+              borderRadius: '8px',
+              overflowY: 'auto',
+              boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+            }}>
+              <ForensicsDashboard
+                users={users} 
+                items={items} 
+                bids={bids}
+                toggleModal={toggleModal}
+              />
+            </div>
+          </div>
+        )}
+      {/* Download Buttons */}
+      <div className="mb-4 flex gap-4">
+       
+      </div>
       {/* AgGrid Table */}
+      <h2 className="text-xl font-semibold mb-4">Items</h2>
       <div
         className="ag-theme-alpine rounded-lg shadow-lg"
         style={{ height: "80vh", width: "100%" }}
@@ -443,3 +500,154 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+const ForensicsDashboard = ({ users, items, bids, toggleModal }: { users: User[], items: Item[], bids: Bid[], toggleModal: () => void }) => {
+  // downloadForensics(users, items, bids)
+  const data = createForensicsReport(users, items, bids);
+
+  const downloadForensics = (us: User[], is: Item[], bs: Bid[]) => {
+    const filename = `forensics.json`;
+    const json = JSON.stringify(createForensicsReport(us, is, bs));
+    const blob = new Blob([json], { type: "application/json" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+  const pieData = {
+    labels: ['Active', 'Archived', 'Completed', 'Failed', 'Inactive', 'Frozen Item'],
+    datasets: [
+      {
+        data: [data['item.item_count_by_state.active'], data['item.item_count_by_state.archived'], data['item.item_count_by_state.completed'], data['item.item_count_by_state.failed'], data['item.item_count_by_state.inactive'], data['item.frozen_items']],
+        backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF'],
+      },
+    ],
+  };
+
+  const barData = {
+    labels: ['Max', 'Mean', 'Median', 'Mode', 'Std Dev'],
+    datasets: [
+      {
+        label: 'Bids per Item',
+        data: [
+          data['item.item_bid_count.max'],
+          data['item.item_bid_count.mean'],
+          data['item.item_bid_count.median'],
+          data['item.item_bid_count.mode'],
+          data['item.item_bid_count.standard_derivation'],
+        ],
+        backgroundColor: '#36A2EB',
+      },
+    ],
+  };
+
+  const lineData = {
+    labels: ['Max', 'Mean', 'Median', 'Mode', 'Std Dev'],
+    datasets: [
+      {
+        label: 'Initial Price',
+        data: [
+          data['item.item_initial_price.max'],
+          data['item.item_initial_price.mean'],
+          data['item.item_initial_price.median'],
+          data['item.item_initial_price.mode'],
+          data['item.item_initial_price.stdDev'],
+        ],
+        borderColor: '#FF6384',
+        fill: false,
+      },
+      {
+        label: 'Sold Price',
+        data: [
+          data['item.item_sold_price.max'],
+          data['item.item_sold_price.mean'],
+          data['item.item_sold_price.median'],
+          data['item.item_sold_price.mode'],
+          data['item.item_sold_price.stdDev'],
+        ],
+        borderColor: '#36A2EB',
+        fill: false,
+      },
+    ],
+  };
+
+  const scatterData = {
+    datasets: [
+      {
+        label: 'Price Relation',
+        data: [
+          { x: data['item.item_initial_price.max'], y: data['item.item_sold_price.max'] },
+          { x: data['item.item_initial_price.mean'], y: data['item.item_sold_price.mean'] },
+          { x: data['item.item_initial_price.median'], y: data['item.item_sold_price.median'] },
+          { x: data['item.item_initial_price.mode'], y: data['item.item_sold_price.mode'] },
+        ],
+        backgroundColor: '#9966FF',
+      },
+    ],
+  };
+
+  return (
+   <div>
+    <div>
+      <div className="flex justify-between items-center"></div>
+      
+      <Button className="m-2" onClick={() => downloadForensics(users, items, bids)}> <FaDownload className="mr-2" />Download Forensics JSON file</Button>
+     
+    </div>
+    <div style={{
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+      gap: '20px',
+      padding: '20px',
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#f9f9f9',
+      color: '#333',
+    }}>
+      <div style={{
+        padding: '20px',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h3 style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>Item State Distribution</h3>
+        <Pie data={pieData} />
+      </div>
+      <div style={{
+        padding: '20px',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h3 style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>Bids per Item</h3>
+        <Bar data={barData} />
+      </div>
+      <div style={{
+        padding: '20px',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h3 style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>Price Analysis</h3>
+        <Line data={lineData} />
+      </div>
+      <div style={{
+        padding: '20px',
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        borderRadius: '8px',
+        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)',
+      }}>
+        <h3 style={{ fontSize: '18px', marginBottom: '10px', textAlign: 'center' }}>Price Relation</h3>
+        <Scatter data={scatterData} />
+      </div>
+    </div>
+    <Button  style={{float: "right"}} className="m-2" onClick={toggleModal}>Close</Button>
+  </div>
+  );
+};
+

@@ -57,9 +57,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   useEffect(() => {
     const fetchData = async () => {
       if (itemToEditRef.current) {
-        const resp = await itemDetail({
-          path: { itemId: itemToEditRef.current.id },
-        }); // Get item details
+        const resp = await itemDetail({ path: { itemId: itemToEditRef.current.id } }); // Get item details
         if (resp.data) {
           itemToEditRef.current = {
             ...resp.data.payload,
@@ -75,25 +73,15 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
         setIsAvailableToBuy(itemToEditRef.current.isAvailableToBuy);
         if (itemToEditRef.current) {
           setEditItemLengthOfAuction({
-            day: Math.floor(
-              itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)
-            ),
-            hour: Math.floor(
-              (itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000)) % 24
-            ),
-            min: Math.floor(
-              (itemToEditRef.current.lengthOfAuction / (60 * 1000)) % 60
-            ),
-            sec: Math.floor(
-              (itemToEditRef.current.lengthOfAuction / 1000) % 60
-            ),
+            day: Math.floor(itemToEditRef.current.lengthOfAuction / (24 * 60 * 60 * 1000)),
+            hour: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 60 * 1000) % 24),
+            min: Math.floor(itemToEditRef.current.lengthOfAuction / (60 * 1000) % 60),
+            sec: Math.floor(itemToEditRef.current.lengthOfAuction / 1000 % 60),
           });
         }
         setEditItemImages(null);
         setCurrentItemState(itemToEditRef.current.itemState); // Update current item state
-        const response = await itemCheckExpired({
-          path: { itemId: itemToEditRef.current.id },
-        });
+        const response = await itemCheckExpired({ path: { itemId: itemToEditRef.current.id } });
         if (response.data) {
           setButtonFulfill(response.data.payload.isExpired);
         } else {
@@ -147,10 +135,10 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       !editItemName.trim() ||
       !editItemDescription.trim() ||
       !editItemInitPrice.trim() ||
-      editItemLengthOfAuction.day === -1 ||
-      editItemLengthOfAuction.hour === -1 ||
-      editItemLengthOfAuction.min === -1 ||
-      editItemLengthOfAuction.sec === -1
+      (editItemLengthOfAuction.day === -1
+        || editItemLengthOfAuction.hour === -1
+        || editItemLengthOfAuction.min === -1
+        || editItemLengthOfAuction.sec === -1)
     ) {
       return;
     }
@@ -225,17 +213,13 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   return (
     <Modal show={show} size="7xl" popup onClose={onClose}>
       <Modal.Header>
-        <div className="ml-2 font-bold text-center text-gray-800">
-          Edit Item
-        </div>
+        <div className="ml-2 font-bold text-center text-gray-800">Edit Item</div>
       </Modal.Header>
       <Modal.Body>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Item Name
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Item Name</label>
               <input
                 type="text"
                 disabled={currentItemState?.toLowerCase() !== "inactive"}
@@ -246,9 +230,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Initial Price ($)
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Initial Price ($)</label>
               <input
                 type="number"
                 value={editItemInitPrice}
@@ -259,9 +241,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div className="sm:col-span-1">
-              <label className="block text-sm font-medium text-gray-700">
-                Description
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Description</label>
               <textarea
                 value={editItemDescription}
                 disabled={currentItemState?.toLowerCase() !== "inactive"}
@@ -272,9 +252,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               ></textarea>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Status
-              </label>
+              <label className="block text-sm font-medium text-gray-700">Status</label>
               <input
                 type="text"
                 disabled={true}
@@ -284,28 +262,20 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                Auction Length
-              </label>
-              <div className="flex flex-row space-x-3">
+              <label className="block text-sm font-medium text-gray-700">Auction Length</label>
+              <div className='flex flex-row space-x-3'>
                 <input
                   type="number"
                   min="0"
                   disabled={currentItemState?.toLowerCase() !== "inactive"}
-                  value={
-                    editItemLengthOfAuction.day === -1
-                      ? ""
-                      : editItemLengthOfAuction.day
-                  }
-                  onChange={(e) =>
-                    setEditItemLengthOfAuction({
-                      day: parseInt(e.target.value),
-                      hour: editItemLengthOfAuction.hour,
-                      min: editItemLengthOfAuction.min,
-                      sec: editItemLengthOfAuction.sec,
-                    })
-                  }
-                  placeholder="Days"
+                  value={editItemLengthOfAuction.day === -1 ? '' : editItemLengthOfAuction.day}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: parseInt(e.target.value),
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='Days'
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -314,20 +284,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   min="0"
                   max="23"
                   disabled={currentItemState?.toLowerCase() !== "inactive"}
-                  value={
-                    editItemLengthOfAuction.hour === -1
-                      ? ""
-                      : editItemLengthOfAuction.hour
-                  }
-                  onChange={(e) =>
-                    setEditItemLengthOfAuction({
-                      day: editItemLengthOfAuction.day,
-                      hour: parseInt(e.target.value),
-                      min: editItemLengthOfAuction.min,
-                      sec: editItemLengthOfAuction.sec,
-                    })
-                  }
-                  placeholder="H"
+                  value={editItemLengthOfAuction.hour === -1 ? '' : editItemLengthOfAuction.hour}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: parseInt(e.target.value),
+                    min: editItemLengthOfAuction.min,
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='H'
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -336,20 +300,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   min="0"
                   max="59"
                   disabled={currentItemState?.toLowerCase() !== "inactive"}
-                  value={
-                    editItemLengthOfAuction.min === -1
-                      ? ""
-                      : editItemLengthOfAuction.min
-                  }
-                  onChange={(e) =>
-                    setEditItemLengthOfAuction({
-                      day: editItemLengthOfAuction.day,
-                      hour: editItemLengthOfAuction.hour,
-                      min: parseInt(e.target.value),
-                      sec: editItemLengthOfAuction.sec,
-                    })
-                  }
-                  placeholder="M"
+                  value={editItemLengthOfAuction.min === -1 ? '' : editItemLengthOfAuction.min}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: parseInt(e.target.value),
+                    sec: editItemLengthOfAuction.sec,
+                  })}
+                  placeholder='M'
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -358,20 +316,14 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                   min="0"
                   max="59"
                   disabled={currentItemState?.toLowerCase() !== "inactive"}
-                  value={
-                    editItemLengthOfAuction.sec === -1
-                      ? ""
-                      : editItemLengthOfAuction.sec
-                  }
-                  onChange={(e) =>
-                    setEditItemLengthOfAuction({
-                      day: editItemLengthOfAuction.day,
-                      hour: editItemLengthOfAuction.hour,
-                      min: editItemLengthOfAuction.min,
-                      sec: parseInt(e.target.value),
-                    })
-                  }
-                  placeholder="S"
+                  value={editItemLengthOfAuction.sec === -1 ? '' : editItemLengthOfAuction.sec}
+                  onChange={(e) => setEditItemLengthOfAuction({
+                    day: editItemLengthOfAuction.day,
+                    hour: editItemLengthOfAuction.hour,
+                    min: editItemLengthOfAuction.min,
+                    sec: parseInt(e.target.value),
+                  })}
+                  placeholder='S'
                   className="mt-1 block w-full border-gray-300 rounded-md shadow-sm"
                   required
                 />
@@ -380,33 +332,29 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div>
               <h3 className="text-lg font-semibold">Images</h3>
               <div className="flex flex-wrap gap-3 mt-4">
-                {itemToEdit &&
-                  itemToEdit.images?.map((image, index) => (
-                    <div
-                      key={index}
-                      className="w-32 h-32 overflow-hidden border border-gray-200 rounded-md"
-                    >
-                      <img
-                        src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${image}`}
-                        alt={`Item ${index + 1}`}
-                        className="object-cover w-full h-full"
-                      />
-                    </div>
-                  ))}
+                {itemToEdit && itemToEdit.images?.map((image, index) => (
+                  <div
+                    key={index}
+                    className="w-32 h-32 overflow-hidden border border-gray-200 rounded-md"
+                  >
+                    <img
+                      src={`https://serverless-auction-house-dev-images.s3.us-east-1.amazonaws.com/${image}`}
+                      alt={`Item ${index + 1}`}
+                      className="object-cover w-full h-full"
+                    />
+                  </div>
+                ))}
               </div>
               <label className="block text-sm font-medium text-gray-700 ml-3 mt-2">
                 <input
                   type="checkbox"
-                  disabled={
-                    itemToEditRef.current?.currentBidId.length > 0 ||
-                    currentItemState !== "inactive"
-                  }
+                  disabled={itemToEditRef.current?.currentBidId.length > 0 || currentItemState !== "inactive"}
                   checked={newIsAvailableToBuy}
                   onChange={(e) => setIsAvailableToBuy(e.target.checked)}
-                  className="mr-3"
-                ></input>
+                  className="mr-3">
+                </input>
                 Available to buy immediately
-              </label>
+                  </label>
             </div>
 
             <div>
@@ -425,53 +373,38 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 accept="image/*" // Optional: Restrict to image files only
               />
             </div>
-
+            
             <div className="grid grid-cols-3 items-center gap-4">
               <Button
                 onClick={handlePublishClick}
-                disabled={
-                  currentItemState === "active" ||
-                  currentItemState === "archived" ||
-                  currentItemState === "completed"
-                }
+                disabled={currentItemState === "active" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "active"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-green-500 hover:bg-green-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState === "active"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-green-500 hover:bg-green-600 text-white"
+                  }`}
               >
                 Publish
               </Button>
               <Button
                 onClick={handleArchiveClick}
-                disabled={
-                  currentItemState === "archived" ||
-                  currentItemState === "archived" ||
-                  currentItemState === "completed"
-                }
+                disabled={currentItemState?.toLowerCase() === "active" || currentItemState?.toLowerCase() === "archived" || currentItemState?.toLowerCase() === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "archived"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-orange-500 hover:bg-orange-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState?.toLowerCase() === "archived"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-orange-500 hover:bg-orange-600 text-white"
+                  }`}
               >
                 Archive
               </Button>
               <Button
                 onClick={handleUnpublishClick}
-                disabled={
-                  currentItemState === "inactive" ||
-                  currentItemState === "archived" ||
-                  currentItemState === "completed"
-                }
+                disabled={currentItemState === "inactive" || currentItemState === "archived" || currentItemState === "completed"}
                 size="sm"
-                className={`text-xs px-3 py-1 m-2 ${
-                  currentItemState === "inactive"
-                    ? "bg-gray-400 text-gray-700 cursor-not-allowed"
-                    : "bg-yellow-500 hover:bg-yellow-600 text-white"
-                }`}
+                className={`text-xs px-3 py-1 m-2 ${currentItemState === "inactive"
+                  ? "bg-gray-400 text-gray-700 cursor-not-allowed"
+                  : "bg-yellow-500 hover:bg-yellow-600 text-white"
+                  }`}
               >
                 Unpublish
               </Button>
@@ -508,10 +441,9 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
             <div className="relative group">
               <Button
                 type="submit"
-                disabled={currentItemState !== "inactive"} // Disable submit button if item is active
-                className={`${
-                  currentItemState === "active" ? "cursor-not-allowed" : ""
-                }`}
+                disabled={currentItemState !== "inactive" } // Disable submit button if item is active
+                className={`${currentItemState === "active" ? "cursor-not-allowed" : ""
+                  }`}
               >
                 Save Changes
               </Button>
