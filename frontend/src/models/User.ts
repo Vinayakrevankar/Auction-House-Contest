@@ -1,4 +1,5 @@
 export interface User {
+  itemUnfreezeRequests: any;
   userId: string;
   id: string;
   username: string;

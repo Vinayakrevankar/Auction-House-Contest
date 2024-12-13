@@ -37,6 +37,8 @@ const AdminDashboard = () => {
   const [bids, setBids] = useState<Bid[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [items, setItems] = useState<Item[]>([]);
+  const [itemsFrozen, setFrozenItems] = useState<Item[]>([]);
+
 
   const CustomColor = ({ value }: { value: keyof typeof stateTextColors }) => {
     const colorClass = stateTextColors[value] || "bg-red-500 text-white";
@@ -286,6 +288,107 @@ const AdminDashboard = () => {
       cellRenderer: CustomLink,
     },
   ];
+  const columnDefs1: any[] = [
+    { field: "id", headerName: "ID", sortable: true, filter: true },
+    { field: "name", headerName: "Name", sortable: true, filter: true },
+    {
+      field: "description",
+      headerName: "Description",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "initPrice",
+      headerName: "Initial Price ($)",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "isFreezed",
+      headerName: "Item Freezed",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
+    },
+    {
+      field: "isFreezed",
+      headerName: "Freeze Item",
+      cellRenderer: FrozenButtonComponent,
+      getWidthOfColsInList: 100,
+    },
+    {
+      field: "lengthOfAuction",
+      headerName: "Auction Length",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: number }) => {
+        const day = Math.floor(p.value / (24 * 60 * 60 * 1000));
+        const hour = Math.floor((p.value / (60 * 60 * 1000)) % 24);
+        const min = Math.floor((p.value / (60 * 1000)) % 60);
+        const sec = Math.floor((p.value / 1000) % 60);
+        return `${day}d ${hour}h ${min}m ${sec}s`;
+      },
+    },
+    {
+      field: "itemState",
+      headerName: "Status",
+      valueFormatter: (p: { value: string }) => p.value.toUpperCase(),
+      cellRenderer: CustomColor,
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "endDate",
+      headerName: "End Date",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: string }) =>
+        new Date(p.value).toLocaleString(),
+    },
+    {
+      field: "startDate",
+      headerName: "Start Date",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: string }) =>
+        new Date(p.value).toLocaleString(),
+    },
+    {
+      field: "isAvailableToBuy",
+      headerName: "Available to Buy?",
+      sortable: true,
+      filter: true,
+      valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
+    },
+    {
+      field: "sellerId",
+      headerName: "Seller ID",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "currentBidId",
+      headerName: "Current Bid ID",
+      sortable: true,
+      filter: true,
+    },
+    {
+      field: "pastBidIds",
+      headerName: "No of Bids",
+      sortable: false,
+      filter: false,
+      cellRenderer: (p: { value: string[] }) => {
+        return <span>{p.value ? p.value.length : 0}</span>;
+      },
+    },
+    {
+      field: "images",
+      headerName: "Image Link",
+      sortable: false,
+      filter: false,
+      cellRenderer: CustomLink,
+    },
+  ];
 
   const fetchBids = useCallback(async () => {
     try {
@@ -313,6 +416,7 @@ const AdminDashboard = () => {
           userType: user.userType,
           role: user.role,
           isActive: user.isActive,
+          itemUnfreezeRequests: user.itemUnfreezeRequests || [],
         }));
         setUsers(usersData);
       } else {
@@ -360,22 +464,34 @@ const AdminDashboard = () => {
       setItems(
         Array.isArray(response?.data?.payload) ? response.data.payload : []
       );
+      setFrozenItem();
     } catch (err) {
       notifyError(`Error fetching items`);
     }
   }, [userInfo]);
 
+
+  const setFrozenItem = useCallback(async () => {
+    try {
+      let admin = users.filter((user) => user.role === "admin");
+      const frozenRequests = admin.flatMap((user) => user.itemUnfreezeRequests || []);
+      const frozenItems = items.filter((item) => frozenRequests.includes(item.id));
+      setFrozenItems(frozenItems)
+    } catch (err) {
+      notifyError(`Error fetching items`);
+    }
+  }, [userInfo]);
+
+
   useEffect(() => {
     fetchFunds();
     fetchBids();
-    fetchUsers();
+    fetchUsers()
     fetchItems();
   }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);  
     const [showModal, setShowModal] = useState(false);
   
     const toggleModal = () => setShowModal(!showModal);
-  
-    //  };
   
   return (
     <div className="p-8 min-h-screen bg-gradient-to-r from-blue-500 via-pink-400 to-purple-500 text-white">
@@ -475,18 +591,36 @@ const AdminDashboard = () => {
        
       </div>
       {/* AgGrid Table */}
-      <h2 className="text-xl font-semibold mb-4">Items</h2>
+      <h2 className="text-xl font-semibold mb-4">Request Unfreeze Queue</h2>
       <div
         className="ag-theme-alpine rounded-lg shadow-lg"
-        style={{ height: "80vh", width: "100%" }}
+        style={{ width: "100%" }}
+      >
+        <AgGridReact
+          rowData={itemsFrozen}
+          columnDefs={columnDefs1}
+          domLayout="autoHeight"
+          defaultColDef={{
+            flex: 1,
+            minWidth: 120, // Minimum width for each column
+            resizable: true, // Allow column resizing
+            floatingFilter: true, // Enable floating filters
+          }}
+        />
+      </div>
+      <h2 className="text-xl font-semibold mb-4 mt-2">Items</h2>
+
+      <div
+        className="ag-theme-alpine rounded-lg shadow-lg"
+        style={{ width: "100%" }}
       >
         <AgGridReact
           rowData={items}
           columnDefs={columnDefs}
           domLayout="autoHeight"
           defaultColDef={{
-            flex: 1, // Take up all available space
-            minWidth: 120, // Minimum width for each column
+            flex: 1,
+             minWidth: 120, // Minimum width for each column
             resizable: true, // Allow column resizing
             floatingFilter: true, // Enable floating filters
           }}
