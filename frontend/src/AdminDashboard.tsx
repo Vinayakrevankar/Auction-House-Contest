@@ -399,7 +399,7 @@ const AdminDashboard = () => {
     } catch (err) {
       notifyError(`Error fetching bids`);
     }
-  }, [userInfo, items, users]);
+  }, [userInfo]);
 
   const fetchUsers = useCallback(async () => {
     try {
