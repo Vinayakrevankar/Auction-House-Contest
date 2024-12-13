@@ -30,19 +30,20 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
   onFulfill,
   refreshItems,
   onArchive,
-  onRequestUnfreeze
+  onRequestUnfreeze,
 }) => {
   const [editItemName, setEditItemName] = useState("");
   const [editItemDescription, setEditItemDescription] = useState("");
   const [editItemInitPrice, setEditItemInitPrice] = useState("");
   const [newIsAvailableToBuy, setIsAvailableToBuy] = useState(false);
-  const [editItemLengthOfAuction, setEditItemLengthOfAuction] = useState<LengthOfAuction>({
-    day: -1,
-    hour: -1,
-    min: -1,
-    sec: -1,
-  });
-  
+  const [editItemLengthOfAuction, setEditItemLengthOfAuction] =
+    useState<LengthOfAuction>({
+      day: -1,
+      hour: -1,
+      min: -1,
+      sec: -1,
+    });
+
   const [buttonFulfill, setButtonFulfill] = useState(false);
   const [editItemImages, setEditItemImages] = useState<FileList | null>(null);
   const [currentItemState, setCurrentItemState] = useState<string | null>(null); // Track current item state
@@ -96,6 +97,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
       await onPublish(itemToEditRef.current.id);
       await refreshItems();
       setCurrentItemState("active"); // Update button state immediately
+      setButtonFulfill(false);
     }
   };
 
@@ -354,7 +356,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 Available to buy immediately
                   </label>
             </div>
-           
+
             <div>
               <label className="block text-sm font-medium text-gray-700">
                 Upload Image
@@ -370,7 +372,6 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 className="mt-1 block w-full"
                 accept="image/*" // Optional: Restrict to image files only
               />
-
             </div>
             
             <div className="grid grid-cols-3 items-center gap-4">
@@ -409,7 +410,11 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={() => itemToEdit && handleFulfillClick()}
-                disabled={!buttonFulfill || itemToEdit?.itemState !== "completed" || itemToEdit.isFrozen }
+                disabled={
+                  !buttonFulfill ||
+                  currentItemState !== "completed" ||
+                  itemToEdit?.isFrozen
+                }
                 size="sm"
                 className="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 m-2"
               >

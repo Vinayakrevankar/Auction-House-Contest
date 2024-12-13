@@ -584,14 +584,11 @@ export async function checkExpirationStatus(itemId: string, res: Response) {
 
 export function getRecentlySoldItems(req: Request, res: Response) {
   const now = Date.now();
-  const cutoffTimestamp = now - 24 * 60 * 60 * 1000; 
-
-  console.log(`Current timestamp: ${now}`);
-  console.log(`Cutoff timestamp (24 hours ago): ${cutoffTimestamp}`);
+  const cutoffTimestamp = now - 24 * 60 * 60 * 1000;
 
   const scanCmd = new ScanCommand({
     TableName: TABLE_NAMES.ITEMS,
-    FilterExpression: "itemState IN (:archived)",
+    FilterExpression: "itemState = :archived AND attribute_exists(soldBidId)",
     ExpressionAttributeValues: {
       ":archived": "archived",
     },
@@ -599,34 +596,23 @@ export function getRecentlySoldItems(req: Request, res: Response) {
 
   dclient.send(scanCmd, (err, data) => {
     if (err) {
-      console.error(`Error fetching data: ${err}`);
       res.status(500).send(<ErrorResponsePayload>{
         status: 400,
         message: err,
       });
     } else {
-      const debugLogs: string[] = [];
-
       const filteredItems = (data?.Items ?? []).filter((item) => {
-        const endDate = item.endDate; 
-        const endDateTimestamp = new Date(endDate).getTime(); 
-        const isWithinRange = endDateTimestamp > cutoffTimestamp;
-
-        // Add debug log for each item
-        debugLogs.push(
-          `Item ID: ${item.id}, endDate: ${endDate}, endDateTimestamp: ${endDateTimestamp}, isWithinRange: ${isWithinRange}`
-        );
-
-        return isWithinRange;
+        const endDate = item.endDate;
+        const endDateTimestamp = new Date(endDate).getTime();
+        return endDateTimestamp > cutoffTimestamp;
       });
 
       res.status(200).send({
         status: 200,
         message: "Success getRecentlySoldItems",
         payload: updateURLs(filteredItems as Item[]),
-        debugLogs,
       });
-      debugLogs.forEach((log) => console.log(log));
     }
   });
 }
+

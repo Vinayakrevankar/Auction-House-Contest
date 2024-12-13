@@ -27,6 +27,8 @@ import { useLocation, useNavigate } from "react-router-dom";
 import LoginModal from "./components/LoginModal";
 import SignupModal from "./components/SignupModal";
 import { DynamicStringEnumKeysOf } from "flowbite-react/dist/types/types";
+import { useTimer } from "react-timer-hook";
+import moment from "moment";
 
 interface ItemWithCurrentBid extends Item {
   currentBidPrice: number;
@@ -133,14 +135,15 @@ function BidField(props: {
   );
 }
 
-function ItemCard({ item }: { item: ItemWithCurrentBid }) {
+function ItemCard({ item, setRefresh }: { item: ItemWithCurrentBid, setRefresh: (v: boolean) => void, }) {
   const { userInfo } = useAuth();
   const [show, setShow] = useState(false);
   const [bidAmount, setBidAmount] = useState<number | undefined>(undefined);
-  const [end, setEnd] = useState(Date.parse(item.endDate) - Date.now());
-  const [days, setDays] = useState(0);
-  const [hours, setHours] = useState(0);
-  const [minutes, setMinutes] = useState(0);
+  const { days, hours, minutes, seconds } = useTimer({
+    expiryTimestamp: moment(item.endDate).toDate(),
+    onExpire: () => setRefresh(true),
+    autoStart: true,
+  });
 
   const handleFreezeItem = async (id: string, action: "freeze" | "unfreeze") => {
     if (!userInfo) return;
@@ -170,13 +173,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
     }
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => setEnd((prev) => prev - 1000), 1000);
-    setDays(Math.floor(end / (1000 * 60 * 60 * 24)));
-    setHours(Math.floor((end / (1000 * 60 * 60)) % 24));
-    setMinutes(Math.floor((end / (1000 * 60)) % 60));
-    return () => clearInterval(interval);
-  }, [end]);
+
   return (
     <>
       <Card
@@ -215,7 +212,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
                   Current: ${item.currentBidPrice}
                 </p>
                 <p className="text-xl font-bold text-gray-900">
-                  Ending in: {days} days {hours} hr {minutes} mins
+                  Ending in: {days} days {hours} hr {minutes} mins {seconds} secs
                 </p>
                 {userInfo ? (
                   userInfo.role !== "admin" ? (
@@ -224,7 +221,7 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
                     bidAmount={bidAmount}
                     currentPrice={item.currentBidPrice}
                     setBidAmount={setBidAmount}
-                    setRefresh={(v) => {}}
+                    setRefresh={setRefresh}
                     itemIsAvailableToBuy={item.isAvailableToBuy ?? false}
                   />
                   ) : item.isFrozen ? (<p style={{ color: "red" }}>Item is Frozen.</p>) : (
@@ -236,8 +233,8 @@ function ItemCard({ item }: { item: ItemWithCurrentBid }) {
                   </button>
                   )
                 ) : <p style={{ color: "red" }}>
-                Please login to bid on this item.
-              </p>}
+                  Please login to bid on this item.
+                </p>}
               </div>
             </div>
           </div>
@@ -458,7 +455,7 @@ export function MainPage() {
           <div className="grid grid-cols-5 gap-10 justify-between items-center">
             {filteredAndSortedItems.length > 0 ? (
               filteredAndSortedItems.map((item) => (
-                <ItemCard key={item.id} item={item} />
+                <ItemCard key={item.id} item={item} setRefresh={setRefresh} />
               ))
             ) : (
               <div>No items available.</div>
