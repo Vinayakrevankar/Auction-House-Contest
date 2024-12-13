@@ -301,6 +301,28 @@ export async function closeAccountHandler(req: Request, res: Response) {
           ])
         );
     }
+    // Check if the user has any active items
+    const scanItemsCommand = new ScanCommand({
+      TableName: "dev-items3", // Assuming the table name for user items
+      FilterExpression: "sellerId = :userId AND itemState = :isActive",
+      ExpressionAttributeValues: {
+        ":userId": userResult.Item.userId,
+        ":isActive": 'active',
+      },
+    });
+
+    const itemsResult = await dclient.send(scanItemsCommand);
+
+    if (itemsResult.Items && itemsResult.Items.length > 0) {
+      return res
+        .status(400)
+        .json(
+          getBadRequest([
+            null,
+            "Cannot close account with active items.",
+          ])
+        );
+    }
 
     // Update the user's isActive status to false
     const updateUserCommand = new UpdateCommand({
