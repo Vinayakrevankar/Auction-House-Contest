@@ -210,11 +210,8 @@ const AdminDashboard = () => {
     {
       field: "isFreezed",
       headerName: "Freeze Item",
-      sortable: true,
-      filter: true,
       cellRenderer: FrozenButtonComponent,
       getWidthOfColsInList: 100,
-      flex: 1,
     },
     {
       field: "lengthOfAuction",

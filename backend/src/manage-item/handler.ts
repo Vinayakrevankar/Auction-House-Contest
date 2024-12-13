@@ -409,6 +409,11 @@ export function getAllItems(req: Request, res: Response) {
         message: err,
       });
     } else {
+      data?.Items?.sort((a, b) => {
+        if (a.itemState < b.itemState) return -1;
+        if (a.itemState > b.itemState) return 1;
+        return 0;
+      });
       res.send({
         status: 200,
         message: "Success getAllItems",
