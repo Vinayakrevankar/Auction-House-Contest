@@ -456,6 +456,13 @@ const AdminDashboard = () => {
     }
   };
 
+  const setFrozenItem = useCallback(() => {
+      let admin = users.filter((user) => user.role === "admin");
+      const frozenRequests = admin.flatMap((user) => user.itemUnfreezeRequests || []);
+      const frozenItems = items.filter((item) => frozenRequests.includes(item.id));
+      setFrozenItems(frozenItems);
+  }, [users, items]);
+
   const fetchItems = useCallback(async () => {
     try {
       const response = await itemSearch({
@@ -464,23 +471,12 @@ const AdminDashboard = () => {
       setItems(
         Array.isArray(response?.data?.payload) ? response.data.payload : []
       );
-      setFrozenItem();
+      setFrozenItem(); 
     } catch (err) {
       notifyError(`Error fetching items`);
     }
-  }, [userInfo]);
-
-
-  const setFrozenItem = useCallback(async () => {
-    try {
-      let admin = users.filter((user) => user.role === "admin");
-      const frozenRequests = admin.flatMap((user) => user.itemUnfreezeRequests || []);
-      const frozenItems = items.filter((item) => frozenRequests.includes(item.id));
-      setFrozenItems(frozenItems)
-    } catch (err) {
-      notifyError(`Error fetching items`);
-    }
-  }, [userInfo]);
+  }, [userInfo, setFrozenItem]); 
+  
 
 
   useEffect(() => {
