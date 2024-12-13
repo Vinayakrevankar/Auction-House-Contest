@@ -399,7 +399,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
               </Button>
               <Button
                 onClick={handleUnpublishClick}
-                disabled={currentItemState === "inactive" || currentItemState === "archived" || currentItemState === "completed"}
+                disabled={currentItemState === "inactive" || currentItemState === "archived" || currentItemState === "completed" || (itemToEdit?.currentBidId ? itemToEdit.currentBidId.length > 0 : false) || itemToEdit?.isFrozen}
                 size="sm"
                 className={`text-xs px-3 py-1 m-2 ${currentItemState === "inactive"
                   ? "bg-gray-400 text-gray-700 cursor-not-allowed"
