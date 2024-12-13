@@ -263,16 +263,16 @@ export async function placeBid(req: Request, res: Response) {
       },
     },
   });
+
   if (previousBidUserId) {
     transactItems.push({
       Update: {
         TableName: "dev-users3",
-        Key: { id: buyerEmail },
+        Key: { id: previousBidUserId },
         UpdateExpression:
           "SET fund = fund + :previousBidAmount, fundsOnHold = fundsOnHold - :previousBidAmount ",
         ExpressionAttributeValues: {
           ":previousBidAmount": previousBidAmount,
-          ":zero": 0,
         },
       },
     });

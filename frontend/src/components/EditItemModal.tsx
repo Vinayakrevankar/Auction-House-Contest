@@ -429,6 +429,7 @@ const EditItemModal: React.FC<EditItemModalProps> = ({
                 Request Unfreeze
               </Button>
               <Button
+                disabled={currentItemState === "active" || currentItemState === "archived" || currentItemState === "completed"}
                 onClick={() => itemToEdit && onDelete(itemToEdit.id)}
                 size="sm"
                 className="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 m-2"

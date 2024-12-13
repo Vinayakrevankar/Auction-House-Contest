@@ -329,7 +329,7 @@ export function MainPage() {
           );
           return;
         }
-        const activeItems = resp.data.payload;
+        const activeItems = resp.data.payload.filter(val=> val.isFrozen === false);
         const filteredItems = [];
         for (const item of activeItems) {
           const checkResp = await itemCheckExpired({
