@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useAuth } from "./AuthContext";
 import { AgGridReact } from "ag-grid-react";
 import "ag-grid-community/styles/ag-grid.css";
@@ -399,7 +399,7 @@ const AdminDashboard = () => {
     } catch (err) {
       notifyError(`Error fetching bids`);
     }
-  }, [userInfo]);
+  }, [userInfo, items, users]);
 
   const fetchUsers = useCallback(async () => {
     try {
