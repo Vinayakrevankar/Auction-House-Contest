@@ -1,3 +1,778 @@
+commit f4457f7437ca09d7a9a9701547cb2982629a01a6
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 15:43:14 2024 -0500
+
+    fixed issue
+
+commit 7fec8015fc20f6f78464d6358686911b8d9f72ca
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 15:10:28 2024 -0500
+
+    minor changes
+
+commit 9b280bbabc7e0ac0942e557a8760423659ff4466
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 15:05:59 2024 -0500
+
+    minor changes
+
+commit 2be344471b5546baeb9392b60c70b7c59bb36131
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 15:01:29 2024 -0500
+
+    fixed issue
+
+commit efb8fb2096d8ec4e5ef81bf94528d4a5cc5b478c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 14:57:46 2024 -0500
+
+    added request Unfreeze queue
+
+commit 83f1e75c00e26981da1c73d0f95170372fb571c5
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 12:38:56 2024 -0500
+
+    disabled button
+
+commit d5f0be81e87fdc829295bd2aeef950c2b0e54eca
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 12:24:57 2024 -0500
+
+    minor change
+
+commit cdeb72cf30451f9d74b2869ef371344acb4496a4
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 12:16:02 2024 -0500
+
+    fixed issues
+
+commit 52c70a06dc51bf06f2d28a88d5f2ace4d90fad14
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:43:33 2024 -0500
+
+    added check for closing seller account
+
+commit e3fe604044f85932390de446ea8e9f43d85ec855
+Merge: ea6f481 f2b7d2c
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:42:48 2024 -0500
+
+    Merge pull request #22 from Vinayakrevankar/dev1
+    
+    The previous direction is wrong...
+
+commit f2b7d2cb78d953b80857d2f1c082a5aeb437a755
+Merge: 6174f3e ea6f481
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:41:25 2024 -0500
+
+    Merge pull request #21 from Vinayakrevankar/main
+    
+    Please merge this before any chenages!!!!!
+
+commit 6174f3e216188cf4f416e2e75a30cca69fd562c2
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 01:54:15 2024 -0500
+
+    updated admin dashboard and fixed issue
+
+commit 600510295153812def11f64de25e4edd7f456d91
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Dec 12 18:13:18 2024 +0800
+
+            modified:   frontend/src/components/EditItemModal.tsx
+
+commit 0296fd39f3d461ba2038709279bcb1ac8cf789be
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:13:09 2024 -0500
+
+    updated package lock
+
+commit 8712dfe9365a0ddbe23d4c7b18624ea43c8b1196
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 11:45:19 2024 -0500
+
+    fixed freeze and unfreeze
+
+commit aed7ef940ee22473bd2334c289606d7edcedc682
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Dec 12 18:13:18 2024 +0800
+
+            modified:   frontend/src/components/EditItemModal.tsx
+
+commit b412b0c5c145d7343dbf533868a9ee4c53bb0c08
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Dec 11 19:50:12 2024 -0500
+
+    Use external timer hook instead of naive setInterval.
+
+commit 4eed3a8c3063173f296d39c89747adc2555bb9da
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:00:35 2024 -0500
+
+    minor changes
+
+commit 0912fcd6bb102f52fd683b9b091985f00df27c69
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 01:54:15 2024 -0500
+
+    updated admin dashboard and fixed issue
+
+commit 0949c3ee145cc637b6b6f1e5d9d5c489ebdafcd6
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 12:36:27 2024 -0500
+
+    minor changes
+
+commit 7ce79b70df634378d47c40d88ae32abeb0faad2e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 11:45:19 2024 -0500
+
+    fixed freeze and unfreeze
+
+commit 1005bdded1b061f2d64f884e62a988d7b5ef14e9
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 11:36:55 2024 -0500
+
+    freeze and unfreeze
+
+commit ea6f481b9e15274a639a80d1c5e2c9b229f160ea
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:13:09 2024 -0500
+
+    updated package lock
+
+commit 375c744a2d02685dec7314f983ad143e9e0b7297
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 11:00:35 2024 -0500
+
+    minor changes
+
+commit 5f705173035ac4fcf036e0144a227f93dd0e5bef
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Fri Dec 13 01:54:15 2024 -0500
+
+    updated admin dashboard and fixed issue
+
+commit 070bee8f62d3ad7313d7264d9e08b7865d4b8ceb
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 12:36:27 2024 -0500
+
+    minor changes
+
+commit 8dc2a1b50b1cec8787286c41705dd9a8432487c2
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 11:45:19 2024 -0500
+
+    fixed freeze and unfreeze
+
+commit b7e6fd495d0f8a7ac493f17e7f870b3e0c5075f1
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Thu Dec 12 11:36:55 2024 -0500
+
+    freeze and unfreeze
+
+commit d4be940bdb8ce5b4a6eb6f93adcf77e3cf77562b
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Thu Dec 12 18:13:18 2024 +0800
+
+            modified:   frontend/src/components/EditItemModal.tsx
+
+commit 9b68e0bc39956f5a4e7f9a20952bbacabc32ce7d
+Author: Rickyash <1145967792@qq.com>
+Date:   Thu Dec 12 03:08:19 2024 -0500
+
+    Update sellerdashboard with time sorting
+
+commit 9d1eb8497822d68d76fc57a86b36b5af26f02178
+Author: Rickyash <1145967792@qq.com>
+Date:   Thu Dec 12 02:34:31 2024 -0500
+
+    Update the detailed buyerdashboard and fixed backend for rencently sold
+
+commit 7a09e132d75c34941a51b33319543508252db3fe
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Dec 11 19:50:12 2024 -0500
+
+    Use external timer hook instead of naive setInterval.
+
+commit a2699dc52ff727b3e5e4c6693fbc72d7beff77bc
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 18:39:58 2024 -0500
+
+    fundsOnHold minor changes
+
+commit ba7d0f3537d4596efadc2c7a0cd99cb0f0e09347
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 17:21:55 2024 -0500
+
+    fixed UI issue
+
+commit 9a40cce91235124ba1d33fe87ec3f61a88c202c0
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 17:14:08 2024 -0500
+
+    fixed issue
+
+commit 187584eff9b5a5eba9032b05aebe37dcd7c5f6f7
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 17:08:20 2024 -0500
+
+    minor changes
+
+commit cc8ad09ba67ec055cce67b5b908fd35dbd398ff6
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 16:57:54 2024 -0500
+
+    conflicts resolved
+
+commit ae3bdcc427853017cfcb290a462b36ac86470160
+Merge: 96da80d 4acc1d2
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 16:55:10 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest
+
+commit 96da80dec5bf102ae829519cdf0c2a4058410266
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 16:55:08 2024 -0500
+
+    updated service to refund bidder amount
+
+commit 4acc1d2587818d6a7dec3b92c4a14d1c5a194d0a
+Merge: 8bb8bf5 0b02dd4
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 16:49:31 2024 -0500
+
+    Merge pull request #18 from Vinayakrevankar/dev1
+    
+    Merge dev1 to main
+
+commit 0b02dd456517562d6e2f8228f630d7dd2c4233b2
+Merge: 7e50e2c 8bb8bf5
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Dec 11 16:43:34 2024 -0500
+
+    Merge branch 'main' into dev1
+
+commit 7e50e2c8827a58e28123e9f6d9a342d62a4d4be5
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Dec 11 12:32:30 2024 -0500
+
+    Finished Forensics Button.
+    Currently the format is single depth JSON in snake case.
+
+commit 2de2eaf311d3ba9f457b9357ebf9afd43a8df1a1
+Merge: e388bf4 cabcbfe
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Dec 11 10:17:01 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit e388bf4a99184493caacc2d356b5d1aaee87275d
+Author: Rickyash <1145967792@qq.com>
+Date:   Wed Dec 11 10:16:57 2024 -0500
+
+    getRecentlySoldItems is working moving to the frontend build
+
+commit 8bb8bf5bba1c044a024bdbdbcc68d7af2e73d0ae
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Dec 11 10:16:08 2024 -0500
+
+    downloading report in xlsx
+
+commit cabcbfed370e3e32aa7eeda0d6e46f929a48d7e1
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Dec 11 00:06:20 2024 -0500
+
+    Update dependencies and add forensicHelper for report.
+
+commit 53d01bc580dda0cfa0bdddb721fb8b783ef1109d
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Tue Dec 10 21:21:40 2024 -0500
+
+    minor changes
+
+commit 64ed2c1a1374ed039515043226b182345cbdb809
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Dec 10 01:21:45 2024 -0500
+
+    Fixing the filter
+
+commit c78819ba1a66a7882b820110cc4f41b3792138af
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Dec 10 01:14:23 2024 -0500
+
+    Testing the getRecentlySoldItems filter
+
+commit 80cfe00fb5f93c3723962ec05ea6535ef8f2b697
+Author: Rickyash <1145967792@qq.com>
+Date:   Tue Dec 10 00:37:10 2024 -0500
+
+    Fixing the filter for 24 hour sold
+
+commit 149912789ec1dde1918da9eb2ca9483b3b29c25d
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 23:37:36 2024 -0500
+
+    Testing the getRecentlySoldItems
+
+commit 7d28549eb95a85dac1c747ac465b27bd186cbfd3
+Merge: 2c6ec56 f7fe26c
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 23:33:59 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 2c6ec56c525654bf660e6e155421e50a3763675b
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 23:33:54 2024 -0500
+
+    Update getRecentlySoldItems
+
+commit f7fe26c0e127c4330afe9034ce15537fe2fa2455
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 23:27:07 2024 -0500
+
+    added dev1 to deploy code to aws
+
+commit cd1fae2f70fbb086b260a74b64dbdccbebc138cb
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 23:25:51 2024 -0500
+
+    Update a simple getRecentlySoldItems
+
+commit 3bbc614f40c5597989d5c7aa5ad8a84271a20453
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 22:55:23 2024 -0500
+
+    Updated add fund UI
+
+commit fa8968ad9b85d556a4652d2700199345ebc4cbac
+Merge: bdcd8b9 397a6db
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 21:58:09 2024 -0500
+
+    Merge pull request #17 from Vinayakrevankar/dev1
+    
+    Update length of auction hook and frontend such that users can use day, hour, min, sec to specify the length.
+
+commit 397a6dbd06f979d5b9258fbfcf6014d2c4475726
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 16:33:35 2024 -0500
+
+    added Item Freezed column
+
+commit ff010df542ebd12d4a5a7a51f0ad90013df53c15
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 15:22:26 2024 -0500
+
+    freeze option in table view
+
+commit 9d7e0acb5f90d3526e477448231e19a7642b636d
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 15:14:18 2024 -0500
+
+    minor UI changes
+
+commit e53fbbedcaa22b71d2b80541a0a303e666f5d25f
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 14:33:32 2024 -0500
+
+    Modify the getRecentlySoldItems before deploy
+
+commit a03954bf72d4e55e14fcb7d9d0a713f61c1a7321
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 14:22:55 2024 -0500
+
+    Update the app.ts try to fix the bug
+
+commit 54f8f6d262861800a20d1b982f6ab69c677a024f
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 14:15:02 2024 -0500
+
+    Debugging the getRecentlySoldItems
+
+commit 92bb841869bca6720ef8a3e05bd93346bf0fc7e6
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 14:02:34 2024 -0500
+
+    Debuging the getRecentlySoldItems
+
+commit b715bc3e0050847337a8916999ea6814828b654d
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 13:56:01 2024 -0500
+
+    Testing the getRecentlySoldItems
+
+commit 34678c66d4f1464bc0f2ca0f77b8f281db0c4be7
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 13:48:59 2024 -0500
+
+    Testing the get recentlysold backend
+
+commit a4723786bc63b4545baf495e4ca0f8076c5e6991
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 13:42:32 2024 -0500
+
+    Update the buyerdashbaord and handler.ts
+
+commit c2139f0434c2e2dd123a1b92beab2fa9d679b04a
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 13:35:12 2024 -0500
+
+    minor changes
+
+commit 30b1c8717e3f1aa13a7616aabb658fc4685f0b02
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 13:07:30 2024 -0500
+
+    added auction report
+
+commit 753daadac5a5aac01f1b0e6988fad6376f0b470d
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 12:16:02 2024 -0500
+
+    admin dashboard v1
+
+commit a838bf04c35dcb30f66ed9366e0ddf09f7afa78a
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 9 11:41:51 2024 -0500
+
+    minor changes
+
+commit 49046295776b5336ac90b34173b4642ce86a76ee
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 10:45:42 2024 -0500
+
+    testing the getRecentlySoldItems backend
+
+commit f9a35ee83f09997f278233454d919858f4f09db6
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 10:33:16 2024 -0500
+
+    testing the recently-sold backend
+
+commit 5e5425e25b7d8c4f74f3586e2ff2824e14309caa
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 10:13:50 2024 -0500
+
+    Update the app.ts
+
+commit 4948d558a04bc91836d4dd4a23f73c22e3f5cc9c
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 10:00:00 2024 -0500
+
+    Update the item handler to make sure it can work
+
+commit 589f46b50105330360a9a4a8cc63d64ce6ebb249
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 09:59:13 2024 -0500
+
+    Update the item handler
+
+commit 5179b1ad3ee13e9dbc1cacfcb4ed786b63466dcc
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 09:39:06 2024 -0500
+
+    Update and test the getRecentlySoldItems
+
+commit 5392a33098726830de3ec2b9375042a9de3ccaf8
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 09:30:36 2024 -0500
+
+    Update the item hand;er with fixed get recently-sold function
+
+commit f91cf3dc6a43829f9525af24244249c4496283a9
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 09:19:35 2024 -0500
+
+    Testing the backend of get recently sold
+
+commit 13413352dc63db68a3a6d065c4232ae53a0a2e0d
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 08:57:16 2024 -0500
+
+    Update the backend for recently sold
+
+commit e95f8366d522514ba4ac17f56fec534e994f3b60
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 05:42:32 2024 -0500
+
+    Update the getRecentlySoldItems function in item handler
+
+commit 3df5013135672df5ea9f0414a5969c208a506267
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 05:35:01 2024 -0500
+
+    Fixing the backend for recent sold search
+
+commit fabc16c70b85b621991718cb5aaebb82690c35a8
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 05:26:43 2024 -0500
+
+    Update the backend for the recently-sold search
+
+commit e0cde6a4be5e1f2b8b76cddd5d66ce798884af84
+Author: Rickyash <1145967792@qq.com>
+Date:   Mon Dec 9 05:13:19 2024 -0500
+
+    Update the BuyerDashboard.tsx, with the backend of search recent sold item
+
+commit 972cc620422c2cd90e77b29a1240d9721b13963b
+Merge: 10cd72e d4ce55b
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 23:53:52 2024 -0500
+
+    Merge branch 'dev1' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 10cd72e960e359f463b527f1b4185a12b2eeca6e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 23:43:26 2024 -0500
+
+    added fundsOnHold functionality and 5% commission to auction house
+
+commit d4ce55b83aad6d81e5dd346dda409c6cf93f181f
+Author: Ruizhe Liu <kaofex98@gmail.com>
+Date:   Mon Dec 9 12:28:09 2024 +0800
+
+            modified:   frontend/src/MainPage.tsx
+
+commit 7309429be6ac50c897daeef5da04cd43ce510a40
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 22:30:00 2024 -0500
+
+    setting default value to funds to 0
+
+commit a6ef77ad492e717c901ca4d54ac1119939c4f161
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 15:48:53 2024 -0500
+
+    Update Request Unfreeze error message.
+
+commit e3d92e9072eac6f0e94bdeb3cf890b022c543606
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 15:44:54 2024 -0500
+
+    Update routes & remove large blocks of comments.
+
+commit 5988255d2c3aca90661ee8bddb1eccb5c6bd3084
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 13:51:50 2024 -0500
+
+    Added APIs for fetching all users, bids, and items.
+
+commit c814ca2c02d424538df40db830195f67a56cf21c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 13:08:15 2024 -0500
+
+    Removed redundant code
+
+commit 1e820d4737fdb6dd9c5ed2906435c0e600bbf123
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 11:51:05 2024 -0500
+
+    Update schema
+
+commit eebe52e7e4829861859920f1772e18511325fb9b
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 11:45:16 2024 -0500
+
+    Remove junk file
+
+commit bd159e1d48276e24d8766a25f3250458023c7449
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 10:48:35 2024 -0500
+
+    added freeze button on item in admin screen
+
+commit d886e6d41ac239b6c49653b2a42ef97bff18450c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 00:53:19 2024 -0500
+
+    eslint and minor changes
+
+commit e679894760bb62f5c1ed9d38b89493e1af885ce9
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sun Dec 8 00:40:48 2024 -0500
+
+    add buy now feature and admin screen
+
+commit 0041f1c0cffcdafa1685afc46b0676d87a739b9e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Sat Dec 7 19:47:39 2024 -0500
+
+    added buy now feature
+
+commit 76c58fa27613526733f1032ec35501fe22890ff4
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 11:20:34 2024 -0500
+
+    Upodate length of auction format in Seller's Dashboard.
+
+commit e06619dd7b58845e3970654fab2535c664e1c3ba
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sun Dec 8 11:06:30 2024 -0500
+
+    Uses moment.js in back/front end to solve TZ issues.
+
+commit 2be353666c6b3a1b0a1efea508f49e181272228b
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Dec 7 20:21:37 2024 -0500
+
+    Update disabled condition for EditItemModal.
+
+commit 5a434d3ed003953e1e5c46ff5445c03bde4acb0c
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Dec 7 14:45:37 2024 -0500
+
+    Fix refresh hook.
+
+commit 234a677b9a00a9157badfed0f6f601798d3a1979
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Dec 7 14:31:23 2024 -0500
+
+    Update handler for new lengthOfAuction and bring back check hook.
+
+commit 53d7c9eab733c5bf04355d68184e033e1d79308f
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Sat Dec 7 13:40:14 2024 -0500
+
+    Make length of auctionn field to DD:HH:MM:SS in frontend.
+
+commit bdcd8b94f93adb7b97cc5e7f47746b7e28b1c883
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Mon Dec 2 12:08:34 2024 -0500
+
+    minor changes
+
+commit b709ac8d12b4cf49c5fcb6737a4897bf71f71875
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 21:11:21 2024 -0500
+
+    Removed unused variable
+
+commit 5432823e5560f8ba8bdba0a8b059a43ab361dacc
+Merge: 9ac58e2 26ade48
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 18:37:55 2024 -0500
+
+    Merge pull request #16 from Vinayakrevankar/dev1
+
+commit 26ade48b75dd4ed8e2298d7ba0efc76060df8272
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 27 14:24:50 2024 -0500
+
+    Sort the bids in place and use the newest one for currentPrice.
+
+commit 9ac58e2c4994e9028b6e39097a8912904ad20c49
+Merge: 65ca99e e725e90
+Author: Vinayak Revankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 13:08:32 2024 -0500
+
+    Merge pull request #15 from Vinayakrevankar/dev1
+    
+    Issue in fulfilling item
+
+commit e725e906849663f0ca83bc90d817e1797d82182c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 13:03:29 2024 -0500
+
+    removed duplicate view
+
+commit 041f0dbc0f3495a5201f9d1ccc7e560ff3ae484d
+Merge: fae3dad 65ca99e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 12:58:51 2024 -0500
+
+    Merge branch 'main' of https://github.com/Vinayakrevankar/Auction-House-Contest into dev1
+
+commit 65ca99e52335d77195591f58c1e37827a21a69a5
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 11:43:20 2024 -0500
+
+    Add Bid modal ( missing from last commit)
+
+commit fae3dad6b8e4f45e573f40d6f7d524fa776291fc
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 27 11:13:25 2024 -0500
+
+    Make completed & failed items as expired no matter what.
+
+commit d6cf4b533ce2705dd86ab250d145ee2a2b3547f4
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 27 11:07:16 2024 -0500
+
+    Make fulfill items work by fixing several id format probs.
+
+commit 86fec31296324f84b91220533b48c7138a3ef550
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:25:33 2024 -0500
+
+    Minor change
+
+commit 9ec0db3a62e349c1d9786e4f85c99f169874ab26
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:20:29 2024 -0500
+
+    minor changes
+
+commit dfd624b8bb10078e2beda5a4de50cf6fa36d6058
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:15:59 2024 -0500
+
+    added funds view
+
+commit 10c85a538c5aab562ff7eb46c9fd18783159b451
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 09:00:31 2024 -0500
+
+    updated git report
+
+commit 48d05e5d0a77498180fd519b14c3639ea7a2b90e
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 09:00:05 2024 -0500
+
+    minor changes
+
+commit adf44833306f15cf0f68b17e99ef3c84605502e2
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 08:57:47 2024 -0500
+
+    added git report
+
+commit 5d57d4f6cbe7f7a31b3ffafa473c6e1e0971273c
+Author: Po-Yeh Chen <poyehchen@cs.nycu.edu.tw>
+Date:   Wed Nov 27 10:27:08 2024 -0500
+
+    Fix bidUserId format to use id instead of userId.
+    Since bidUserId is used in `fulfillItem` to locate user inside user
+    table.
+
+commit 50c1bb5b947afcc68d6c597a1a45ac58760a7c1c
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:25:33 2024 -0500
+
+    Minor change
+
+commit c9042998b12a8d2d8a0b8a8602691efb70d80dc5
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:20:29 2024 -0500
+
+    minor changes
+
+commit 5cdc9fdbd87eb2459bf2dc7ab038c060057fbae8
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 10:15:59 2024 -0500
+
+    added funds view
+
+commit b867c52b69e48f29014f497a742c5b0aeeabdaa1
+Author: vinayakrevankar <vinayakanrevankar@gmail.com>
+Date:   Wed Nov 27 09:00:31 2024 -0500
+
+    updated git report
+
 commit 2dca9605e734cd0b4e30002aa11fab4297788068
 Merge: a7a72ab 909a444
 Author: vinayakrevankar <vinayakanrevankar@gmail.com>
