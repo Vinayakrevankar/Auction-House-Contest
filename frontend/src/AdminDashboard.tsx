@@ -449,20 +449,14 @@ const AdminDashboard = () => {
       } else {
         notifySuccess(`${action==="freeze" ? 'Item has been frozen successfully.': 'Item has been unfrozen successfully.'}.`);
         fetchItems();
+        fetchFrozenItems();
       }
     } catch (error) {
       console.error("Error freezing item:", error);
       notifyError("Error: An error occurred while freezing the item.");
     }
   };
-
-  const setFrozenItem = useCallback(() => {
-      let admin = users.filter((user) => user.role === "admin");
-      const frozenRequests = admin.flatMap((user) => user.itemUnfreezeRequests || []);
-      const frozenItems = items.filter((item) => frozenRequests.includes(item.id));
-      setFrozenItems(frozenItems);
-  }, [users, items]);
-
+// eslint-disable-next-line
   const fetchItems = useCallback(async () => {
     try {
       const response = await itemSearch({
@@ -471,11 +465,28 @@ const AdminDashboard = () => {
       setItems(
         Array.isArray(response?.data?.payload) ? response.data.payload : []
       );
-      setFrozenItem(); 
     } catch (err) {
       notifyError(`Error fetching items`);
     }
-  }, [userInfo, setFrozenItem]); 
+    // eslint-disable-next-line
+  }, [userInfo]);
+  
+// eslint-disable-next-line
+  const fetchFrozenItems = useCallback( async() => {
+    try {
+      const response = await itemSearch({
+        headers: { Authorization: `${userInfo?.token}`},
+      });
+
+      let admin = users.filter((user) => user.role === "admin");
+      const frozenRequests = admin.flatMap((user) => user.itemUnfreezeRequests || []);
+      const frozenItems = Array.isArray(response.data?.payload) ? (response.data.payload as Item[]).filter((item) => frozenRequests.includes(item.id)) : [];
+      setFrozenItems(frozenItems);
+    } catch (err) {
+      notifyError(`Error fetching items`);
+    }
+   // eslint-disable-next-line
+  },[]);
   
 
 
@@ -484,7 +495,8 @@ const AdminDashboard = () => {
     fetchBids();
     fetchUsers()
     fetchItems();
-  }, [fetchFunds, fetchBids, fetchUsers, fetchItems]);  
+    fetchFrozenItems();
+  }, [fetchFunds, fetchBids, fetchUsers, fetchItems, fetchFrozenItems]);  
     const [showModal, setShowModal] = useState(false);
   
     const toggleModal = () => setShowModal(!showModal);

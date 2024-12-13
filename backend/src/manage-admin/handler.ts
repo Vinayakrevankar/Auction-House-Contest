@@ -38,7 +38,6 @@ export async function freezeItem(req: Request, res: Response) {
   const isFrozen = action === "freeze";
 
   try {
-    // Update the item's `isFrozen` attribute
     const updateCmd = new UpdateCommand({
       TableName: "dev-items3",
       Key: {
@@ -51,9 +50,7 @@ export async function freezeItem(req: Request, res: Response) {
       ReturnValues: "NONE",
     });
 
-    // If unfreezing, remove the itemId from `itemUnfreezeRequests` in the user table
     if (!isFrozen) {
-      // Retrieve the current user's itemUnfreezeRequests array
       const getUserCmd = new GetCommand({
         TableName: "dev-users3",
         Key: { id: ADMIN_ID },
@@ -62,30 +59,25 @@ export async function freezeItem(req: Request, res: Response) {
       const userResponse = await dclient.send(getUserCmd);
       const itemUnfreezeRequests: string[] = userResponse.Item?.itemUnfreezeRequests || [];
 
-      const index = itemUnfreezeRequests.indexOf(itemId);
-      if (index > -1) {
-        // Dynamically update the index if itemId exists in the array
+      const updatedRequests = itemUnfreezeRequests.filter((id) => id !== itemId);
+
+      if (updatedRequests.length !== itemUnfreezeRequests.length) {
+        // If the itemId was found and removed, update the user table
         const updateAdminCmd = new UpdateCommand({
           TableName: "dev-users3",
-          Key: {
-            id: ADMIN_ID,
-          },
-          UpdateExpression: "REMOVE itemUnfreezeRequests[ :index ]",
-          ConditionExpression: "contains(itemUnfreezeRequests, :itemId)",
+          Key: { id: ADMIN_ID },
+          UpdateExpression: "set itemUnfreezeRequests = :itemUnfreezeRequests",
           ExpressionAttributeValues: {
-            ":itemId": itemId,
-            ":index": index,
+            ":itemUnfreezeRequests": updatedRequests,
           },
         });
 
-        await dclient.send(updateAdminCmd); // Execute the update
+        await dclient.send(updateAdminCmd);
       }
     }
 
-    // Execute the item table update
     await dclient.send(updateCmd);
 
-    // Respond with success
     res.status(200).send({
       status: 200,
       message: `Item successfully ${isFrozen ? "frozen" : "unfrozen"}`,
@@ -94,7 +86,6 @@ export async function freezeItem(req: Request, res: Response) {
   } catch (err) {
     console.error("Error processing freeze/unfreeze:", err);
 
-    // Handle errors gracefully
     res.status(500).send({
       status: 500,
       message: "Internal Server Error",
