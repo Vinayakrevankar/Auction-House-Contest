@@ -171,7 +171,7 @@ const SellerDashboard = () => {
       filter: true,
     },
     {
-      field: "isFreezed",
+      field: "isFrozen",
       headerName: "Item Freezed",
       valueFormatter: (p: { value: boolean }) => (p.value ? "Yes" : "No"),
       getWidthOfColsInList: 100,
